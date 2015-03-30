@@ -32,7 +32,8 @@ public class AppConstants {
     public static final URI HOME_PAGE_URI_ORIGINAL = URI.create("https://kancolle.sanaechan.net/");
 
     /** アップデートチェック先 */
-    public static final URI UPDATE_CHECK_URI = URI.create("http://kancolle.sanaechan.net/checkversion.txt");
+    public static final URI UPDATE_CHECK_URI =
+            URI.create("https://raw.githubusercontent.com/Ibemu/logbook/plus/checkversion.txt");
 
     /** アップデートチェック先 */
     public static final URI UPDATE_CHECK_URI_ORIGINAL = URI.create("http://kancolle.sanaechan.net/checkversion.txt");
