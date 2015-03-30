@@ -1,8 +1,10 @@
 package logbook.data;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,6 +14,11 @@ import java.util.zip.GZIPInputStream;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
+
+import logbook.config.AppConfig;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * 同定されていない未加工のデータ
@@ -27,6 +34,10 @@ public class UndefinedData implements Data {
 
     private final Date date;
 
+    private final JsonObject json;
+
+    private final Map<String, String> field;
+
     /**
      * 未加工データのコンストラクター
      *
@@ -38,6 +49,51 @@ public class UndefinedData implements Data {
         this.request = request;
         this.response = response;
         this.date = Calendar.getInstance().getTime();
+        JsonObject json = null;
+        Map<String, String> field = null;
+        try {
+            // リクエストのフィールドを復号します
+            if (this.request != null) {
+                field = getQueryMap(URLDecoder.decode(new String(this.request).trim(), "UTF-8"));
+            }
+            // レスポンスのJSONを復号します
+            InputStream stream = new ByteArrayInputStream(this.response);
+            if ((this.response[0] == (byte) 0x1f) && (this.response[1] == (byte) 0x8b)) {
+                // レスポンスの先頭2バイトが0x1f, 0x8bであればgzip圧縮されている
+                stream = new GZIPInputStream(stream);
+            }
+            // レスポンスボディのJSONはsvdata=から始まるので除去します
+            int read;
+            while (((read = stream.read()) != -1) && (read != '=')) {
+            }
+
+            try (JsonReader jsonreader = Json.createReader(stream)) {
+                json = jsonreader.readObject();
+            }
+
+            if (AppConfig.get().isStoreJson()) {
+                try {
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd/HH-mm-ss.SSS");
+                    Date time = Calendar.getInstance().getTime();
+                    // ファイル名
+                    int i = url.lastIndexOf("/kcsapi/");
+                    String fname = new StringBuilder().append(format.format(time)).append(".json").toString();
+                    if (i >= 0) {
+                        fname = FilenameUtils.concat(url.substring(i + 8), fname);
+                    }
+                    // ファイルパス
+                    File file = new File(FilenameUtils.concat(AppConfig.get().getStoreJsonPath(), fname));
+
+                    FileUtils.writeStringToFile(file, json.toString());
+                } catch (Exception e) {
+                }
+            }
+        } catch (Exception e) {
+            field = null;
+            json = null;
+        }
+        this.field = field;
+        this.json = json;
     }
 
     @Override
@@ -75,27 +131,7 @@ public class UndefinedData implements Data {
 
             if (type != null) {
                 try {
-                    // リクエストのフィールドを復号します
-                    Map<String, String> field = null;
-                    if (this.request != null) {
-                        field = getQueryMap(URLDecoder.decode(new String(this.request).trim(), "UTF-8"));
-                    }
-                    // レスポンスのJSONを復号します
-                    InputStream stream = new ByteArrayInputStream(this.response);
-                    if ((this.response[0] == (byte) 0x1f) && (this.response[1] == (byte) 0x8b)) {
-                        // レスポンスの先頭2バイトが0x1f, 0x8bであればgzip圧縮されている
-                        stream = new GZIPInputStream(stream);
-                    }
-                    // レスポンスボディのJSONはsvdata=から始まるので除去します
-                    int read;
-                    while (((read = stream.read()) != -1) && (read != '=')) {
-                    }
-
-                    try (JsonReader jsonreader = Json.createReader(stream)) {
-                        JsonObject json = jsonreader.readObject();
-
-                        return new ActionData(type, this.date, json, field);
-                    }
+                    return new ActionData(type, this.date, this.json, this.field);
                 } catch (Exception e) {
                     return this;
                 }

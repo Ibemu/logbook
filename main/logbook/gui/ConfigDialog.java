@@ -1,5 +1,6 @@
 package logbook.gui;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -125,6 +126,9 @@ public final class ConfigDialog extends Dialog {
         TreeItem userscript = new TreeItem(extensionroot, SWT.NONE);
         userscript.setText("ユーザースクリプト");
         userscript.setData("userscript");
+        TreeItem development = new TreeItem(tree, SWT.NONE);
+        development.setText("Development");
+        development.setData("development");
 
         systemroot.setExpanded(true);
         extensionroot.setExpanded(true);
@@ -714,6 +718,34 @@ public final class ConfigDialog extends Dialog {
             }
         });
 
+        // Development タブ
+        Composite compositeDevelopment = new Composite(this.composite, SWT.NONE);
+        this.compositeMap.put("development", compositeDevelopment);
+        compositeDevelopment.setLayout(new GridLayout(2, false));
+
+        new Label(compositeDevelopment, SWT.NONE);
+        final Button btnJson = new Button(compositeDevelopment, SWT.CHECK);
+        btnJson.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        btnJson.setText("JSONを保存する");
+        btnJson.setSelection(AppConfig.get().isStoreJson());
+
+        Label lblJson = new Label(compositeDevelopment, SWT.NONE);
+        lblJson.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        lblJson.setText("JSON保存先");
+
+        final Text jsonpath = new Text(compositeDevelopment, SWT.BORDER);
+        GridData gdJsonpath = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+        gdJsonpath.widthHint = 120;
+        jsonpath.setLayoutData(gdJsonpath);
+        jsonpath.setText(AppConfig.get().getStoreJsonPath());
+
+        new Label(compositeDevelopment, SWT.NONE);
+        final Button btnCheckUpdateOrg = new Button(compositeDevelopment, SWT.CHECK);
+        btnCheckUpdateOrg.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        btnCheckUpdateOrg.setText("起動時に本家の更新チェック*");
+        btnCheckUpdateOrg.setSelection(AppConfig.get().isCheckUpdateOriginal());
+
+        // コマンドグループ
         Composite commandComposite = new Composite(this.shell, SWT.NONE);
         commandComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         GridLayout glCommandComposite = new GridLayout(2, false);
@@ -814,6 +846,10 @@ public final class ConfigDialog extends Dialog {
                 AppConfig.get().setUseUserScript(useScript.getSelection());
                 AppConfig.get().setUserScripts(scriptList.getItems());
                 AppConfig.get().setScriptEngines(engineList.getItems());
+                // development
+                AppConfig.get().setStoreJson(btnJson.getSelection());
+                AppConfig.get().setStoreJsonPath(new File(jsonpath.getText()).getAbsolutePath());
+                AppConfig.get().setCheckUpdate(btnCheckUpdateOrg.getSelection());
                 try {
                     AppConfig.store();
                 } catch (IOException ex) {

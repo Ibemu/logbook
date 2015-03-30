@@ -50,7 +50,7 @@ public final class BattleResultDto extends AbstractDto {
     private final String dropName;
 
     /** 戦闘詳細 */
-    private final BattleDto battle;
+    private final BattleDto[] battles;
 
     /**
      * コンストラクター
@@ -60,17 +60,17 @@ public final class BattleResultDto extends AbstractDto {
      * @param mapBossCellNo　ボスマス
      * @param eventId EventId
      * @param isStart 出撃
-     * @param battle 戦闘
+     * @param battles 戦闘
      */
-    public BattleResultDto(JsonObject object, int mapCellNo, int mapBossCellNo, int eventId, boolean isStart,
-            BattleDto battle) {
+    public BattleResultDto(JsonObject object, int mapCellNo, int mapBossCellNo, boolean isBoss, boolean isStart,
+            BattleDto[] battles) {
 
         this.battleDate = Calendar.getInstance().getTime();
         this.questName = object.getString("api_quest_name");
         this.rank = object.getString("api_win_rank");
         this.mapCellNo = mapCellNo;
         this.start = isStart;
-        this.boss = (mapCellNo == mapBossCellNo) || (eventId == 5);
+        this.boss = isBoss;
         this.enemyName = object.getJsonObject("api_enemy_info").getString("api_deck_name");
         this.dropShip = object.containsKey("api_get_ship");
         this.dropItem = object.containsKey("api_get_useitem");
@@ -88,7 +88,7 @@ public final class BattleResultDto extends AbstractDto {
             this.dropName = "";
         }
 
-        this.battle = battle;
+        this.battles = battles;
     }
 
     /**
@@ -193,7 +193,7 @@ public final class BattleResultDto extends AbstractDto {
      * @return 戦闘詳細
      */
     public BattleDto getBattleDto() {
-        return this.battle;
+        return this.battles[0];
     }
 
     /**
@@ -209,6 +209,14 @@ public final class BattleResultDto extends AbstractDto {
      * @return 戦闘詳細
      */
     public BattleDto getBattle() {
-        return this.battle;
+        return this.battles[0];
+    }
+
+    /**
+     * 戦闘詳細を取得します。
+     * @return 戦闘詳細
+     */
+    public BattleDto[] getBattles() {
+        return this.battles;
     }
 }

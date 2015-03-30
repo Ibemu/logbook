@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.swt.graphics.RGB;
 
 /**
@@ -140,6 +141,15 @@ public final class AppConfigBean {
 
     /** ボーキの色 */
     private RGB bauxiteColor = new RGB(0xCC, 0x33, 0x00);
+
+    /** 開発者オプション-JSONを保存する */
+    private boolean storeJson;
+
+    /** 開発者オプション-JSONの保存先 */
+    private String storeJsonPath = FilenameUtils.concat(new File("").getAbsolutePath(), "json");
+
+    /** 開発者オプション-本家の更新を通知する */
+    private boolean checkUpdateOriginal;
 
     /** テーブル列を表示する設定(キー:java.lang.Class.getName()) */
     private Map<String, boolean[]> visibleColumnMap = new HashMap<>();
@@ -858,6 +868,54 @@ public final class AppConfigBean {
      */
     public void setBauxiteColor(RGB bauxiteColor) {
         this.bauxiteColor = bauxiteColor;
+    }
+
+    /**
+     * 開発者オプション-JSONを保存するを取得します。
+     * @return 開発者オプション-JSONを保存する
+     */
+    public boolean isStoreJson() {
+        return this.storeJson;
+    }
+
+    /**
+     * 開発者オプション-JSONを保存するを設定します。
+     * @param storeJson 開発者オプション-JSONを保存する
+     */
+    public void setStoreJson(boolean storeJson) {
+        this.storeJson = storeJson;
+    }
+
+    /**
+     * 開発者オプション-JSONの保存先を取得します。
+     * @return 開発者オプション-JSONの保存先
+     */
+    public String getStoreJsonPath() {
+        return this.storeJsonPath;
+    }
+
+    /**
+     * 開発者オプション-JSONの保存先を設定します。
+     * @param storeJsonPath 開発者オプション-JSONの保存先
+     */
+    public void setStoreJsonPath(String storeJsonPath) {
+        this.storeJsonPath = storeJsonPath;
+    }
+
+    /**
+     * 開発者オプション-本家の更新を通知するを取得します。
+     * @return 開発者オプション-本家の更新を通知する
+     */
+    public boolean isCheckUpdateOriginal() {
+        return this.checkUpdateOriginal;
+    }
+
+    /**
+     * 開発者オプション-本家の更新を通知するを設定します。
+     * @param storeJson 開発者オプション-本家の更新を通知する
+     */
+    public void setCheckUpdateOriginal(boolean checkUpdateOriginal) {
+        this.checkUpdateOriginal = checkUpdateOriginal;
     }
 
     /**

@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import logbook.config.AppConfig;
 import logbook.config.ItemConfig;
 import logbook.config.ItemMasterConfig;
+import logbook.config.QuestConfig;
 import logbook.config.ShipConfig;
 import logbook.config.ShipGroupConfig;
 import logbook.constants.AppConstants;
@@ -93,11 +94,15 @@ public final class ApplicationMain {
                 ShipGroupConfig.store();
                 ItemMasterConfig.store();
                 ItemConfig.store();
+                QuestConfig.store();
             } catch (Exception e) {
                 LOG.fatal("シャットダウンスレッドで異常終了しました", e);
             }
         }
     }
+
+    /** インスタンス */
+    private static ApplicationMain window;
 
     /** シェル */
     private Shell shell;
@@ -170,10 +175,11 @@ public final class ApplicationMain {
             ShipGroupConfig.load();
             ItemMasterConfig.load();
             ItemConfig.load();
+            QuestConfig.load();
             // シャットダウンフックを登録します
             Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookThread()));
             // アプリケーション開始
-            ApplicationMain window = new ApplicationMain();
+            window = new ApplicationMain();
             window.open();
         } catch (Error e) {
             LOG.fatal("メインスレッドが異常終了しました", e);
@@ -328,6 +334,20 @@ public final class ApplicationMain {
                 new QuestTable(ApplicationMain.this.shell).open();
             }
         });
+
+        // セパレータ
+        new MenuItem(cmdmenu, SWT.SEPARATOR);
+        // コマンド-出撃報告
+        MenuItem cmdsortie = new MenuItem(cmdmenu, SWT.NONE);
+        cmdsortie.setText("出撃報告(&R)\tCtrl+R");
+        cmdsortie.setAccelerator(SWT.CTRL + 'R');
+        cmdsortie.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                new SortieDialog(ApplicationMain.this.shell).open();
+            }
+        });
+
         // セパレータ
         new MenuItem(cmdmenu, SWT.SEPARATOR);
         // 表示-縮小表示
@@ -698,6 +718,13 @@ public final class ApplicationMain {
         if (AppConfig.get().isCheckUpdate()) {
             executor.submit(new AsyncExecUpdateCheck(this.shell));
         }
+    }
+
+    /**
+     * @return window
+     */
+    public static ApplicationMain getWindow() {
+        return window;
     }
 
     /**

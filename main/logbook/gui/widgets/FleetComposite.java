@@ -337,6 +337,12 @@ public class FleetComposite extends Composite {
         int totalSakutekiSurvey = 0;
         // 電探索敵値計
         int totalSakutekiRader = 0;
+        // 2-5式(秋)索敵値計
+        double totalSakutekiAutumn = Math.ceil(GlobalContext.hqLevel() / 5.0) * 5 * -0.61;
+        // ドラム缶計
+        int totalDrum = 0;
+        // ドラム缶所持艦娘計
+        int totalDrumShip = 0;
 
         for (int i = 0; i < ships.size(); i++) {
             ShipDto ship = ships.get(i);
@@ -460,17 +466,67 @@ public class FleetComposite extends Composite {
                 }
             }
             // ステータス.ダメコン
+            // 装備
             List<ItemDto> item = ship.getItem();
+            List<String> names = new ArrayList<String>();
             int dmgcsty = 0;
             int dmgcstm = 0;
+            boolean drum = false;
+            // 索敵値計(秋)
+            long saku = ship.getSakuteki();
             for (ItemDto itemDto : item) {
                 if (itemDto != null) {
                     if (itemDto.getName().equals("応急修理要員")) {
                         dmgcsty++;
                     } else if (itemDto.getName().equals("応急修理女神")) {
                         dmgcstm++;
+                    } else if (itemDto.getName().equals("ドラム缶(輸送用)")) {
+                        totalDrum++;
+                        drum = true;
                     }
+                    // 索敵値計(秋)
+                    switch (itemDto.getType2())
+                    {
+                    case 7:
+                        //艦上爆撃機
+                        totalSakutekiAutumn += itemDto.getSaku() * 1.04;
+                        break;
+                    case 8:
+                        //艦上攻撃機
+                        totalSakutekiAutumn += itemDto.getSaku() * 1.37;
+                        break;
+                    case 9:
+                        //艦上偵察機
+                        totalSakutekiAutumn += itemDto.getSaku() * 1.66;
+                        break;
+                    case 10:
+                        //水上偵察機
+                        totalSakutekiAutumn += itemDto.getSaku() * 2.00;
+                        break;
+                    case 11:
+                        //水上爆撃機
+                        totalSakutekiAutumn += itemDto.getSaku() * 1.78;
+                        break;
+                    case 12:
+                        //小型電探
+                        totalSakutekiAutumn += itemDto.getSaku() * 1.00;
+                        break;
+                    case 13:
+                        //大型電探
+                        totalSakutekiAutumn += itemDto.getSaku() * 0.99;
+                        break;
+                    case 29:
+                        //探照灯
+                        totalSakutekiAutumn += itemDto.getSaku() * 0.91;
+                        break;
+                    }
+                    saku -= itemDto.getSaku();
+                    names.add(itemDto.getName());
                 }
+            }
+            totalSakutekiAutumn += Math.sqrt(saku) * 1.69;
+            if (drum) {
+                totalDrumShip++;
             }
             if (dmgcsty > 0) {
                 this.dmgcstyLabels[i].setText("要員x" + dmgcsty);
@@ -553,7 +609,7 @@ public class FleetComposite extends Composite {
             // 名前
             this.nameLabels[i].setText(ship.getName());
             this.nameLabels[i].setToolTipText(MessageFormat.format(AppConstants.TOOLTIP_FLEETTAB_SHIP, nowhp, maxhp,
-                    fuel, fuelmax, bull, bullmax, ship.getNext()));
+                    fuel, fuelmax, bull, bullmax, ship.getNext(), StringUtils.join(names, "\n  ")));
             this.lvLabels[i].setText(MessageFormat.format("(Lv.{0})", ship.getLv()));
             // HP
             this.hpLabels[i].setText(MessageFormat.format("{0}/{1} ", nowhp, maxhp));
@@ -630,9 +686,13 @@ public class FleetComposite extends Composite {
         // 制空
         this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_SEIKU, seiku), null);
         // 索敵
-        this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_SAKUTEKI, sakuteki), null);
+        this.addStyledText(this.message,
+                MessageFormat.format(AppConstants.MESSAGE_SAKUTEKI, sakuteki, totalSakutekiAutumn), null);
         // 合計Lv
         this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_TOTAL_LV, totallv), null);
+        // ドラム缶
+        this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_DRUM, totalDrumShip, totalDrum),
+                null);
 
         this.updateTabIcon();
         this.postFatal();

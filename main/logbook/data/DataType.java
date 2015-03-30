@@ -45,6 +45,10 @@ public enum DataType {
     COMBINED_BATTLE("/kcsapi/api_req_combined_battle/battle"),
     /** 戦闘 */
     COMBINED_BATTLE_WATER("/kcsapi/api_req_combined_battle/battle_water"),
+    /** 戦闘(夜戦) */
+    COMBINED_MIDNIGHT_BATTLE("/kcsapi/api_req_combined_battle/midnight_battle"),
+    /** 戦闘(夜戦) */
+    COMBINED_SP_MIDNIGHT("/kcsapi/api_req_combined_battle/sp_midnight"),
     /** 戦闘結果 */
     BATTLE_RESULT("/kcsapi/api_req_sortie/battleresult"),
     /** 戦闘結果(連合艦隊) */
@@ -73,6 +77,10 @@ public enum DataType {
     QUEST_CLEAR("/kcsapi/api_req_quest/clearitemget"),
     /** 設定 */
     START2("/kcsapi/api_start2"),
+    /** 演習結果 */
+    PRACTICE_RESULT("/kcsapi/api_req_practice/battle_result"),
+    /** 入渠 */
+    NYUKYO("/kcsapi/api_req_nyukyo/start"),
     /** フィルタ前のデータ */
     UNDEFINED(null);
 
