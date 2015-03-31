@@ -81,6 +81,8 @@
             <include name="logbook/gui/logic/CreateReportLogic$*.class"/>
             <include name="logbook/gui/widgets/FleetComposite.class"/>
             <include name="logbook/gui/widgets/FleetComposite$*.class"/>
+            <include name="logbook/internal/QuestDue.class"/>
+            <include name="logbook/internal/QuestDue$*.class"/>
             <include name="logbook/internal/SortiePhase.class"/>
             <include name="logbook/internal/SortiePhase$*.class"/>
         </zip>

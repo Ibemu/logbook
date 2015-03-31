@@ -149,7 +149,7 @@ public final class AppConfigBean {
     private String storeJsonPath = FilenameUtils.concat(new File("").getAbsolutePath(), "json");
 
     /** 開発者オプション-本家の更新を通知する */
-    private boolean checkUpdateOriginal;
+    private boolean checkUpdateOriginal = false;
 
     /** テーブル列を表示する設定(キー:java.lang.Class.getName()) */
     private Map<String, boolean[]> visibleColumnMap = new HashMap<>();

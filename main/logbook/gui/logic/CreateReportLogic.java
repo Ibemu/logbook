@@ -588,7 +588,7 @@ public final class CreateReportLogic {
      * @return
      */
     public static String[] getCreateQuestHeader() {
-        return new String[] { "", "状態", "タイトル", "内容", "燃料", "弾薬", "鋼材", "ボーキ", "出撃", "戦闘勝利", "戦闘S",
+        return new String[] { "", "状態", "タイトル", "内容", "燃料", "弾薬", "鋼材", "ボーキ", "期限", "出撃", "戦闘勝利", "戦闘S",
                 "ボス到達", "ボス勝利", "1-4S", "1-5A", "南西", "3-3+", "西方", "4-4", "5-2S", "6-1S", "補給艦", "空母", "潜水艦",
                 "演習", "演習勝利", "遠征", "建造", "開発", "解体", "廃棄", "補給", "入渠", "改修" };
     }
@@ -601,9 +601,13 @@ public final class CreateReportLogic {
     public static List<String[]> getQuestBody() {
         List<Object[]> body = new ArrayList<Object[]>();
 
+        SimpleDateFormat format = new SimpleDateFormat(AppConstants.DATE_FORMAT);
+
         for (Entry<Integer, QuestDto> entry : GlobalContext.getQuest().entrySet()) {
             QuestDto quest = entry.getValue();
             QuestBean bean = QuestConfig.get(quest.getNo());
+            if (bean == null)
+                bean = new QuestBean();
 
             String state = "";
             switch (quest.getState()) {
@@ -614,6 +618,9 @@ public final class CreateReportLogic {
                 state = "達成";
                 break;
             }
+            String due = "";
+            if (bean.getDue() != null)
+                due = format.format(bean.getDue());
 
             body.add(new Object[] {
                     quest.getNo(),
@@ -624,6 +631,7 @@ public final class CreateReportLogic {
                     quest.getAmmo(),
                     quest.getMetal(),
                     quest.getBauxite(),
+                    due,
                     bean.getSortie().size(),
                     bean.getBattleWin().size(),
                     bean.getBattleWinS().size(),

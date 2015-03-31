@@ -51,6 +51,7 @@ import logbook.gui.logic.CreateReportLogic;
 import logbook.gui.logic.Sound;
 import logbook.internal.Deck;
 import logbook.internal.Item;
+import logbook.internal.QuestDue;
 import logbook.internal.Ship;
 import logbook.internal.ShipStyle;
 import logbook.internal.SortiePhase;
@@ -134,9 +135,6 @@ public final class GlobalContext {
 
     /** 任務Map */
     private static SortedMap<Integer, QuestDto> questMap = new ConcurrentSkipListMap<Integer, QuestDto>();
-
-    /** 任務削除スレッド */
-    private static Thread questThread = null;
 
     /** 出撃中か */
     private static boolean[] isSortie = new boolean[4];
@@ -612,7 +610,7 @@ public final class GlobalContext {
                 Date now = new Date();
                 for (Integer no : QuestConfig.getNoList()) {
                     QuestBean bean = QuestConfig.get(no);
-                    if (bean.getExecuting()) {
+                    if ((bean != null) && bean.getExecuting()) {
                         bean.countCharge(now);
                     }
                 }
@@ -841,7 +839,7 @@ public final class GlobalContext {
                 Date now = new Date();
                 for (Integer no : QuestConfig.getNoList()) {
                     QuestBean bean = QuestConfig.get(no);
-                    if (bean.getExecuting()) {
+                    if ((bean != null) && bean.getExecuting()) {
                         if (win) {
                             bean.countBattleWin(now);
                         }
@@ -1015,7 +1013,7 @@ public final class GlobalContext {
             Date now = new Date();
             for (Integer no : QuestConfig.getNoList()) {
                 QuestBean bean = QuestConfig.get(no);
-                if (bean.getExecuting()) {
+                if ((bean != null) && bean.getExecuting()) {
                     bean.countCreateShip(now);
                 }
             }
@@ -1136,7 +1134,7 @@ public final class GlobalContext {
             Date now = new Date();
             for (Integer no : QuestConfig.getNoList()) {
                 QuestBean bean = QuestConfig.get(no);
-                if (bean.getExecuting()) {
+                if ((bean != null) && bean.getExecuting()) {
                     bean.countCreateItem(now);
                 }
             }
@@ -1328,7 +1326,7 @@ public final class GlobalContext {
             Date now = new Date();
             for (Integer no : QuestConfig.getNoList()) {
                 QuestBean bean = QuestConfig.get(no);
-                if (bean.getExecuting()) {
+                if ((bean != null) && bean.getExecuting()) {
                     bean.countDestroyShip(now);
                 }
             }
@@ -1356,7 +1354,7 @@ public final class GlobalContext {
             Date now = new Date();
             for (Integer no : QuestConfig.getNoList()) {
                 QuestBean bean = QuestConfig.get(no);
-                if (bean.getExecuting()) {
+                if ((bean != null) && bean.getExecuting()) {
                     bean.countDestroyItem(now);
                 }
             }
@@ -1394,7 +1392,7 @@ public final class GlobalContext {
                 Date now = new Date();
                 for (Integer no : QuestConfig.getNoList()) {
                     QuestBean bean = QuestConfig.get(no);
-                    if (bean.getExecuting()) {
+                    if ((bean != null) && bean.getExecuting()) {
                         bean.countPowerUp(now);
                     }
                 }
@@ -1533,7 +1531,7 @@ public final class GlobalContext {
                 Date now = new Date();
                 for (Integer no : QuestConfig.getNoList()) {
                     QuestBean bean = QuestConfig.get(no);
-                    if (bean.getExecuting()) {
+                    if ((bean != null) && bean.getExecuting()) {
                         bean.countMissionSuccess(now);
                     }
                 }
@@ -1595,18 +1593,8 @@ public final class GlobalContext {
     private static void doQuest(Data data) {
         try {
             JsonObject apidata = data.getJsonObject().getJsonObject("api_data");
-            List<Integer> nolist = new ArrayList<Integer>();
-            int min = 999;
-            int max = 0;
             if (!apidata.isNull("api_list")) {
                 JsonArray apilist = apidata.getJsonArray("api_list");
-                if (apidata.getJsonNumber("api_disp_page").intValue() == 1) {
-                    min = 0;
-                }
-                if (apidata.getJsonNumber("api_disp_page").intValue()
-                == apidata.getJsonNumber("api_page_count").intValue()) {
-                    max = 999;
-                }
                 for (JsonValue value : apilist) {
                     if (value instanceof JsonObject) {
                         JsonObject questobject = (JsonObject) value;
@@ -1626,51 +1614,32 @@ public final class GlobalContext {
                         quest.setBonusFlag(questobject.getInt("api_bonus_flag"));
                         quest.setProgressFlag(questobject.getInt("api_progress_flag"));
 
-                        questMap.put(quest.getNo(), quest);
-
                         QuestBean bean = QuestConfig.get(quest.getNo());
                         if (bean == null) {
                             bean = new QuestBean();
                         }
+                        switch (quest.getType())
+                        {
+                        case 2:
+                        case 4:
+                        case 5:
+                            bean.setDue(QuestDue.getDaily());
+                            break;
+                        case 3:
+                            bean.setDue(QuestDue.getWeekly());
+                            break;
+                        case 6:
+                            bean.setDue(QuestDue.getMonthly());
+                            break;
+                        default:
+                            break;
+                        }
                         bean.setExecuting(quest.getState() == 2);
                         QuestConfig.put(quest.getNo(), bean);
-
-                        nolist.add(quest.getNo());
-                        if (quest.getNo() < min) {
-                            min = quest.getNo();
-                        }
-                        if (quest.getNo() > max) {
-                            max = quest.getNo();
-                        }
+                        questMap.put(quest.getNo(), quest);
                     }
                 }
-                if (questThread != null) {
-                    questThread.interrupt();
-                    questThread.join();
-                }
-                questThread = new Thread() {
-                    private int min;
-                    private int max;
-                    private List<Integer> nolist;
-
-                    public Thread set(int min, int max, List<Integer> nolist) {
-                        this.min = min;
-                        this.max = max;
-                        this.nolist = nolist;
-                        return this;
-                    }
-
-                    @Override
-                    public void run() {
-                        for (int i = this.min; (i <= this.max) && !this.interrupted(); i++) {
-                            if (!this.nolist.contains(i)) {
-                                QuestConfig.remove(i);
-                                questMap.remove(i);
-                            }
-                        }
-                    }
-                }.set(min, max, nolist);
-                questThread.start();
+                QuestConfig.store();
             }
             addConsole("任務を更新しました");
         } catch (Exception e) {
@@ -1731,7 +1700,7 @@ public final class GlobalContext {
             Date now = new Date();
             for (Integer no : QuestConfig.getNoList()) {
                 QuestBean bean = QuestConfig.get(no);
-                if (bean.getExecuting()) {
+                if ((bean != null) && bean.getExecuting()) {
                     bean.countSortie(now);
                 }
             }
@@ -1823,7 +1792,7 @@ public final class GlobalContext {
                 Date now = new Date();
                 for (Integer no : QuestConfig.getNoList()) {
                     QuestBean bean = QuestConfig.get(no);
-                    if (bean.getExecuting()) {
+                    if ((bean != null) && bean.getExecuting()) {
                         bean.countPractice(now);
                         if (win) {
                             bean.countPracticeWin(now);
@@ -1849,7 +1818,7 @@ public final class GlobalContext {
             Date now = new Date();
             for (Integer no : QuestConfig.getNoList()) {
                 QuestBean bean = QuestConfig.get(no);
-                if (bean.getExecuting()) {
+                if ((bean != null) && bean.getExecuting()) {
                     bean.countRepair(now);
                 }
             }
