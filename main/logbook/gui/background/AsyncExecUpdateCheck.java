@@ -35,9 +35,9 @@ public final class AsyncExecUpdateCheck implements Runnable {
     @Override
     public void run() {
         try {
-            final String newversion = IOUtils.toString(AppConstants.UPDATE_CHECK_URI);
+            final String newversion = IOUtils.toString(AppConstants.UPDATE_CHECK_URI_PLUS);
 
-            if (!AppConstants.VERSION.equals(newversion)) {
+            if (!AppConstants.VERSION_FULL.equals(newversion)) {
                 Display.getDefault().asyncExec(new Runnable() {
                     @Override
                     public void run() {
@@ -52,14 +52,14 @@ public final class AsyncExecUpdateCheck implements Runnable {
                                 | SWT.ICON_QUESTION);
                         box.setText("新しいバージョン");
                         box.setMessage("新しいバージョンがあります。ホームページを開きますか？\r\n"
-                                + "現在のバージョン:" + AppConstants.VERSION + "\r\n"
+                                + "現在のバージョン:" + AppConstants.VERSION_FULL + "\r\n"
                                 + "新しいバージョン:" + newversion + "\r\n"
                                 + "※自動アップデートチェックは[その他]-[設定]からOFFに出来ます");
 
                         // OKを押されたらホームページへ移動する
                         if (box.open() == SWT.YES) {
                             try {
-                                Desktop.getDesktop().browse(AppConstants.HOME_PAGE_URI);
+                                Desktop.getDesktop().browse(AppConstants.HOME_PAGE_URI_PLUS);
                             } catch (Exception e) {
                                 LOG.warn("ウェブサイトに移動が失敗しました", e);
                             }
@@ -69,9 +69,9 @@ public final class AsyncExecUpdateCheck implements Runnable {
             }
             else if (AppConfig.get().isCheckUpdateOriginal())
             {
-                final String newversionorg = IOUtils.toString(AppConstants.UPDATE_CHECK_URI_ORIGINAL);
+                final String newversionorg = IOUtils.toString(AppConstants.UPDATE_CHECK_URI);
 
-                if (!AppConstants.VERSION_ORIGINAL.equals(newversionorg)) {
+                if (!AppConstants.VERSION.equals(newversionorg)) {
                     Display.getDefault().asyncExec(new Runnable() {
                         @Override
                         public void run() {
@@ -86,14 +86,14 @@ public final class AsyncExecUpdateCheck implements Runnable {
                                     | SWT.ICON_QUESTION);
                             box.setText("新しいバージョン(本家)");
                             box.setMessage("本家のバージョンが更新されました。ホームページを開きますか？\r\n"
-                                    + "現在のバージョン:" + AppConstants.VERSION_ORIGINAL + "\r\n"
+                                    + "現在のバージョン:" + AppConstants.VERSION + "\r\n"
                                     + "新しいバージョン:" + newversionorg + "\r\n"
                                     + "※自動アップデートチェックは[その他]-[設定]からOFFに出来ます");
 
                             // OKを押されたらホームページへ移動する
                             if (box.open() == SWT.YES) {
                                 try {
-                                    Desktop.getDesktop().browse(AppConstants.HOME_PAGE_URI_ORIGINAL);
+                                    Desktop.getDesktop().browse(AppConstants.HOME_PAGE_URI);
                                 } catch (Exception e) {
                                     LOG.warn("ウェブサイトに移動が失敗しました", e);
                                 }

@@ -17,26 +17,29 @@ public class AppConstants {
     public static final String NAME = "航海日誌";
 
     /**　アプリケーション名 */
-    public static final String EDITION = "+";
+    public static final String PLUS = "+";
 
     /** バージョン */
-    public static final String VERSION = "0.8.1+1";
+    public static final String VERSION = "0.8.1";
 
     /** バージョン */
-    public static final String VERSION_ORIGINAL = "0.8.1";
+    public static final String VERSION_PLUS = "1.0.0";
+
+    /** バージョン */
+    public static final String VERSION_FULL = VERSION + "+" + VERSION_PLUS;
 
     /** ホームページ */
-    public static final URI HOME_PAGE_URI = URI.create("https://github.com/Ibemu/logbook");
+    public static final URI HOME_PAGE_URI = URI.create("https://kancolle.sanaechan.net/");
 
     /** ホームページ */
-    public static final URI HOME_PAGE_URI_ORIGINAL = URI.create("https://kancolle.sanaechan.net/");
+    public static final URI HOME_PAGE_URI_PLUS = URI.create("https://github.com/Ibemu/logbook");
 
     /** アップデートチェック先 */
-    public static final URI UPDATE_CHECK_URI =
+    public static final URI UPDATE_CHECK_URI = URI.create("http://kancolle.sanaechan.net/checkversion.txt");
+
+    /** アップデートチェック先 */
+    public static final URI UPDATE_CHECK_URI_PLUS =
             URI.create("https://raw.githubusercontent.com/Ibemu/logbook/plus/checkversion.txt");
-
-    /** アップデートチェック先 */
-    public static final URI UPDATE_CHECK_URI_ORIGINAL = URI.create("http://kancolle.sanaechan.net/checkversion.txt");
 
     /** 日付書式 */
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";

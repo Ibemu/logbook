@@ -73,6 +73,9 @@ public final class VersionDialog extends Dialog {
         label("航海日誌", versionGroup);
         label(AppConstants.VERSION, versionGroup);
 
+        label("航海日誌+", versionGroup);
+        label(AppConstants.VERSION_PLUS, versionGroup);
+
         Link gowebsite = new Link(versionGroup, SWT.NONE);
         gowebsite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL, SWT.CENTER, false, false, 2, 1));
         gowebsite.setText("<a>クリックするとウェブサイトに移動します</a>");

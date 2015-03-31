@@ -227,7 +227,7 @@ public final class ApplicationMain {
             shellStyle |= SWT.ON_TOP;
         }
         this.shell = new Shell(shellStyle);
-        this.shell.setText(AppConstants.NAME + AppConstants.EDITION + " " + AppConstants.VERSION);
+        this.shell.setText(AppConstants.NAME + AppConstants.PLUS + " " + AppConstants.VERSION_FULL);
         this.shell.setAlpha(AppConfig.get().getAlpha());
         GridLayout glShell = new GridLayout(1, false);
         glShell.horizontalSpacing = 1;
