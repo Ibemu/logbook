@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Text;
 
 /**
  * 所有艦娘一覧で使用するフィルターダイアログ
- * 
+ *
  */
 public final class ShipFilterDialog extends Dialog {
 
@@ -105,7 +105,7 @@ public final class ShipFilterDialog extends Dialog {
 
     /**
      * Create the dialog.
-     * 
+     *
      * @param parent シェル
      * @param shipTable 呼び出し元
      * @param filter 初期値
@@ -163,7 +163,6 @@ public final class ShipFilterDialog extends Dialog {
 
         this.nametext = new Text(namegroup, SWT.BORDER);
         this.nametext.setLayoutData(new RowData(180, SWT.DEFAULT));
-        this.nametext.addModifyListener(new ApplyFilterModifyAdapter());
 
         this.regexp = new Button(namegroup, SWT.CHECK);
         this.regexp.setText("正規表現");
@@ -403,13 +402,14 @@ public final class ShipFilterDialog extends Dialog {
             // 鍵付きではない
             this.notlocked.setSelection(this.filter.notlocked);
         }
+        this.nametext.addModifyListener(new ApplyFilterModifyAdapter());
 
         this.shell.pack();
     }
 
     /**
      * フィルターを構成する
-     * 
+     *
      * @return フィルター
      */
     private ShipFilterDto createFilter() {

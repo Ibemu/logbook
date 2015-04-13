@@ -17,9 +17,9 @@ import logbook.dto.DockDto;
 import logbook.dto.NdockDto;
 import logbook.dto.ShipDto;
 import logbook.gui.ApplicationMain;
-import logbook.gui.logic.Sound;
 import logbook.gui.logic.TimeLogic;
 import logbook.gui.widgets.FleetComposite;
+import logbook.thread.PlayerThread;
 import logbook.util.SwtUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -201,13 +201,13 @@ public final class AsyncExecApplicationMain extends Thread {
             // 遠征を更新する
             if (this.updateDeck(now)) {
                 noticeflg = true;
-                Sound.randomExpeditionSoundPlay();
+                PlayerThread.randomExpeditionSoundPlay();
                 visibleHome |= AppConfig.get().isVisibleOnReturnMission();
             }
             // 入渠を更新する
             if (this.updateNdock(now)) {
                 noticeflg = true;
-                Sound.randomDockSoundPlay();
+                PlayerThread.randomDockSoundPlay();
                 visibleHome |= AppConfig.get().isVisibleOnReturnBathwater();
             }
             if (visibleHome) {

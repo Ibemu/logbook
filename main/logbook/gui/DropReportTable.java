@@ -62,7 +62,7 @@ public final class DropReportTable extends AbstractTableDialog {
 
     @Override
     protected TableItemCreator getTableItemCreator() {
-        return CreateReportLogic.DEFAULT_TABLE_ITEM_CREATOR;
+        return TableItemCreator.DEFAULT_TABLE_ITEM_CREATOR;
     }
 
     @Override

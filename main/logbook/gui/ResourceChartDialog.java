@@ -253,7 +253,7 @@ public final class ResourceChartDialog extends Dialog {
      * テーブルボディーをセットする
      */
     private void setTableBody() {
-        TableItemCreator creator = CreateReportLogic.DEFAULT_TABLE_ITEM_CREATOR;
+        TableItemCreator creator = TableItemCreator.DEFAULT_TABLE_ITEM_CREATOR;
         creator.init();
         for (int i = 0; i < this.body.size(); i++) {
             String[] line = this.body.get(i);

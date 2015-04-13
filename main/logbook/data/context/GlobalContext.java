@@ -48,13 +48,13 @@ import logbook.dto.ShipDto;
 import logbook.dto.ShipInfoDto;
 import logbook.gui.ApplicationMain;
 import logbook.gui.logic.CreateReportLogic;
-import logbook.gui.logic.Sound;
 import logbook.internal.Deck;
 import logbook.internal.Item;
 import logbook.internal.QuestDue;
 import logbook.internal.Ship;
 import logbook.internal.ShipStyle;
 import logbook.internal.SortiePhase;
+import logbook.thread.PlayerThread;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -460,7 +460,7 @@ public final class GlobalContext {
                 break;
             // 遠征
             case MISSION_START:
-                doMissionResult(data);
+                doMission(data);
                 break;
             // 遠征(帰還)
             case MISSION_RESULT:
@@ -512,6 +512,10 @@ public final class GlobalContext {
                 break;
             // 海戦
             case BATTLE_NIGHT_TO_DAY:
+                doBattle(data);
+                break;
+            // 海戦
+            case BATTLE_AIRBATTLE:
                 doBattle(data);
                 break;
             // 海戦
@@ -959,7 +963,7 @@ public final class GlobalContext {
                                     tip.setVisible(true);
                                 }
                                 // 大破時にサウンドを再生する
-                                Sound.randomBadlySoundPlay();
+                                PlayerThread.randomBadlySoundPlay();
                             }
                         }
                     }.set(sps);

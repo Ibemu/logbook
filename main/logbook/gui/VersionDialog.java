@@ -70,7 +70,7 @@ public final class VersionDialog extends Dialog {
         versionGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         versionGroup.setLayout(new GridLayout(2, true));
 
-        label("航海日誌", versionGroup);
+        label(AppConstants.NAME, versionGroup);
         label(AppConstants.VERSION, versionGroup);
 
         label("", versionGroup);

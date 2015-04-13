@@ -157,6 +157,9 @@ public final class AppConfigBean {
     /** ウインドウ位置とサイズ(キー:java.lang.Class.getName()) */
     private Map<String, WindowLocationBean> windowLocationMap = new HashMap<>();
 
+    /** 定期的に再読み込みする設定(キー:java.lang.Class.getName()) */
+    private Map<String, Boolean> cyclicReloadMap = new HashMap<>();
+
     /** ユーザースクリプトを使用する */
     private boolean useUserScript;
 
@@ -948,6 +951,22 @@ public final class AppConfigBean {
      */
     public void setWindowLocationMap(Map<String, WindowLocationBean> windowLocationMap) {
         this.windowLocationMap = windowLocationMap;
+    }
+
+    /**
+     * 定期的に再読み込みする設定(キー:java.lang.Class.getName())を取得します。
+     * @return 定期的に再読み込みする設定(キー:java.lang.Class.getName())
+     */
+    public Map<String, Boolean> getCyclicReloadMap() {
+        return this.cyclicReloadMap;
+    }
+
+    /**
+     * 定期的に再読み込みする設定(キー:java.lang.Class.getName())を設定します。
+     * @param cyclicReloadMap 定期的に再読み込みする設定(キー:java.lang.Class.getName())
+     */
+    public void setCyclicReloadMap(Map<String, Boolean> cyclicReloadMap) {
+        this.cyclicReloadMap = cyclicReloadMap;
     }
 
     /**

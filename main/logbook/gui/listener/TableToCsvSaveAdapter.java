@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import logbook.gui.logic.CreateReportLogic;
+import logbook.util.FileUtils;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -75,7 +75,7 @@ public final class TableToCsvSaveAdapter extends SelectionAdapter {
                     body.add(colums);
                 }
 
-                CreateReportLogic.writeCsv(file, this.header, body, false);
+                FileUtils.writeCsv(file, this.header, body, false);
             } catch (IOException e) {
                 MessageBox messageBox = new MessageBox(this.shell, SWT.ICON_ERROR);
                 messageBox.setText("書き込めませんでした");

@@ -18,9 +18,9 @@ import logbook.dto.ItemDto;
 import logbook.dto.ShipDto;
 import logbook.gui.ApplicationMain;
 import logbook.gui.TimerSettingDialog;
-import logbook.gui.logic.Sound;
 import logbook.internal.EvaluateExp;
 import logbook.internal.SeaExp;
+import logbook.thread.PlayerThread;
 import logbook.util.CalcExpUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -756,7 +756,7 @@ public class FleetComposite extends Composite {
                 tip.setVisible(true);
             }
             // 大破時にサウンドを再生する
-            Sound.randomBadlySoundPlay();
+            PlayerThread.randomBadlySoundPlay();
         }
     }
 

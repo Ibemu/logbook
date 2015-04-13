@@ -1,4 +1,4 @@
-package logbook.gui.logic;
+package logbook.thread;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,22 +22,35 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * サウンドを操作します
+ * プレイヤースレッド
  *
  */
-public final class Sound {
-
-    /** 再生待ち */
-    private static Queue<File> soundfileQueue = new ArrayBlockingQueue<File>(10);
+public final class PlayerThread implements Runnable {
 
     /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(Sound.class);
+    private static final Logger LOG = LogManager.getLogger(PlayerThread.class);
 
     /** バッファーサイズ */
     private static final int BUFFER_SIZE = 1024 * 8;
 
     /** 拡張子 */
     private static final String[] EXTENSIONS = { "wav" };
+
+    /** 再生待ち */
+    private static Queue<File> soundfileQueue = new ArrayBlockingQueue<File>(10);
+
+    @Override
+    public void run() {
+        try {
+            File file = soundfileQueue.poll();
+            if (file != null) {
+                play(file);
+            }
+        } catch (Exception e) {
+            LOG.fatal("スレッドが異常終了しました", e);
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * サウンドファイルを再生待ちキューに入れます
@@ -172,35 +185,5 @@ public final class Sound {
      */
     private static void controlByLinearScalar(FloatControl control, double linearScalar) {
         control.setValue((float) Math.log10(linearScalar) * 20);
-    }
-
-    /**
-     * プレイヤースレッド
-     *
-     */
-    public static class PlayerThread extends Thread {
-
-        /** ロガー */
-        private static final Logger LOG = LogManager.getLogger(PlayerThread.class);
-
-        /**
-         * プレイヤースレッド
-         */
-        public PlayerThread() {
-            this.setName("logbook_sound.player_thread");
-        }
-
-        @Override
-        public void run() {
-            try {
-                File file = soundfileQueue.poll();
-                if (file != null) {
-                    play(file);
-                }
-            } catch (Exception e) {
-                LOG.fatal("スレッドが異常終了しました", e);
-                throw new RuntimeException(e);
-            }
-        }
     }
 }

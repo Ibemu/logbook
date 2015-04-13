@@ -44,6 +44,15 @@ public final class ShipTable extends AbstractTableDialog {
     }
 
     /**
+     * @param parent
+     * @param filter
+     */
+    public ShipTable(Shell parent, ShipFilterDto filter) {
+        super(parent);
+        this.filter = filter;
+    }
+
+    /**
      * フィルターを設定する
      * @param filter フィルター
      */
@@ -216,7 +225,7 @@ public final class ShipTable extends AbstractTableDialog {
 
     @Override
     protected TableItemCreator getTableItemCreator() {
-        return CreateReportLogic.SHIP_LIST_TABLE_ITEM_CREATOR;
+        return TableItemCreator.SHIP_LIST_TABLE_ITEM_CREATOR;
     }
 
     @Override

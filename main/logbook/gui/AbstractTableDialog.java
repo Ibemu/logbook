@@ -5,8 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import logbook.config.AppConfig;
@@ -16,6 +15,7 @@ import logbook.gui.listener.TableToClipboardAdapter;
 import logbook.gui.listener.TableToCsvSaveAdapter;
 import logbook.gui.logic.LayoutLogic;
 import logbook.gui.logic.TableItemCreator;
+import logbook.thread.ThreadManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -23,6 +23,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -41,8 +43,8 @@ import org.eclipse.swt.widgets.TableItem;
  */
 public abstract class AbstractTableDialog extends Dialog {
 
-    /** タイマー */
-    protected Timer timer;
+    /** スケジューリングされた再読み込みタスク */
+    protected ScheduledFuture<?> future;
 
     /** ヘッダー */
     protected String[] header = this.getTableHeader();
@@ -129,10 +131,16 @@ public abstract class AbstractTableDialog extends Dialog {
         reload.setAccelerator(SWT.F5);
         reload.addSelectionListener(new TableReloadAdapter());
 
+        Boolean isCyclicReload = AppConfig.get().getCyclicReloadMap().get(this.getClass().getName());
         MenuItem cyclicReload = new MenuItem(this.opemenu, SWT.CHECK);
-        cyclicReload.setText("定期的に再読み込み(3秒)(&A)\tCtrl+F5");
+        cyclicReload.setText("定期的に再読み込み(&A)\tCtrl+F5");
         cyclicReload.setAccelerator(SWT.CTRL + SWT.F5);
-        cyclicReload.addSelectionListener(new CyclicReloadAdapter(cyclicReload));
+        if ((isCyclicReload != null) && isCyclicReload.booleanValue()) {
+            cyclicReload.setSelection(true);
+        }
+        CyclicReloadAdapter adapter = new CyclicReloadAdapter(cyclicReload);
+        cyclicReload.addSelectionListener(adapter);
+        adapter.setCyclicReload(cyclicReload);
 
         MenuItem selectVisible = new MenuItem(this.opemenu, SWT.NONE);
         selectVisible.setText("列の表示・非表示(&V)");
@@ -157,6 +165,15 @@ public abstract class AbstractTableDialog extends Dialog {
         // 列幅を整える
         this.packTableHeader();
 
+        // 閉じた時に設定を保存
+        this.shell.addShellListener(new ShellAdapter() {
+            @Override
+            public void shellClosed(ShellEvent e) {
+                AppConfig.get().getCyclicReloadMap()
+                        .put(AbstractTableDialog.this.getClass().getName(), cyclicReload.getSelection());
+            }
+        });
+
         this.createContents();
         this.shell.open();
         this.shell.layout();
@@ -166,9 +183,9 @@ public abstract class AbstractTableDialog extends Dialog {
                 this.display.sleep();
             }
         }
-        // タイマーの終了
-        if (this.timer != null) {
-            this.timer.cancel();
+        // タスクがある場合キャンセル
+        if (this.future != null) {
+            this.future.cancel(false);
         }
     }
 
@@ -298,7 +315,7 @@ public abstract class AbstractTableDialog extends Dialog {
 
     /**
      * テーブル行を作成するクリエイターを返します
-     * 
+     *
      * @return TableItemCreator
      */
     protected abstract TableItemCreator getTableItemCreator();
@@ -311,7 +328,7 @@ public abstract class AbstractTableDialog extends Dialog {
 
     /**
      * テーブルをソートします
-     * 
+     *
      * @param headerColumn ソートするカラム
      */
     protected void sortTableItems(TableColumn headerColumn) {
@@ -327,7 +344,7 @@ public abstract class AbstractTableDialog extends Dialog {
 
     /**
      * テーブルをソートします
-     * 
+     *
      * @param index カラムインデックス
      * @param headerColumn ソートするカラム
      */
@@ -431,7 +448,7 @@ public abstract class AbstractTableDialog extends Dialog {
 
         /**
          * 比較する
-         * 
+         *
          * @param o1
          * @param o2
          * @param order
@@ -479,48 +496,34 @@ public abstract class AbstractTableDialog extends Dialog {
 
         @Override
         public void widgetSelected(SelectionEvent e) {
-            if (this.menuitem.getSelection()) {
-                // タイマーを作成
-                if (AbstractTableDialog.this.timer == null) {
-                    AbstractTableDialog.this.timer = new Timer(true);
+            this.setCyclicReload(this.menuitem);
+        }
+
+        private void setCyclicReload(MenuItem menuitem) {
+            if (menuitem.getSelection()) {
+                Runnable command = () -> {
+                    if (!AbstractTableDialog.this.shell.isDisposed()) {
+                        AbstractTableDialog.this.display.asyncExec(() -> {
+                            if (!AbstractTableDialog.this.shell.isDisposed()) {
+                                AbstractTableDialog.this.reloadTable();
+                            }
+                        });
+                    } else {
+                        // ウインドウが消えていたらタスクをキャンセルする
+                        throw new ThreadDeath();
+                    }
+                };
+                // タスクがある場合キャンセル
+                if (AbstractTableDialog.this.future != null) {
+                    AbstractTableDialog.this.future.cancel(false);
                 }
-                // 3秒毎に再読み込みするようにスケジュールする
-                AbstractTableDialog.this.timer.schedule(new CyclicReloadTask(AbstractTableDialog.this), 0,
-                        TimeUnit.SECONDS.toMillis(3));
+                // 再読み込みするようにスケジュールする
+                AbstractTableDialog.this.future = ThreadManager.getExecutorService()
+                        .scheduleWithFixedDelay(command, 1, 1, TimeUnit.SECONDS);
             } else {
-                // タイマーを終了
-                if (AbstractTableDialog.this.timer != null) {
-                    AbstractTableDialog.this.timer.cancel();
-                    AbstractTableDialog.this.timer = null;
-                }
-            }
-        }
-    }
-
-    /**
-     * テーブルを定期的に再読み込みする
-     */
-    protected static class CyclicReloadTask extends TimerTask {
-
-        private final AbstractTableDialog dialog;
-
-        public CyclicReloadTask(AbstractTableDialog dialog) {
-            this.dialog = dialog;
-        }
-
-        @Override
-        public void run() {
-            synchronized (this.dialog.shell) {
-                if (!this.dialog.shell.isDisposed()) {
-                    this.dialog.display.asyncExec(new Runnable() {
-                        @Override
-                        public void run() {
-                            CyclicReloadTask.this.dialog.reloadTable();
-                        }
-                    });
-                } else {
-                    // ウインドウが消えていたらタスクをキャンセルする
-                    this.cancel();
+                // タスクがある場合キャンセル
+                if (AbstractTableDialog.this.future != null) {
+                    AbstractTableDialog.this.future.cancel(false);
                 }
             }
         }

@@ -2,28 +2,17 @@ package logbook.gui.logic;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
-import logbook.config.AppConfig;
 import logbook.config.QuestConfig;
 import logbook.config.bean.QuestBean;
 import logbook.constants.AppConstants;
@@ -31,117 +20,26 @@ import logbook.data.context.GlobalContext;
 import logbook.dto.BattleDto;
 import logbook.dto.BattleResultDto;
 import logbook.dto.CreateItemDto;
-import logbook.dto.DeckMissionDto;
 import logbook.dto.DockDto;
 import logbook.dto.GetShipDto;
 import logbook.dto.ItemDto;
 import logbook.dto.MaterialDto;
 import logbook.dto.MissionResultDto;
-import logbook.dto.NdockDto;
 import logbook.dto.QuestDto;
 import logbook.dto.ShipDto;
 import logbook.dto.ShipFilterDto;
 import logbook.dto.ShipInfoDto;
+import logbook.util.FileUtils;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 /**
  * 各種報告書を作成します
  *
  */
 public final class CreateReportLogic {
-
-    /** テーブルアイテム作成(デフォルト) */
-    public static final TableItemCreator DEFAULT_TABLE_ITEM_CREATOR = new TableItemCreator() {
-
-        @Override
-        public void init() {
-        }
-
-        @Override
-        public TableItem create(Table table, String[] text, int count) {
-            TableItem item = new TableItem(table, SWT.NONE);
-            // 偶数行に背景色を付ける
-            if ((count % 2) != 0) {
-                item.setBackground(SWTResourceManager.getColor(AppConstants.ROW_BACKGROUND));
-            }
-            item.setText(text);
-            return item;
-        }
-    };
-
-    /** テーブルアイテム作成(所有艦娘一覧) */
-    public static final TableItemCreator SHIP_LIST_TABLE_ITEM_CREATOR = new TableItemCreator() {
-
-        private Set<Long> deckmissions;
-
-        private Set<Long> docks;
-
-        @Override
-        public void init() {
-            // 遠征
-            this.deckmissions = new HashSet<Long>();
-            for (DeckMissionDto deckMission : GlobalContext.getDeckMissions()) {
-                if ((deckMission.getMission() != null) && (deckMission.getShips() != null)) {
-                    this.deckmissions.addAll(deckMission.getShips());
-                }
-            }
-            // 入渠
-            this.docks = new HashSet<Long>();
-            for (NdockDto ndock : GlobalContext.getNdocks()) {
-                if (ndock.getNdockid() != 0) {
-                    this.docks.add(ndock.getNdockid());
-                }
-            }
-        }
-
-        @Override
-        public TableItem create(Table table, String[] text, int count) {
-            // 艦娘
-            Long ship = Long.valueOf(text[1]);
-
-            TableItem item = new TableItem(table, SWT.NONE);
-            // 偶数行に背景色を付ける
-            if ((count % 2) != 0) {
-                item.setBackground(SWTResourceManager.getColor(AppConstants.ROW_BACKGROUND));
-            }
-
-            // 疲労
-            int cond = Integer.parseInt(text[5]);
-            if (cond <= AppConstants.COND_RED) {
-                item.setForeground(SWTResourceManager.getColor(AppConstants.COND_RED_COLOR));
-            } else if (cond <= AppConstants.COND_ORANGE) {
-                item.setForeground(SWTResourceManager.getColor(AppConstants.COND_ORANGE_COLOR));
-            } else if ((cond >= AppConstants.COND_DARK_GREEN) && (cond < AppConstants.COND_GREEN)) {
-                item.setForeground(SWTResourceManager.getColor(AppConstants.COND_DARK_GREEN_COLOR));
-            } else if (cond >= AppConstants.COND_GREEN) {
-                item.setForeground(SWTResourceManager.getColor(AppConstants.COND_GREEN_COLOR));
-            }
-
-            // 遠征
-            if (this.deckmissions.contains(ship)) {
-                item.setForeground(SWTResourceManager.getColor(AppConstants.MISSION_COLOR));
-            }
-            // 入渠
-            if (this.docks.contains(ship)) {
-                item.setForeground(SWTResourceManager.getColor(AppConstants.NDOCK_COLOR));
-            }
-            // Lv1の艦娘をグレー色にする
-            if ("1".equals(text[7])) {
-                item.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GRAY));
-            }
-
-            item.setText(text);
-            return item;
-        }
-    };
 
     /** ロガー */
     private static final Logger LOG = LogManager.getLogger(CreateReportLogic.class);
@@ -427,7 +325,7 @@ public final class CreateReportLogic {
         for (Entry<Long, ShipDto> entry : ships) {
             ShipDto ship = entry.getValue();
 
-            if ((filter != null) && !shipFilter(ship, filter)) {
+            if ((filter != null) && !ShipFilterLogic.shipFilter(ship, filter)) {
                 continue;
             }
 
@@ -700,54 +598,6 @@ public final class CreateReportLogic {
     }
 
     /**
-     * 報告書をCSVファイルに書き込む(最初の列を取り除く)
-     *
-     * @param file ファイル
-     * @param header ヘッダー
-     * @param body 内容
-     * @param applend 追記フラグ
-     * @throws IOException
-     */
-    public static void writeCsvStripFirstColumn(File file, String[] header, List<String[]> body, boolean applend)
-            throws IOException {
-        // 報告書の項番を除く
-        String[] copyheader = Arrays.copyOfRange(header, 1, header.length);
-        List<String[]> copybody = new ArrayList<String[]>();
-        for (String[] strings : body) {
-            copybody.add(Arrays.copyOfRange(strings, 1, strings.length));
-        }
-        writeCsv(file, copyheader, copybody, applend);
-    }
-
-    /**
-     * 報告書をCSVファイルに書き込む
-     *
-     * @param file ファイル
-     * @param header ヘッダー
-     * @param body 内容
-     * @param applend 追記フラグ
-     * @throws IOException
-     */
-    public static void writeCsv(File file, String[] header, List<String[]> body, boolean applend)
-            throws IOException {
-        Path path = file.toPath();
-        OpenOption[] options;
-        if (applend) {
-            options = new OpenOption[] { StandardOpenOption.APPEND };
-        } else {
-            options = new OpenOption[] { StandardOpenOption.CREATE };
-        }
-        try (Writer writer = Files.newBufferedWriter(path, AppConstants.CHARSET, options)) {
-            if (!Files.exists(path) || (Files.size(path) <= 0)) {
-                writer.write(StringUtils.join(header, ',') + "\r\n");
-            }
-            for (String[] colums : body) {
-                writer.write(StringUtils.join(colums, ',') + "\r\n");
-            }
-        }
-    }
-
-    /**
      * オブジェクト配列をテーブルウィジェットに表示できるように文字列に変換します
      *
      * @param from テーブルに表示する内容
@@ -770,217 +620,6 @@ public final class CreateReportLogic {
     }
 
     /**
-     * 艦娘をフィルタします
-     *
-     * @param ship 艦娘
-     * @param filter フィルターオブジェクト
-     * @return フィルタ結果
-     */
-    private static boolean shipFilter(ShipDto ship, ShipFilterDto filter) {
-        // テキストでフィルタ
-        if (!StringUtils.isEmpty(filter.nametext)) {
-            // 検索ワード
-            String[] words = StringUtils.split(filter.nametext, " ");
-            // 検索対象
-            // 名前
-            String name = ship.getName();
-            // 艦種
-            String type = ship.getType();
-            // 装備
-            List<ItemDto> item = ship.getItem();
-
-            // テキストが入力されている場合処理する
-            if (filter.regexp) {
-                // 正規表現で検索
-                for (int i = 0; i < words.length; i++) {
-                    Pattern pattern;
-                    try {
-                        pattern = Pattern.compile(words[i]);
-                    } catch (PatternSyntaxException e) {
-                        // 無効な正規表現はfalseを返す
-                        return false;
-                    }
-                    boolean find = false;
-
-                    // 名前で検索
-                    find = find ? find : pattern.matcher(name).find();
-                    // 艦種で検索
-                    find = find ? find : pattern.matcher(type).find();
-                    // 装備で検索
-                    for (ItemDto itemDto : item) {
-                        if ((itemDto == null) || (itemDto.getName() == null)) {
-                            find = find ? find : false;
-                        } else {
-                            find = find ? find : pattern.matcher(itemDto.getName()).find();
-                        }
-                    }
-
-                    if (!find) {
-                        // どれにもマッチしない場合
-                        return false;
-                    }
-                }
-            } else {
-                // 部分一致で検索する
-                for (int i = 0; i < words.length; i++) {
-                    boolean find = false;
-
-                    // 名前で検索
-                    find = find ? find : name.indexOf(words[i]) != -1;
-                    // 艦種で検索
-                    find = find ? find : type.indexOf(words[i]) != -1;
-                    // 装備で検索
-                    for (ItemDto itemDto : item) {
-                        if ((itemDto == null) || (itemDto.getName() == null)) {
-                            find = find ? find : false;
-                        } else {
-                            find = find ? find : itemDto.getName().indexOf(words[i]) != -1;
-                        }
-                    }
-
-                    if (!find) {
-                        // どれにもマッチしない場合
-                        return false;
-                    }
-                }
-            }
-        }
-        // 艦種でフィルタ
-        if (!filter.destroyer) {
-            if ("駆逐艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.lightCruiser) {
-            if ("軽巡洋艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.torpedoCruiser) {
-            if ("重雷装巡洋艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.heavyCruiser) {
-            if ("重巡洋艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.flyingDeckCruiser) {
-            if ("航空巡洋艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.seaplaneTender) {
-            if ("水上機母艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.escortCarrier) {
-            if ("軽空母".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.carrier) {
-            if ("正規空母".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.battleship) {
-            if ("戦艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.flyingDeckBattleship) {
-            if ("航空戦艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.submarine) {
-            if ("潜水艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.carrierSubmarine) {
-            if ("潜水空母".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.landingship) {
-            if ("揚陸艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.armoredcarrier) {
-            if ("装甲空母".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.repairship) {
-            if ("工作艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.submarineTender) {
-            if ("潜水母艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        if (!filter.trainingShip) {
-            if ("練習巡洋艦".equals(ship.getType())) {
-                return false;
-            }
-        }
-        // グループでフィルタ
-        if (filter.group != null) {
-            if (!filter.group.getShips().contains(ship.getId())) {
-                return false;
-            }
-        }
-        // 装備でフィルタ
-        if (!StringUtils.isEmpty(filter.itemname)) {
-            List<ItemDto> item = ship.getItem();
-            boolean hit = false;
-            for (ItemDto itemDto : item) {
-                if (itemDto != null) {
-                    if (filter.itemname.equals(itemDto.getName())) {
-                        hit = true;
-                        break;
-                    }
-                }
-            }
-            if (!hit) {
-                return false;
-            }
-        }
-        // 艦隊に所属
-        if (!filter.onfleet) {
-            if (!StringUtils.isEmpty(ship.getFleetid())) {
-                return false;
-            }
-        }
-        // 艦隊に非所属
-        if (!filter.notonfleet) {
-            if (StringUtils.isEmpty(ship.getFleetid())) {
-                return false;
-            }
-        }
-        // 鍵付き
-        if (!filter.locked) {
-            if (ship.getLocked()) {
-                return false;
-            }
-        }
-        // 鍵付きではない
-        if (!filter.notlocked) {
-            if (!ship.getLocked()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * 海戦・ドロップ報告書を書き込む
      *
      * @param dto 海戦・ドロップ報告
@@ -989,9 +628,9 @@ public final class CreateReportLogic {
         try {
             List<BattleResultDto> dtoList = Collections.singletonList(dto);
 
-            File report = getStoreFile(AppConstants.LOG_BATTLE_RESULT, AppConstants.LOG_BATTLE_RESULT_ALT);
+            File report = FileUtils.getStoreFile(AppConstants.LOG_BATTLE_RESULT, AppConstants.LOG_BATTLE_RESULT_ALT);
 
-            CreateReportLogic.writeCsvStripFirstColumn(report,
+            FileUtils.writeCsvStripFirstColumn(report,
                     CreateReportLogic.getBattleResultStoreHeader(),
                     CreateReportLogic.getBattleResultStoreBody(dtoList), true);
         } catch (IOException e) {
@@ -1008,9 +647,9 @@ public final class CreateReportLogic {
         try {
             List<GetShipDto> dtoList = Collections.singletonList(dto);
 
-            File report = getStoreFile(AppConstants.LOG_CREATE_SHIP, AppConstants.LOG_CREATE_SHIP_ALT);
+            File report = FileUtils.getStoreFile(AppConstants.LOG_CREATE_SHIP, AppConstants.LOG_CREATE_SHIP_ALT);
 
-            CreateReportLogic.writeCsvStripFirstColumn(report,
+            FileUtils.writeCsvStripFirstColumn(report,
                     CreateReportLogic.getCreateShipHeader(),
                     CreateReportLogic.getCreateShipBody(dtoList), true);
         } catch (IOException e) {
@@ -1027,9 +666,9 @@ public final class CreateReportLogic {
         try {
             List<CreateItemDto> dtoList = Collections.singletonList(dto);
 
-            File report = getStoreFile(AppConstants.LOG_CREATE_ITEM, AppConstants.LOG_CREATE_ITEM_ALT);
+            File report = FileUtils.getStoreFile(AppConstants.LOG_CREATE_ITEM, AppConstants.LOG_CREATE_ITEM_ALT);
 
-            CreateReportLogic.writeCsvStripFirstColumn(report,
+            FileUtils.writeCsvStripFirstColumn(report,
                     CreateReportLogic.getCreateItemHeader(),
                     CreateReportLogic.getCreateItemBody(dtoList), true);
         } catch (IOException e) {
@@ -1046,9 +685,9 @@ public final class CreateReportLogic {
         try {
             List<MissionResultDto> dtoList = Collections.singletonList(dto);
 
-            File report = getStoreFile(AppConstants.LOG_MISSION, AppConstants.LOG_MISSION_ALT);
+            File report = FileUtils.getStoreFile(AppConstants.LOG_MISSION, AppConstants.LOG_MISSION_ALT);
 
-            CreateReportLogic.writeCsvStripFirstColumn(report,
+            FileUtils.writeCsvStripFirstColumn(report,
                     CreateReportLogic.getCreateMissionResultHeader(),
                     CreateReportLogic.getMissionResultBody(dtoList), true);
         } catch (IOException e) {
@@ -1065,60 +704,13 @@ public final class CreateReportLogic {
         try {
             List<MaterialDto> dtoList = Collections.singletonList(material);
 
-            File report = getStoreFile(AppConstants.LOG_RESOURCE, AppConstants.LOG_RESOURCE_ALT);
+            File report = FileUtils.getStoreFile(AppConstants.LOG_RESOURCE, AppConstants.LOG_RESOURCE_ALT);
 
-            CreateReportLogic.writeCsvStripFirstColumn(report,
+            FileUtils.writeCsvStripFirstColumn(report,
                     CreateReportLogic.getMaterialHeader(),
                     CreateReportLogic.getMaterialStoreBody(dtoList), true);
         } catch (IOException e) {
             LOG.warn("報告書の保存に失敗しました", e);
-        }
-    }
-
-    /**
-     * 書き込み先のファイルを返します
-     *
-     * @param name ファイル名
-     * @param altername 代替ファイル名
-     * @return File
-     * @throws IOException
-     */
-    private static File getStoreFile(String name, String altername) throws IOException {
-        // 報告書の保存先にファイルを保存します
-        File report = new File(FilenameUtils.concat(AppConfig.get().getReportPath(), name));
-        if ((report.getParentFile() == null) && report.mkdirs()) {
-            // 報告書の保存先ディレクトリが無く、ディレクトリの作成に失敗した場合はカレントフォルダにファイルを保存
-            report = new File(name);
-        }
-        if (isLocked(report)) {
-            // ロックされている場合は代替ファイルに書き込みます
-            report = new File(FilenameUtils.concat(report.getParent(), altername));
-        }
-        return report;
-    }
-
-    /**
-     * ファイルがロックされているかを確認します
-     *
-     * @param file ファイル
-     * @return
-     * @throws IOException
-     */
-    private static boolean isLocked(File file) {
-        if (!file.isFile()) {
-            return false;
-        }
-        try (FileChannel fc = FileChannel.open(file.toPath(),
-                StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-            FileLock lock = fc.tryLock();
-            if (lock != null) {
-                lock.release();
-                return false;
-            } else {
-                return true;
-            }
-        } catch (IOException e) {
-            return true;
         }
     }
 }

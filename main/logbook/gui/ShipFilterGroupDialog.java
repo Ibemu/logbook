@@ -13,7 +13,6 @@ import logbook.config.bean.ShipGroupListBean;
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
 import logbook.dto.ShipDto;
-import logbook.gui.logic.CreateReportLogic;
 import logbook.gui.logic.TableItemCreator;
 
 import org.apache.commons.lang3.StringUtils;
@@ -200,7 +199,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialog {
 
     @Override
     protected TableItemCreator getTableItemCreator() {
-        return CreateReportLogic.DEFAULT_TABLE_ITEM_CREATOR;
+        return TableItemCreator.DEFAULT_TABLE_ITEM_CREATOR;
     }
 
     @Override

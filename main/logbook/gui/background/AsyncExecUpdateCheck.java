@@ -51,7 +51,7 @@ public final class AsyncExecUpdateCheck implements Runnable {
                         MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO
                                 | SWT.ICON_QUESTION);
                         box.setText("新しいバージョン");
-                        box.setMessage("新しいバージョンがあります。ホームページを開きますか？\r\n"
+                        box.setMessage("新しいバージョンがあります。ダウンロードサイトを開きますか？\r\n"
                                 + "現在のバージョン:" + AppConstants.VERSION_FULL + "\r\n"
                                 + "新しいバージョン:" + newversion + "\r\n"
                                 + "※自動アップデートチェックは[その他]-[設定]からOFFに出来ます");
@@ -85,7 +85,7 @@ public final class AsyncExecUpdateCheck implements Runnable {
                             MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO
                                     | SWT.ICON_QUESTION);
                             box.setText("新しいバージョン(本家)");
-                            box.setMessage("本家のバージョンが更新されました。ホームページを開きますか？\r\n"
+                            box.setMessage("本家のバージョンが更新されました。ダウンロードサイトを開きますか？\r\n"
                                     + "現在のバージョン:" + AppConstants.VERSION + "\r\n"
                                     + "新しいバージョン:" + newversionorg + "\r\n"
                                     + "※自動アップデートチェックは[その他]-[設定]からOFFに出来ます");

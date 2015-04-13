@@ -57,9 +57,6 @@
     <module name="MagicNumber"/>
     <module name="MissingSwitchDefault"/>
     <module name="ParameterAssignment"/>
-    <module name="RedundantThrows">
-      <property name="suppressLoadErrors" value="true"/>
-    </module>
     <module name="RequireThis"/>
     <module name="ReturnCount">
       <property name="max" value="4"/>
