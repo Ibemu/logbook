@@ -3,6 +3,7 @@ package logbook.gui;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
 import logbook.dto.BattleDto;
@@ -17,6 +18,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
@@ -130,11 +133,17 @@ public final class SortieDialog extends Dialog
                 SortieDialog.this.reload();
             }
         });
-        // 操作-定期的に再読み込み(3秒)
-        MenuItem miCycle = new MenuItem(this.opemenu, SWT.CHECK);
-        miCycle.setText("定期的に再読み込み(&A)\tCtrl+F5");
-        miCycle.setAccelerator(SWT.CTRL + SWT.F5);
-        miCycle.addSelectionListener(new CyclicReloadAdapter(miCycle));
+        // 操作-定期的に再読み込み
+        Boolean isCyclicReload = AppConfig.get().getCyclicReloadMap().get(this.getClass().getName());
+        MenuItem cyclicReload = new MenuItem(this.opemenu, SWT.CHECK);
+        cyclicReload.setText("定期的に再読み込み(&A)\tCtrl+F5");
+        cyclicReload.setAccelerator(SWT.CTRL + SWT.F5);
+        if ((isCyclicReload != null) && isCyclicReload.booleanValue()) {
+            cyclicReload.setSelection(true);
+        }
+        CyclicReloadAdapter adapter = new CyclicReloadAdapter(cyclicReload);
+        cyclicReload.addSelectionListener(adapter);
+        adapter.setCyclicReload(cyclicReload);
         // セパレータ
         new MenuItem(this.opemenu, SWT.SEPARATOR);
         // 操作-縦表示
@@ -241,6 +250,15 @@ public final class SortieDialog extends Dialog
 
         this.enemy = new DockComposite(this.shell, SWT.NONE, fontData);
         this.enemy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+
+        // 閉じた時に設定を保存
+        this.shell.addShellListener(new ShellAdapter() {
+            @Override
+            public void shellClosed(ShellEvent e) {
+                AppConfig.get().getCyclicReloadMap()
+                        .put(SortieDialog.this.getClass().getName(), cyclicReload.getSelection());
+            }
+        });
     }
 
     private void portrait()
