@@ -458,6 +458,10 @@ public final class GlobalContext {
             case MATERIAL:
                 doMaterial(data);
                 break;
+            // 遠征
+            case MISSION_START:
+                doMissionResult(data);
+                break;
             // 遠征(帰還)
             case MISSION_RESULT:
                 doMissionResult(data);
@@ -722,28 +726,11 @@ public final class GlobalContext {
                 deckMissions = new DeckMissionDto[] { DeckMissionDto.EMPTY, DeckMissionDto.EMPTY, DeckMissionDto.EMPTY };
                 for (int i = 1; i < apiDeckPort.size(); i++) {
                     JsonObject object = (JsonObject) apiDeckPort.get(i);
-                    String name = object.getString("api_name");
                     JsonArray jmission = object.getJsonArray("api_mission");
-
                     int section = ((JsonNumber) jmission.get(1)).intValue();
-                    String mission = Deck.get(section);
                     long milis = ((JsonNumber) jmission.get(2)).longValue();
                     long fleetid = object.getJsonNumber("api_id").longValue();
-
-                    Set<Long> ships = new LinkedHashSet<Long>();
-                    JsonArray shiparray = object.getJsonArray("api_ship");
-                    for (JsonValue jsonValue : shiparray) {
-                        long shipid = ((JsonNumber) jsonValue).longValue();
-                        if (shipid != -1) {
-                            ships.add(shipid);
-                        }
-                    }
-
-                    Date time = null;
-                    if (milis > 0) {
-                        time = new Date(milis);
-                    }
-                    deckMissions[i - 1] = new DeckMissionDto(name, mission, time, fleetid, ships);
+                    doMissionSub(fleetid, section, milis);
                 }
                 addConsole("遠征情報を更新しました");
 
@@ -1504,6 +1491,51 @@ public final class GlobalContext {
 
             materialLogLastUpdate = time;
         }
+    }
+
+    /**
+     * 遠征を更新します
+     *
+     * @param data
+     */
+    private static void doMission(Data data) {
+        try {
+            JsonObject apidata = data.getJsonObject().getJsonObject("api_data");
+
+            doMissionSub(Long.parseLong(data.getField("api_deck_id")),
+                    Integer.parseInt(data.getField("api_mission_id")),
+                    apidata.getJsonNumber("api_complatetime").longValue());
+
+            addConsole("遠征情報を更新しました");
+        } catch (Exception e) {
+            LOG.warn("遠征を更新しますに失敗しました", e);
+            LOG.warn(data);
+        }
+    }
+
+    /**
+     * 遠征を更新します
+     *
+     * @param data
+     */
+    private static void doMissionSub(long fleetId, int missionId, long milis) {
+        String mission = Deck.get(missionId);
+        DockDto dockdto = dock.get(Long.toString(fleetId));
+
+        Set<Long> ships = new LinkedHashSet<Long>();
+        for (ShipDto s : dockdto.getShips()) {
+            long shipid = s.getId();
+            if (shipid != -1) {
+                ships.add(shipid);
+            }
+        }
+
+        Date time = null;
+        if (milis > 0) {
+            time = new Date(milis);
+        }
+        deckMissions[(int) (fleetId - 2)] = new DeckMissionDto(dockdto.getName(), mission, time, fleetId, ships);
+        addConsole("遠征情報を更新しました");
     }
 
     /**
