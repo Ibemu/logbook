@@ -1,7 +1,6 @@
 package logbook.gui;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import logbook.constants.AppConstants;
@@ -11,6 +10,7 @@ import logbook.dto.BattleResultDto;
 import logbook.dto.DockDto;
 import logbook.dto.ShipInfoDto;
 import logbook.internal.SortiePhase;
+import logbook.thread.ThreadManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
@@ -42,8 +42,8 @@ public final class SortieDialog extends Dialog
     private Shell shell;
     private Display display;
 
-    /** タイマー */
-    private Timer timer;
+    /** スケジューリングされた再読み込みタスク */
+    protected ScheduledFuture<?> future;
 
     /** メニューバー */
     private Menu menubar;
@@ -90,9 +90,9 @@ public final class SortieDialog extends Dialog
                 this.display.sleep();
             }
         }
-        // タイマーの終了
-        if (this.timer != null) {
-            this.timer.cancel();
+        // タスクがある場合キャンセル
+        if (this.future != null) {
+            this.future.cancel(false);
         }
     }
 
@@ -132,9 +132,9 @@ public final class SortieDialog extends Dialog
         });
         // 操作-定期的に再読み込み(3秒)
         MenuItem miCycle = new MenuItem(this.opemenu, SWT.CHECK);
-        miCycle.setText("定期的に再読み込み(3秒)(&A)\tCtrl+F5");
+        miCycle.setText("定期的に再読み込み(&A)\tCtrl+F5");
         miCycle.setAccelerator(SWT.CTRL + SWT.F5);
-        miCycle.addSelectionListener(new CyclicReloadAdapter(this, miCycle));
+        miCycle.addSelectionListener(new CyclicReloadAdapter(miCycle));
         // セパレータ
         new MenuItem(this.opemenu, SWT.SEPARATOR);
         // 操作-縦表示
@@ -762,59 +762,44 @@ public final class SortieDialog extends Dialog
     /**
      * テーブルを定期的に再読み込みする
      */
-    protected class CyclicReloadAdapter extends SelectionAdapter
-    {
-        private final SortieDialog dialog;
+    protected class CyclicReloadAdapter extends SelectionAdapter {
+
         private final MenuItem menuitem;
 
-        public CyclicReloadAdapter(SortieDialog dialog, MenuItem menuitem) {
-            this.dialog = dialog;
+        public CyclicReloadAdapter(MenuItem menuitem) {
             this.menuitem = menuitem;
         }
 
         @Override
         public void widgetSelected(SelectionEvent e) {
-            if (this.menuitem.getSelection()) {
-                // タイマーを作成
-                if (this.dialog.timer == null) {
-                    this.dialog.timer = new Timer(true);
+            this.setCyclicReload(this.menuitem);
+        }
+
+        private void setCyclicReload(MenuItem menuitem) {
+            if (menuitem.getSelection()) {
+                Runnable command = () -> {
+                    if (!SortieDialog.this.shell.isDisposed()) {
+                        SortieDialog.this.display.asyncExec(() -> {
+                            if (!SortieDialog.this.shell.isDisposed()) {
+                                SortieDialog.this.reload();
+                            }
+                        });
+                    } else {
+                        // ウインドウが消えていたらタスクをキャンセルする
+                        throw new ThreadDeath();
+                    }
+                };
+                // タスクがある場合キャンセル
+                if (SortieDialog.this.future != null) {
+                    SortieDialog.this.future.cancel(false);
                 }
-                // 3秒毎に再読み込みするようにスケジュールする
-                this.dialog.timer.schedule(new CyclicReloadTask(this.dialog), 0, TimeUnit.SECONDS.toMillis(3));
+                // 再読み込みするようにスケジュールする
+                SortieDialog.this.future = ThreadManager.getExecutorService()
+                        .scheduleWithFixedDelay(command, 1, 1, TimeUnit.SECONDS);
             } else {
-                // タイマーを終了
-                if (this.dialog.timer != null) {
-                    this.dialog.timer.cancel();
-                    this.dialog.timer = null;
-                }
-            }
-        }
-    }
-
-    /**
-     * テーブルを定期的に再読み込みする
-     */
-    protected static class CyclicReloadTask extends TimerTask
-    {
-        private final SortieDialog dialog;
-
-        public CyclicReloadTask(SortieDialog dialog) {
-            this.dialog = dialog;
-        }
-
-        @Override
-        public void run() {
-            synchronized (this.dialog.shell) {
-                if (!this.dialog.shell.isDisposed()) {
-                    this.dialog.display.asyncExec(new Runnable() {
-                        @Override
-                        public void run() {
-                            CyclicReloadTask.this.dialog.reload();
-                        }
-                    });
-                } else {
-                    // ウインドウが消えていたらタスクをキャンセルする
-                    this.cancel();
+                // タスクがある場合キャンセル
+                if (SortieDialog.this.future != null) {
+                    SortieDialog.this.future.cancel(false);
                 }
             }
         }
