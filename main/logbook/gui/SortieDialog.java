@@ -10,6 +10,8 @@ import logbook.dto.BattleDto;
 import logbook.dto.BattleResultDto;
 import logbook.dto.DockDto;
 import logbook.dto.ShipInfoDto;
+import logbook.gui.listener.SaveWindowLocationAdapter;
+import logbook.gui.logic.LayoutLogic;
 import logbook.internal.SortiePhase;
 import logbook.thread.ThreadManager;
 
@@ -103,9 +105,14 @@ public final class SortieDialog extends Dialog
      * Create contents of the dialog.
      */
     private void createContents() {
+        // シェルを作成
         this.shell = new Shell(this.getParent(), this.getStyle());
         this.shell.setText("出撃報告");
         this.shell.setLayout(new GridLayout(2, false));
+        // ウインドウ位置を復元
+        LayoutLogic.applyWindowLocation(this.getClass(), this.shell);
+        // 閉じた時にウインドウ位置を保存
+        this.shell.addShellListener(new SaveWindowLocationAdapter(this.getClass()));
 
         //フォント取得
         FontData fontData = this.shell.getFont().getFontData()[0];
@@ -146,28 +153,24 @@ public final class SortieDialog extends Dialog
         adapter.setCyclicReload(cyclicReload);
         // セパレータ
         new MenuItem(this.opemenu, SWT.SEPARATOR);
-        // 操作-縦表示
-        mi = new MenuItem(this.opemenu, SWT.NONE);
-        mi.setText("縦表示(&P)\tCtrl+P");
-        mi.setAccelerator(SWT.CTRL + 'P');
-        mi.addSelectionListener(new SelectionAdapter()
+        // 操作-横長表示
+        MenuItem land = new MenuItem(this.opemenu, SWT.CHECK);
+        land.setText("横長表示(&L)\tCtrl+L");
+        land.setAccelerator(SWT.CTRL + 'L');
+        if (AppConfig.get().isLandscapeLayout()) {
+            land.setSelection(true);
+        }
+        land.addSelectionListener(new SelectionAdapter()
         {
             @Override
             public void widgetSelected(SelectionEvent e)
             {
-                SortieDialog.this.portrait();
-            }
-        });
-        // 操作-横表示
-        mi = new MenuItem(this.opemenu, SWT.NONE);
-        mi.setText("横表示(&L)\tCtrl+L");
-        mi.setAccelerator(SWT.CTRL + 'L');
-        mi.addSelectionListener(new SelectionAdapter()
-        {
-            @Override
-            public void widgetSelected(SelectionEvent e)
-            {
-                SortieDialog.this.landscape();
+                if (land.getSelection()) {
+                    SortieDialog.this.landscape();
+                }
+                else {
+                    SortieDialog.this.portrait();
+                }
             }
         });
 
@@ -257,8 +260,17 @@ public final class SortieDialog extends Dialog
             public void shellClosed(ShellEvent e) {
                 AppConfig.get().getCyclicReloadMap()
                         .put(SortieDialog.this.getClass().getName(), cyclicReload.getSelection());
+                AppConfig.get().setLandscapeLayout(land.getSelection());
             }
         });
+
+        // 縦長・横長表示
+        if (land.getSelection()) {
+            SortieDialog.this.landscape();
+        }
+        else {
+            SortieDialog.this.portrait();
+        }
     }
 
     private void portrait()

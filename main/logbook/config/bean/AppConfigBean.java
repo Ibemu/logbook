@@ -160,6 +160,9 @@ public final class AppConfigBean {
     /** 定期的に再読み込みする設定(キー:java.lang.Class.getName()) */
     private Map<String, Boolean> cyclicReloadMap = new HashMap<>();
 
+    /** 横長表示 */
+    private boolean landscapeLayout = false;
+
     /** ユーザースクリプトを使用する */
     private boolean useUserScript;
 
@@ -967,6 +970,22 @@ public final class AppConfigBean {
      */
     public void setCyclicReloadMap(Map<String, Boolean> cyclicReloadMap) {
         this.cyclicReloadMap = cyclicReloadMap;
+    }
+
+    /**
+     * 横長表示を取得します。
+     * @return 横長表示
+     */
+    public boolean isLandscapeLayout() {
+        return this.landscapeLayout;
+    }
+
+    /**
+     * 横長表示を設定します。
+     * @param landscapeLayout 横長表示
+     */
+    public void setLandscapeLayout(boolean landscapeLayout) {
+        this.landscapeLayout = landscapeLayout;
     }
 
     /**
