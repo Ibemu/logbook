@@ -1,6 +1,5 @@
 package logbook.config.bean;
 
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -756,15 +755,83 @@ public final class QuestBean {
     public void marge(QuestBean o) {
         if (o == null)
             return;
-        for (Field f : QuestBean.class.getDeclaredFields()) {
-            try {
-                if (!Set.class.isAssignableFrom(f.getType()))
-                    continue;
-                f.setAccessible(true);
-                Set<Date> s = (Set<Date>) f.get(this);
-                s.addAll((Set<Date>) f.get(o));
-            } catch (Exception e) {
-            }
-        }
+
+        /** 出撃 */
+        this.sortie.addAll(o.sortie);
+
+        /** ボス到達 */
+        this.bossArrive.addAll(o.bossArrive);
+
+        /** ボス勝利 */
+        this.bossWin.addAll(o.bossWin);
+
+        /** 1-4ボスS */
+        this.boss1_4WinS.addAll(o.boss1_4WinS);
+
+        /** 1-5ボスA */
+        this.boss1_5WinA.addAll(o.boss1_5WinA);
+
+        /** 南西ボス */
+        this.boss2Win.addAll(o.boss2Win);
+
+        /** 3-3+ボス */
+        this.boss3_3pWin.addAll(o.boss3_3pWin);
+
+        /** 西方ボス */
+        this.boss4Win.addAll(o.boss4Win);
+
+        /** 4-4ボス */
+        this.boss4_4Win.addAll(o.boss4_4Win);
+
+        /** 5-2ボスS */
+        this.boss5_2WinS.addAll(o.boss5_2WinS);
+
+        /** 6-1ボスS */
+        this.boss6_1WinS.addAll(o.boss6_1WinS);
+
+        /** 戦闘勝利 */
+        this.battleWin.addAll(o.battleWin);
+
+        /** 戦闘Sランク */
+        this.battleWinS.addAll(o.battleWinS);
+
+        /** 補給艦撃破 */
+        this.defeatAP.addAll(o.defeatAP);
+
+        /** 空母撃破 */
+        this.defeatCV.addAll(o.defeatCV);
+
+        /** 潜水艦撃破 */
+        this.defeatSS.addAll(o.defeatSS);
+
+        /** 演習 */
+        this.practice.addAll(o.practice);
+
+        /** 演習勝利 */
+        this.practiceWin.addAll(o.practiceWin);
+
+        /** 遠征成功 */
+        this.missionSuccess.addAll(o.missionSuccess);
+
+        /** 建造 */
+        this.createShip.addAll(o.createShip);
+
+        /** 開発 */
+        this.createItem.addAll(o.createItem);
+
+        /** 解体 */
+        this.destroyShip.addAll(o.destroyShip);
+
+        /** 廃棄 */
+        this.destroyItem.addAll(o.destroyItem);
+
+        /** 補給 */
+        this.charge.addAll(o.charge);
+
+        /** 入渠 */
+        this.repair.addAll(o.repair);
+
+        /** 近代化改修 */
+        this.powerUp.addAll(o.powerUp);
     }
 }
