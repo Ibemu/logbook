@@ -374,11 +374,19 @@ public final class ApplicationMain {
 
         // その他-資材チャート
         MenuItem resourceChart = new MenuItem(etcmenu, SWT.NONE);
-        resourceChart.setText("資材チャート(&R)");
+        resourceChart.setText("資材チャート");
         resourceChart.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 new ResourceChartDialog(ApplicationMain.this.shell).open();
+            }
+        });
+        MenuItem resourceChart2 = new MenuItem(etcmenu, SWT.NONE);
+        resourceChart2.setText("資材チャート改(&R)");
+        resourceChart2.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                new ResourceChartDialogEx(ApplicationMain.this.shell).open();
             }
         });
         // コマンド-出撃統計
@@ -709,7 +717,7 @@ public final class ApplicationMain {
         // プロキシサーバーを開始する
         executor.submit(new ProxyServer(AppConfig.get().getListenPort(), this.shell));
         // 非同期で画面を更新するスレッド
-        executor.scheduleWithFixedDelay(new AsyncExecApplicationMain(this), 0, 1, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(new AsyncExecApplicationMain(this), 0, 1, TimeUnit.SECONDS);
         // 非同期でログを出すスレッド
         executor.scheduleWithFixedDelay(new AsyncExecConsole(this.console), 0, 500, TimeUnit.MILLISECONDS);
         // サウンドを出すスレッド

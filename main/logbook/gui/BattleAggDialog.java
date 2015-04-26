@@ -1,13 +1,15 @@
 package logbook.gui;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
@@ -20,8 +22,6 @@ import logbook.gui.logic.LayoutLogic;
 import logbook.internal.BattleAggDate;
 import logbook.internal.BattleAggUnit;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.eclipse.swt.SWT;
@@ -238,8 +238,6 @@ public class BattleAggDialog extends Dialog {
      */
     private Map<BattleAggUnit, BattleAggUnitDto> load() {
         Map<BattleAggUnit, BattleAggUnitDto> aggMap = new EnumMap<>(BattleAggUnit.class);
-        // 日付書式
-        SimpleDateFormat format = new SimpleDateFormat(AppConstants.DATE_FORMAT);
         // 今日
         Calendar today = BattleAggDate.TODAY.get();
         // 先週
@@ -250,61 +248,20 @@ public class BattleAggDialog extends Dialog {
         Calendar min = lastMonth;
 
         // 海戦・ドロップ報告書読み込み
-        File report = new File(FilenameUtils.concat(AppConfig.get().getReportPath(), AppConstants.LOG_BATTLE_RESULT));
-        try {
-            LineIterator ite = new LineIterator(
-                    new InputStreamReader(new FileInputStream(report), AppConstants.CHARSET));
-            try {
-                // ヘッダーを読み飛ばす
-                if (ite.hasNext()) {
-                    ite.next();
-                }
-                while (ite.hasNext()) {
-                    try {
-                        String line = ite.next();
-                        String[] cols = line.split(",", -1);
-                        // 日付
-                        Calendar date = DateUtils.toCalendar(format.parse(cols[0]));
-                        date.setTimeZone(AppConstants.TIME_ZONE_MISSION);
-                        date.setFirstDayOfWeek(Calendar.MONDAY);
+        Path report = Paths.get(AppConfig.get().getReportPath(), AppConstants.LOG_BATTLE_RESULT);
 
-                        // 読み込む最小の日付未満の場合は読み飛ばす
-                        if (min.compareTo(date) > 0) {
-                            continue;
-                        }
-
-                        // 海域
-                        String area = cols[1];
-                        // ランク
-                        String rank = cols[4];
-                        // 出撃
-                        boolean isStart = StringUtils.indexOf(cols[3], "出撃") > -1;
-                        // ボス
-                        boolean isBoss = StringUtils.indexOf(cols[3], "ボス") > -1;
-
-                        // デイリー集計
-                        this.agg(BattleAggUnit.DAILY, aggMap, today, Calendar.DAY_OF_YEAR, date, area, rank, isStart,
-                                isBoss);
-                        // ウィークリー集計
-                        this.agg(BattleAggUnit.WEEKLY, aggMap, today, Calendar.WEEK_OF_YEAR, date, area, rank, isStart,
-                                isBoss);
-                        // マンスリー集計
-                        this.agg(BattleAggUnit.MONTHLY, aggMap, today, Calendar.MONTH, date, area, rank, isStart,
-                                isBoss);
-                        // 先週の集計
-                        this.agg(BattleAggUnit.LAST_WEEK, aggMap, lastWeek, Calendar.WEEK_OF_YEAR, date, area, rank,
-                                isStart, isBoss);
-                        // 先月の集計
-                        this.agg(BattleAggUnit.LAST_MONTH, aggMap, lastMonth, Calendar.MONTH, date, area, rank,
-                                isStart, isBoss);
-
-                    } catch (Exception e) {
-                        continue;
-                    }
-                }
-            } finally {
-                ite.close();
-            }
+        try (Stream<String> stream = Files.lines(report, AppConstants.CHARSET)) {
+            stream.skip(1)
+                    .map(BattleResult::new)
+                    .filter(e -> e.date != null)
+                    .filter(e -> min.compareTo(e.date) <= 0)
+                    .forEach(e -> {
+                        this.agg(BattleAggUnit.DAILY, aggMap, today, Calendar.DAY_OF_YEAR, e);
+                        this.agg(BattleAggUnit.WEEKLY, aggMap, today, Calendar.WEEK_OF_YEAR, e);
+                        this.agg(BattleAggUnit.MONTHLY, aggMap, today, Calendar.MONTH, e);
+                        this.agg(BattleAggUnit.LAST_WEEK, aggMap, lastWeek, Calendar.WEEK_OF_YEAR, e);
+                        this.agg(BattleAggUnit.LAST_MONTH, aggMap, lastMonth, Calendar.MONTH, e);
+                    });
 
         } catch (Exception e) {
         }
@@ -313,26 +270,22 @@ public class BattleAggDialog extends Dialog {
 
     /**
      * 集計する
-     * 
+     *
      * @param unit 集計単位(デイリーなど)
      * @param to 集計結果
      * @param std 基準日
      * @param field {@link Calendar#get(int)}のフィールド値
-     * @param target 集計対象の日付
-     * @param area 海域
-     * @param rank ランク
-     * @param isStart 出撃
-     * @param isBoss ボス
+     * @param result 戦闘結果
      */
     private void agg(BattleAggUnit unit, Map<BattleAggUnit, BattleAggUnitDto> to, Calendar std, int field,
-            Calendar target, String area, String rank, boolean isStart, boolean isBoss) {
-        if (std.get(field) == target.get(field)) {
+            BattleResult result) {
+        if (std.get(field) == result.date.get(field)) {
             BattleAggUnitDto aggUnit = to.get(unit);
             if (aggUnit == null) {
                 aggUnit = new BattleAggUnitDto();
                 to.put(unit, aggUnit);
             }
-            aggUnit.add(area, rank, isStart, isBoss);
+            aggUnit.add(result.area, result.rank, result.isStart, result.isBoss);
         }
     }
 
@@ -343,6 +296,40 @@ public class BattleAggDialog extends Dialog {
         @Override
         public void widgetSelected(SelectionEvent e) {
             BattleAggDialog.this.reloadTable();
+        }
+    }
+
+    private static class BattleResult {
+        /** 日付 */
+        Calendar date;
+        /** 海域 */
+        String area;
+        /** ランク */
+        String rank;
+        /** 出撃 */
+        boolean isStart;
+        /** ボス */
+        boolean isBoss;
+
+        public BattleResult(String line) {
+            try {
+                String[] cols = line.split(",", -1);
+                // 日付書式
+                SimpleDateFormat format = new SimpleDateFormat(AppConstants.DATE_FORMAT);
+                // 日付
+                this.date = DateUtils.toCalendar(format.parse(cols[0]));
+                this.date.setTimeZone(AppConstants.TIME_ZONE_MISSION);
+                this.date.setFirstDayOfWeek(Calendar.MONDAY);
+                // 海域
+                this.area = cols[1];
+                // ランク
+                this.rank = cols[4];
+                // 出撃
+                this.isStart = StringUtils.indexOf(cols[3], "出撃") > -1;
+                // ボス
+                this.isBoss = StringUtils.indexOf(cols[3], "ボス") > -1;
+            } catch (ParseException e) {
+            }
         }
     }
 }
