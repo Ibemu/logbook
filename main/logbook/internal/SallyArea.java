@@ -8,11 +8,13 @@ public enum SallyArea {
 
     NOTHING(0, ""),
 
-    EVENT_AL(1, "AL作戦"),
+    AREA1(1, "第3海域"),
 
-    EVENT_MI(2, "MI作戦");
+    AREA2(2, "第4海域"),
 
-    private static SallyArea[] areas;
+    AREA3(3, "第5海域"),
+
+    UNKNOWN(-1, "不明海域");
 
     private final int val;
 
@@ -35,17 +37,25 @@ public enum SallyArea {
     }
 
     public static SallyArea valueOf(int val) {
-        if (areas.length > val) {
-            return areas[val];
+        SallyArea area;
+        switch (val) {
+        case 0:
+            area = NOTHING;
+            break;
+        case 1:
+            area = AREA1;
+            break;
+        case 2:
+            area = AREA2;
+            break;
+        case 3:
+            area = AREA3;
+            break;
+        default:
+            area = UNKNOWN;
+            break;
         }
-        return valueOf(0);
+        return area;
     }
 
-    static {
-        SallyArea[] values = values();
-        areas = new SallyArea[values.length];
-        for (int i = 0; i < values.length; i++) {
-            areas[values[i].getValue()] = values[i];
-        }
-    }
 }

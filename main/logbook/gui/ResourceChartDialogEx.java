@@ -2,6 +2,7 @@ package logbook.gui;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -11,11 +12,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javafx.application.Platform;
@@ -29,9 +32,6 @@ import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
-import logbook.dto.chart.Resource;
-import logbook.dto.chart.ResourceLog;
-import logbook.dto.chart.ResourceLog.SortableLog;
 import logbook.gui.listener.SaveWindowLocationAdapter;
 import logbook.gui.logic.CreateReportLogic;
 import logbook.gui.logic.LayoutLogic;
@@ -76,7 +76,7 @@ public final class ResourceChartDialogEx extends Dialog {
     /** 日付の表示パターン */
     private static final String DATE_PATTERN = "M月d日HH:mm";
     /** 資材テーブルに表示する資材のフォーマット */
-    private static final String DIFF_FORMAT = "{0,number,0}({1,number,+0;-0})";
+    private static final String COMPARE_FORMAT = "{0,number,0}({1,number,+0;-0})";
 
     private Shell shell;
     private NumberAxis xaxis;
@@ -306,15 +306,11 @@ public final class ResourceChartDialogEx extends Dialog {
         // 資材ログのテーブル
         this.setTableHeader();
         try {
-            ResourceLog log = ResourceLog.getInstance(Paths.get(AppConfig.get().getReportPath(),
-                    AppConstants.LOG_RESOURCE)
-                    .toFile());
-            if (log != null) {
-                createTableBody(log, this.body);
-                this.setTableBody();
-                this.packTableHeader();
-            }
-        } catch (IOException e) {
+            createTableBody(Paths.get(AppConfig.get().getReportPath(),
+                    AppConstants.LOG_RESOURCE), this.body);
+            this.setTableBody();
+            this.packTableHeader();
+        } catch (Exception e) {
             LOG.warn("資材ログのテーブルを作成中例外が発生しました", e);
         }
     }
@@ -418,7 +414,7 @@ public final class ResourceChartDialogEx extends Dialog {
                                     researchList.add(new XYChart.Data<Number, Number>(time, e.research));
                                 });
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.warn("資材チャートの読み込み中に例外が発生しました", e);
         }
 
@@ -483,53 +479,58 @@ public final class ResourceChartDialogEx extends Dialog {
      *
      * @param log 資材ログ
      * @param body テーブルボディ
+     * @throws IOException
      */
-    private static void createTableBody(ResourceLog log, List<String[]> body) {
+    private static void createTableBody(Path path, List<String[]> body) throws IOException {
 
         SimpleDateFormat format = new SimpleDateFormat(AppConstants.DATE_DAYS_FORMAT);
         format.setTimeZone(AppConstants.TIME_ZONE_MISSION);
 
-        Map<String, SortableLog> resourceofday = new LinkedHashMap<>();
-        for (int i = 0; i < log.time.length; i++) {
-            String key = format.format(new Date(log.time[i]));
-            Resource[] r = log.resources;
-
-            SortableLog slog = new SortableLog();
-            slog.time = log.time[i];
-            slog.fuel = r[ResourceLog.RESOURCE_FUEL].values[i];
-            slog.ammo = r[ResourceLog.RESOURCE_AMMO].values[i];
-            slog.metal = r[ResourceLog.RESOURCE_METAL].values[i];
-            slog.bauxite = r[ResourceLog.RESOURCE_BAUXITE].values[i];
-            slog.bucket = r[ResourceLog.RESOURCE_BUCKET].values[i];
-            slog.burner = r[ResourceLog.RESOURCE_BURNER].values[i];
-            slog.research = r[ResourceLog.RESOURCE_RESEARCH].values[i];
-
-            resourceofday.put(key, slog);
-        }
-
-        MessageFormat diffFormat = new MessageFormat(DIFF_FORMAT);
-
-        SortableLog before = null;
-        for (Entry<String, SortableLog> entry : resourceofday.entrySet()) {
-            SortableLog val = entry.getValue();
-            int[] material = { val.fuel, val.ammo, val.metal, val.bauxite, val.bucket, val.burner, val.research };
-            int[] materialDiff = new int[material.length];
-
-            if (before != null) {
-                int[] materialBefore = { before.fuel, before.ammo, before.metal, before.bauxite, before.bucket,
-                        before.burner, before.research };
-                for (int i = 0; i < material.length; i++) {
-                    materialDiff[i] = material[i] - materialBefore[i];
+        try (Stream<String> stream = Files.lines(path, AppConstants.CHARSET)) {
+            BiConsumer<Map<String, Log>, Log> accumulator = (t, u) -> {
+                String key = format.format(u.date);
+                Log get = t.get(key);
+                if ((get == null) || (get.date.compareTo(u.date) < 0))
+                    t.put(key, u);
+            };
+            BiConsumer<Map<String, Log>, Map<String, Log>> combiner = (t, u) -> {
+                for (Entry<String, Log> entry : u.entrySet()) {
+                    String key = format.format(entry.getValue().date);
+                    Log get = t.get(key);
+                    if ((get == null) || (get.date.compareTo(entry.getValue().date) < 0))
+                        t.put(key, entry.getValue());
                 }
-            }
-            before = val;
+            };
+            List<Entry<String, Log>> list = stream.skip(1)
+                    .map(Log::new)
+                    .filter(e -> e.date != null)
+                    .collect(HashMap<String, Log>::new, accumulator, combiner)
+                    .entrySet()
+                    .stream()
+                    .sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+                    .collect(Collectors.toList());
 
-            String[] line = new String[material.length + 1];
-            line[0] = entry.getKey();
-            for (int i = 0; i < material.length; i++) {
-                line[i + 1] = diffFormat.format(new Object[] { material[i], materialDiff[i] });
+            MessageFormat compare = new MessageFormat(COMPARE_FORMAT);
+            Log before = null;
+            for (Entry<String, Log> entry : list) {
+                Log val = entry.getValue();
+                int[] material = { val.fuel, val.ammo, val.metal, val.bauxite, val.bucket, val.burner, val.research };
+                int[] materialCompare = new int[material.length];
+                if (before != null) {
+                    int[] materialBefore = { before.fuel, before.ammo, before.metal, before.bauxite, before.bucket,
+                            before.burner, before.research };
+                    for (int i = 0; i < material.length; i++) {
+                        materialCompare[i] = material[i] - materialBefore[i];
+                    }
+                }
+                before = val;
+                String[] line = new String[material.length + 1];
+                line[0] = entry.getKey();
+                for (int i = 0; i < material.length; i++) {
+                    line[i + 1] = compare.format(new Object[] { material[i], materialCompare[i] });
+                }
+                body.add(line);
             }
-            body.add(line);
         }
         Collections.reverse(body);
     }
@@ -555,9 +556,7 @@ public final class ResourceChartDialogEx extends Dialog {
      * @param dateTime
      */
     private static void setCalendar(Calendar cal, DateTime dateTime) {
-        dateTime.setYear(cal.get(Calendar.YEAR));
-        dateTime.setMonth(cal.get(Calendar.MONTH));
-        dateTime.setDay(cal.get(Calendar.DAY_OF_MONTH));
+        dateTime.setDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
     }
 
     /**
@@ -595,6 +594,14 @@ public final class ResourceChartDialogEx extends Dialog {
                 this.burner = Integer.parseInt(cols[6]);
                 this.research = Integer.parseInt(cols[7]);
             } catch (ParseException e) {
+                LOG.warn("資材ログを読み込み中に例外が発生しました:日付の形式が間違っています", e);
+                LOG.warn(line);
+            } catch (NumberFormatException e) {
+                LOG.warn("資材ログを読み込み中に例外が発生しました:数値型に変換出来ません", e);
+                LOG.warn(line);
+            } catch (IndexOutOfBoundsException e) {
+                LOG.warn("資材ログを読み込み中に例外が発生しました:項目数が一致しません", e);
+                LOG.warn(line);
             }
         }
     }
@@ -605,7 +612,7 @@ public final class ResourceChartDialogEx extends Dialog {
      */
     private static class DateTimeConverter extends StringConverter<Number> {
         /** チャートに設定する最小の時刻 */
-        private final Date from;
+        private final long from;
         /** フォーマッター */
         private final SimpleDateFormat format = new SimpleDateFormat(DATE_PATTERN);
 
@@ -613,7 +620,7 @@ public final class ResourceChartDialogEx extends Dialog {
          * @param from チャートに設定する最小の時刻
          */
         public DateTimeConverter(Date from) {
-            this.from = from;
+            this.from = from.getTime();
         }
 
         @Override
@@ -623,7 +630,7 @@ public final class ResourceChartDialogEx extends Dialog {
 
         @Override
         public String toString(Number n) {
-            return this.format.format(new Date(n.longValue() + this.from.getTime()));
+            return this.format.format(new Date(n.longValue() + this.from));
         }
     }
 }

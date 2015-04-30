@@ -304,7 +304,7 @@ public final class CreateReportLogic {
      * @return ヘッダー
      */
     public static String[] getShipListHeader() {
-        return new String[] { "", "ID", "艦隊", "名前", "艦種", "疲労", "回復", "Lv", "Next", "経験値", "制空", "装備1", "装備2",
+        return new String[] { "", "ID", "艦隊", "名前", "艦種", "疲労", "回復", "Lv", "Next", "経験値", "出撃海域", "制空", "装備1", "装備2",
                 "装備3", "装備4", "HP", "火力", "雷装", "対空", "装甲", "回避", "対潜", "索敵", "運",
                 "装備命中", "砲撃戦火力", "雷撃戦火力", "対潜火力", "夜戦火力" };
     }
@@ -342,6 +342,7 @@ public final class CreateReportLogic {
                         ship.getLv(),
                         ship.getNext(),
                         ship.getExp(),
+                        ship.getSallyArea().getName(),
                         ship.getSeiku(),
                         ship.getSlot().get(0),
                         ship.getSlot().get(1),
@@ -404,6 +405,7 @@ public final class CreateReportLogic {
                         ship.getLv(),
                         ship.getNext(),
                         ship.getExp(),
+                        ship.getSallyArea().getName(),
                         ship.getSeiku(),
                         ship.getSlot().get(0),
                         ship.getSlot().get(1),
