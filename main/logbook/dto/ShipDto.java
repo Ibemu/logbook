@@ -17,6 +17,7 @@ import javax.json.JsonValue;
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
 import logbook.internal.ExpTable;
+import logbook.internal.SallyArea;
 import logbook.internal.Ship;
 
 /**
@@ -140,7 +141,7 @@ public final class ShipDto extends AbstractDto {
     private final ShipInfoDto shipInfo;
 
     /** 出撃海域 */
-    private final int sallyArea;
+    private final SallyArea sallyArea;
 
     /** */
     private final int lockedEquip;
@@ -209,9 +210,9 @@ public final class ShipDto extends AbstractDto {
         this.luckyMax = ((JsonNumber) object.getJsonArray("api_lucky").get(1)).longValue();
         this.lockedEquip = object.getJsonNumber("api_locked_equip").intValue();
         if (object.containsKey("api_sally_area")) {
-            this.sallyArea = object.getJsonNumber("api_sally_area").intValue();
+            this.sallyArea = SallyArea.valueOf(object.getJsonNumber("api_sally_area").intValue());
         } else {
-            this.sallyArea = 0;
+            this.sallyArea = SallyArea.NOTHING;
         }
         // 疲労が抜ける時間を計算する
         if (this.cond < 49) {
@@ -658,7 +659,7 @@ public final class ShipDto extends AbstractDto {
      * 出撃海域を取得します。
      * @return 出撃海域
      */
-    public int getSallyArea() {
+    public SallyArea getSallyArea() {
         return this.sallyArea;
     }
 
