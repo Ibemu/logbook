@@ -383,8 +383,8 @@ public final class SortieDialog extends Dialog
             this.friend.getNowhps()[i].setText(nhp + "");
             this.friend.getEndhps()[i].setText(ehp + "");
             this.friend.getMaxhps()[i].setText(mhp + "");
-            setStatus(this.friend.getNowstats()[i], nhp, mhp);
-            setStatus(this.friend.getEndstats()[i], ehp, mhp);
+            setStatus(this.friend.getNowstats()[i], nhp, mhp, battleFirst.getFriendEscape()[i]);
+            setStatus(this.friend.getEndstats()[i], ehp, mhp, battleFirst.getFriendEscape()[i]);
             setCond(this.friend.getConds()[i], dock.getShips().get(i).getCond());
         }
         for (int i = dock.getShips().size(); i < MAXCHARA; i++)
@@ -415,8 +415,8 @@ public final class SortieDialog extends Dialog
                 this.combined.getNowhps()[i].setText(nhp + "");
                 this.combined.getEndhps()[i].setText(ehp + "");
                 this.combined.getMaxhps()[i].setText(mhp + "");
-                setStatus(this.combined.getNowstats()[i], nhp, mhp);
-                setStatus(this.combined.getEndstats()[i], ehp, mhp);
+                setStatus(this.combined.getNowstats()[i], nhp, mhp, battleFirst.getCombinedEscape()[i]);
+                setStatus(this.combined.getEndstats()[i], ehp, mhp, battleFirst.getCombinedEscape()[i]);
                 setCond(this.combined.getConds()[i], dock.getShips().get(i).getCond());
             }
             for (int i = dock.getShips().size(); i < MAXCHARA; i++)
@@ -454,8 +454,8 @@ public final class SortieDialog extends Dialog
             this.enemy.getNowhps()[i].setText(nhp + "");
             this.enemy.getEndhps()[i].setText(ehp + "");
             this.enemy.getMaxhps()[i].setText(mhp + "");
-            setStatus(this.enemy.getNowstats()[i], nhp, mhp);
-            setStatus(this.enemy.getEndstats()[i], ehp, mhp);
+            setStatus(this.enemy.getNowstats()[i], nhp, mhp, false);
+            setStatus(this.enemy.getEndstats()[i], ehp, mhp, false);
             this.enemy.getConds()[i].setText("");
         }
         for (int i = battleFirst.getEnemy().size(); i < MAXCHARA; i++)
@@ -565,38 +565,47 @@ public final class SortieDialog extends Dialog
         }
     }
 
-    private static void setStatus(CLabel label, int now, int max)
+    private static void setStatus(CLabel label, int now, int max, boolean escape)
     {
-        now *= 4;
-        if (now > (max * 3))
+        if (escape)
         {
-            label.setText("健在");
-            label.setBackground((Color) null);
-            label.setForeground(null);
-        }
-        else if (now > (max * 2))
-        {
-            label.setText("小破");
-            label.setBackground((Color) null);
-            label.setForeground(null);
-        }
-        else if (now > max)
-        {
-            label.setText("中破");
-            label.setBackground(SWTResourceManager.getColor(AppConstants.COND_ORANGE_COLOR));
-            label.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-        }
-        else if (now > 0)
-        {
-            label.setText("大破");
-            label.setBackground(SWTResourceManager.getColor(AppConstants.COND_RED_COLOR));
+            label.setText("退避");
+            label.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
             label.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
         }
         else
         {
-            label.setText("撃沈");
-            label.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
-            label.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+            now *= 4;
+            if (now > (max * 3))
+            {
+                label.setText("健在");
+                label.setBackground((Color) null);
+                label.setForeground(null);
+            }
+            else if (now > (max * 2))
+            {
+                label.setText("小破");
+                label.setBackground((Color) null);
+                label.setForeground(null);
+            }
+            else if (now > max)
+            {
+                label.setText("中破");
+                label.setBackground(SWTResourceManager.getColor(AppConstants.COND_ORANGE_COLOR));
+                label.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+            }
+            else if (now > 0)
+            {
+                label.setText("大破");
+                label.setBackground(SWTResourceManager.getColor(AppConstants.COND_RED_COLOR));
+                label.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+            }
+            else
+            {
+                label.setText("撃沈");
+                label.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
+                label.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+            }
         }
     }
 

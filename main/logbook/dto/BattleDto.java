@@ -71,6 +71,12 @@ public final class BattleDto extends AbstractDto {
     /** 艦隊行動 */
     private final String intercept;
 
+    /** 退避 */
+    private final boolean[] friendEscape = { false, false, false, false, false, false };
+
+    /** 退避 */
+    private final boolean[] combinedEscape = { false, false, false, false, false, false };
+
     /**
      * コンストラクター
      */
@@ -90,6 +96,22 @@ public final class BattleDto extends AbstractDto {
 
         if (object.containsKey("api_fParam_combined")) {
             this.friends.add(GlobalContext.getDock("2"));
+        }
+
+        if (object.containsKey("api_escape_idx")) {
+            JsonArray escIdx = object.getJsonArray("api_escape_idx");
+            for (int i = 0; i < escIdx.size(); i++) {
+                int idx = escIdx.getJsonNumber(i).intValue();
+                this.friendEscape[idx - 1] = true;
+            }
+        }
+
+        if (object.containsKey("api_escape_idx_combined")) {
+            JsonArray escIdx = object.getJsonArray("api_escape_idx_combined");
+            for (int i = 0; i < escIdx.size(); i++) {
+                int idx = escIdx.getJsonNumber(i).intValue();
+                this.combinedEscape[idx - 1] = true;
+            }
         }
 
         JsonArray shipKe = object.getJsonArray("api_ship_ke");
@@ -442,5 +464,19 @@ public final class BattleDto extends AbstractDto {
      */
     public String getIntercept() {
         return this.intercept;
+    }
+
+    /**
+     * @return friendEscape
+     */
+    public boolean[] getFriendEscape() {
+        return this.friendEscape;
+    }
+
+    /**
+     * @return combinedEscape
+     */
+    public boolean[] getCombinedEscape() {
+        return this.combinedEscape;
     }
 }
