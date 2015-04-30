@@ -23,7 +23,7 @@ public class AppConstants {
     public static final String VERSION = "0.8.4";
 
     /** バージョン */
-    public static final String VERSION_PLUS = "1.0.2";
+    public static final String VERSION_PLUS = "1.0.3";
 
     /** バージョン */
     public static final String VERSION_FULL = VERSION + "+" + VERSION_PLUS;
