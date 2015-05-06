@@ -263,13 +263,13 @@ public final class BattleDto extends AbstractDto {
             else if ("api_damage".equals(e.getKey())) {
                 JsonArray dflist = object.getJsonArray("api_df_list");
                 JsonArray damage = (JsonArray) e.getValue();
-                int i = 1;
-                for (JsonValue v : damage) {
-                    if (v instanceof JsonNumber) {
-                        JsonNumber dm = (JsonNumber) v;
-                        this.endEnemyHp[i - 1] -= dm.intValue();
-                    }
-                    else if (v instanceof JsonArray) {
+                for (int i = 1; i < damage.size(); i++) {
+                    JsonValue v = damage.get(i);
+                    switch (v.getValueType()) {
+                    case NUMBER:
+                        this.endEnemyHp[i - 1] -= ((JsonNumber) v).intValue();
+                        break;
+                    case ARRAY:
                         JsonArray dm = (JsonArray) v;
                         JsonArray df = dflist.getJsonArray(i);
                         for (int j = 0; j < dm.size(); j++) {
@@ -287,8 +287,10 @@ public final class BattleDto extends AbstractDto {
                                 this.endEnemyHp[idx - 1 - 6] -= dm.getJsonNumber(j).intValue();
                             }
                         }
+                        break;
+                    default:
+                        break;
                     }
-                    i++;
                 }
             }
             else {
