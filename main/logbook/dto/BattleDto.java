@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.json.JsonArray;
+import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
@@ -242,7 +243,7 @@ public final class BattleDto extends AbstractDto {
     }
 
     private void searchDamage(JsonObject object, boolean comb) {
-        for (JsonObject.Entry e : object.entrySet()) {
+        for (JsonObject.Entry<String, JsonValue> e : object.entrySet()) {
             if ("api_fdam".equals(e.getKey())) {
                 JsonArray fdam = (JsonArray) e.getValue();
                 for (int i = 1; i < fdam.size(); i++) {
@@ -262,26 +263,37 @@ public final class BattleDto extends AbstractDto {
             else if ("api_damage".equals(e.getKey())) {
                 JsonArray dflist = object.getJsonArray("api_df_list");
                 JsonArray damage = (JsonArray) e.getValue();
-                for (int i = 1; i < damage.size(); i++) {
-                    JsonArray dm = damage.getJsonArray(i);
-                    JsonArray df = dflist.getJsonArray(i);
-                    for (int j = 0; j < dm.size(); j++) {
-                        int idx = df.getJsonNumber(j).intValue();
-                        if (idx <= 6) {
-                            if (comb) {
-                                this.endCombinedHp[idx - 1] -= dm.getJsonNumber(j).intValue();
-                            } else {
-                                this.endFriendHp[idx - 1] -= dm.getJsonNumber(j).intValue();
+                int i = 1;
+                for (JsonValue v : damage) {
+                    if (v instanceof JsonNumber) {
+                        JsonNumber dm = (JsonNumber) v;
+                        this.endEnemyHp[i - 1] -= dm.intValue();
+                    }
+                    else if (v instanceof JsonArray) {
+                        JsonArray dm = (JsonArray) v;
+                        JsonArray df = dflist.getJsonArray(i);
+                        for (int j = 0; j < dm.size(); j++) {
+                            int idx = df.getJsonNumber(j).intValue();
+                            if (idx < 1) {
+                                continue;
                             }
-                        } else {
-                            this.endEnemyHp[idx - 1 - 6] -= dm.getJsonNumber(j).intValue();
+                            else if (idx <= 6) {
+                                if (comb) {
+                                    this.endCombinedHp[idx - 1] -= dm.getJsonNumber(j).intValue();
+                                } else {
+                                    this.endFriendHp[idx - 1] -= dm.getJsonNumber(j).intValue();
+                                }
+                            } else {
+                                this.endEnemyHp[idx - 1 - 6] -= dm.getJsonNumber(j).intValue();
+                            }
                         }
                     }
+                    i++;
                 }
             }
             else {
                 boolean c = comb
-                        || ((e.getKey() != null) && ((String) e.getKey()).contains("_combined"))
+                        || ((e.getKey() != null) && e.getKey().contains("_combined"))
                         ||
                         (
                         ((this.combined == 1) && ("api_hougeki1".equals(e.getKey()) || "api_raigeki".equals(e.getKey()))) ||
