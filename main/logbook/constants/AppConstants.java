@@ -125,6 +125,9 @@ public class AppConstants {
     /** 装備一覧設定ファイル  */
     public static final File ITEM_CONFIG_FILE = new File("./config/item.xml");
 
+    /** レベル付き装備設定ファイル  */
+    public static final File ITEM_LEVEL_CONFIG_FILE = new File("./config/itemlevel.xml");
+
     /** 装備マスター設定ファイル  */
     public static final File ITEM_MST_CONFIG_FILE = new File("./config/itemmst.xml");
 
@@ -217,6 +220,12 @@ public class AppConstants {
 
     /** メッセージ ドラム缶:{0}隻{1}個 */
     public static final String MESSAGE_DRUM = "ドラム缶:{0}隻{1}個。";
+
+    /** メッセージ 泊地修理の準備中({0}分経過)*/
+    public static final String BERTH_REPAIR_1 = "泊地修理の準備中({0}分経過)";
+
+    /** メッセージ 泊地修理中({0}分経過)*/
+    public static final String BERTH_REPAIR_2 = "泊地修理中({0}分経過)";
 
     /** 海戦・ドロップ報告書.csv */
     public static final String LOG_BATTLE_RESULT = "海戦・ドロップ報告書.csv";

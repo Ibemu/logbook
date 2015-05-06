@@ -1,6 +1,5 @@
 package logbook.data.context;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -9,15 +8,10 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.TimeUnit;
 
-import javax.annotation.CheckForNull;
 import javax.json.JsonArray;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
@@ -32,6 +26,8 @@ import logbook.data.Data;
 import logbook.data.DataQueue;
 import logbook.data.EventSender;
 import logbook.data.event.CallScript;
+import logbook.data.event.Material;
+import logbook.data.event.RemodelSlot;
 import logbook.dto.BattleDto;
 import logbook.dto.BattleResultDto;
 import logbook.dto.CreateItemDto;
@@ -39,7 +35,6 @@ import logbook.dto.DeckMissionDto;
 import logbook.dto.DockDto;
 import logbook.dto.GetShipDto;
 import logbook.dto.ItemDto;
-import logbook.dto.MaterialDto;
 import logbook.dto.MissionResultDto;
 import logbook.dto.NdockDto;
 import logbook.dto.QuestDto;
@@ -73,15 +68,6 @@ public final class GlobalContext {
 
     /** コンテキスト */
     private static final GlobalContext CONTEXT = new GlobalContext();
-
-    /** 装備Map */
-    private static Map<Long, ItemDto> itemMap = new ConcurrentSkipListMap<Long, ItemDto>();
-
-    /** 艦娘Map */
-    private static Map<Long, ShipDto> shipMap = new ConcurrentSkipListMap<Long, ShipDto>();
-
-    /** 秘書艦 */
-    private static ShipDto secretary;
 
     /** 建造 */
     private static List<GetShipDto> getShipList = new ArrayList<GetShipDto>();
@@ -157,15 +143,6 @@ public final class GlobalContext {
     /** イベント ID */
     private static int eventId;
 
-    /** ログキュー */
-    private static Queue<String> consoleQueue = new ArrayBlockingQueue<String>(10);
-
-    /** 保有資源・資材 */
-    private static MaterialDto material = null;
-
-    /** 最後に資源ログに追加した時間 */
-    volatile private static Date materialLogLastUpdate = null;
-
     /** 連合艦隊 */
     private static int combined;
 
@@ -177,48 +154,8 @@ public final class GlobalContext {
      */
     public GlobalContext() {
         this.sender.addEventListener(new CallScript());
-    }
-
-    /**
-     * @return 装備Map
-     */
-    public static Map<Long, ItemDto> getItemMap() {
-        return itemMap;
-    }
-
-    /**
-     * 装備を復元する
-     * @param map
-     */
-    public static void setItemMap(Map<Long, Integer> map) {
-        for (Entry<Long, Integer> entry : map.entrySet()) {
-            Object obj = entry.getValue();
-            Integer id;
-            if (obj instanceof Integer) {
-                id = (Integer) obj;
-            } else {
-                // 旧設定ファイル用
-                id = Integer.parseInt(obj.toString());
-            }
-            ItemDto item = Item.get(id);
-            if (item != null) {
-                itemMap.put(entry.getKey(), item);
-            }
-        }
-    }
-
-    /**
-     * @return 艦娘Map
-     */
-    public static Map<Long, ShipDto> getShipMap() {
-        return shipMap;
-    }
-
-    /**
-     * @return 秘書艦
-     */
-    public static ShipDto getSecretary() {
-        return secretary;
+        this.sender.addEventListener(new RemodelSlot());
+        this.sender.addEventListener(new Material());
     }
 
     /**
@@ -397,22 +334,6 @@ public final class GlobalContext {
     }
 
     /**
-     * 保有資材を取得します
-     * @return 保有資材
-     */
-    @CheckForNull
-    public static MaterialDto getMaterial() {
-        return material;
-    }
-
-    /**
-     * @return ログメッセージ
-     */
-    public static String getConsoleMessage() {
-        return consoleQueue.poll();
-    }
-
-    /**
      * 情報を更新します
      *
      * @return 更新する情報があった場合trueを返します
@@ -453,10 +374,6 @@ public final class GlobalContext {
             // 基本
             case BASIC:
                 doBasic(data);
-                break;
-            // 資材
-            case MATERIAL:
-                doMaterial(data);
                 break;
             // 遠征
             case MISSION_START:
@@ -601,7 +518,7 @@ public final class GlobalContext {
                     int fuel = shipobj.getJsonNumber("api_fuel").intValue();
                     int bull = shipobj.getJsonNumber("api_bull").intValue();
 
-                    ShipDto ship = shipMap.get(shipid);
+                    ShipDto ship = ShipContext.get().get(shipid);
                     if (ship != null) {
                         ship.setFuel(fuel);
                         ship.setBull(bull);
@@ -651,7 +568,7 @@ public final class GlobalContext {
                 } else if (shipid == -1L) {
                     dockdto.removeShip(shipidx);
                 } else {
-                    ShipDto rship = shipMap.get(shipid);
+                    ShipDto rship = ShipContext.get().get(shipid);
 
                     DockDto otherDock = dock.get(rship.getFleetid());
 
@@ -667,7 +584,7 @@ public final class GlobalContext {
                     }
                 }
                 // 秘書艦を再設定
-                setSecretary(dock.get("1").getShips().get(0));
+                ShipContext.setSecretary(dock.get("1").getShips().get(0));
             }
         } catch (Exception e) {
             LOG.warn("編成を更新しますに失敗しました", e);
@@ -691,16 +608,11 @@ public final class GlobalContext {
                 doBasicSub(apiBasic);
                 addConsole("司令部を更新しました");
 
-                // 保有資材を更新する
-                JsonArray apiMaterial = apidata.getJsonArray("api_material");
-                doMaterialSub(apiMaterial);
-                addConsole("保有資材を更新しました");
-
                 // 保有艦娘を更新する
                 JsonArray apiShip = apidata.getJsonArray("api_ship");
                 for (int i = 0; i < apiShip.size(); i++) {
                     ShipDto ship = new ShipDto((JsonObject) apiShip.get(i));
-                    shipMap.put(Long.valueOf(ship.getId()), ship);
+                    ShipContext.get().put(Long.valueOf(ship.getId()), ship);
                 }
                 JsonArray apiDeckPort = apidata.getJsonArray("api_deck_port");
                 doDeck(apiDeckPort);
@@ -979,7 +891,7 @@ public final class GlobalContext {
                     data.getField("api_item3"),
                     data.getField("api_item4"),
                     data.getField("api_item5"),
-                    secretary, hqLevel
+                    ShipContext.getSecretary(), hqLevel
                     );
             lastBuildKdock = kdockid;
             getShipResource.put(kdockid, resource);
@@ -1049,14 +961,14 @@ public final class GlobalContext {
                     Long id = object.getJsonNumber("api_id").longValue();
                     ItemDto item = Item.get(typeid);
                     if (item != null) {
-                        itemMap.put(id, item);
+                        ItemContext.get().put(id, item);
                     }
                 }
             }
             // 艦娘を追加します
             JsonObject apiShip = apidata.getJsonObject("api_ship");
             ShipDto ship = new ShipDto(apiShip);
-            shipMap.put(Long.valueOf(ship.getId()), ship);
+            ShipContext.get().put(Long.valueOf(ship.getId()), ship);
             // 投入資源を取得する
             ResourceDto resource = getShipResource.get(dock);
             if (resource == null) {
@@ -1087,7 +999,7 @@ public final class GlobalContext {
 
             // 投入資源
             ResourceDto resources = new ResourceDto(data.getField("api_item1"), data.getField("api_item2"),
-                    data.getField("api_item3"), data.getField("api_item4"), secretary, hqLevel);
+                    data.getField("api_item3"), data.getField("api_item4"), ShipContext.getSecretary(), hqLevel);
 
             CreateItemDto createitem = new CreateItemDto(apidata, resources);
             if (createitem.isCreateFlag()) {
@@ -1096,7 +1008,7 @@ public final class GlobalContext {
                 Long id = object.getJsonNumber("api_id").longValue();
                 ItemDto item = Item.get(typeid);
                 if (item != null) {
-                    itemMap.put(id, item);
+                    ItemContext.get().put(id, item);
 
                     createitem.setName(item.getName());
                     createitem.setType(item.getType());
@@ -1133,14 +1045,16 @@ public final class GlobalContext {
         try {
             JsonArray apidata = data.getJsonObject().getJsonArray("api_data");
             // 破棄
-            itemMap.clear();
+            ItemContext.get().clear();
             for (int i = 0; i < apidata.size(); i++) {
                 JsonObject object = (JsonObject) apidata.get(i);
                 int typeid = object.getJsonNumber("api_slotitem_id").intValue();
+                int level = object.getJsonNumber("api_level").intValue();
                 Long id = object.getJsonNumber("api_id").longValue();
                 ItemDto item = Item.get(typeid);
                 if (item != null) {
-                    itemMap.put(id, item);
+                    ItemContext.get().put(id, item);
+                    ItemContext.level().put(id, level);
                 }
             }
 
@@ -1168,14 +1082,14 @@ public final class GlobalContext {
                 Long shipid = Long.parseLong(shipidstr);
                 for (int i = 0; i < shipdata.size(); i++) {
                     ShipDto ship = new ShipDto((JsonObject) shipdata.get(i));
-                    shipMap.put(shipid, ship);
+                    ShipContext.get().put(shipid, ship);
                 }
             } else {
                 // 情報を破棄
-                shipMap.clear();
+                ShipContext.get().clear();
                 for (int i = 0; i < shipdata.size(); i++) {
                     ShipDto ship = new ShipDto((JsonObject) shipdata.get(i));
-                    shipMap.put(Long.valueOf(ship.getId()), ship);
+                    ShipContext.get().put(Long.valueOf(ship.getId()), ship);
                 }
             }
             // 艦隊を設定
@@ -1197,10 +1111,10 @@ public final class GlobalContext {
         try {
             JsonArray apidata = data.getJsonObject().getJsonArray("api_data");
             // 情報を破棄
-            shipMap.clear();
+            ShipContext.get().clear();
             for (int i = 0; i < apidata.size(); i++) {
                 ShipDto ship = new ShipDto((JsonObject) apidata.get(i));
-                shipMap.put(Long.valueOf(ship.getId()), ship);
+                ShipContext.get().put(Long.valueOf(ship.getId()), ship);
             }
             // 艦隊を設定
             doDeck(data.getJsonObject().getJsonArray("api_data_deck"));
@@ -1252,13 +1166,13 @@ public final class GlobalContext {
 
             for (int j = 0; j < apiship.size(); j++) {
                 Long shipid = Long.valueOf(((JsonNumber) apiship.get(j)).longValue());
-                ShipDto ship = shipMap.get(shipid);
+                ShipDto ship = ShipContext.get().get(shipid);
 
                 if (ship != null) {
                     dockdto.addShip(ship);
 
                     if ((i == 0) && (j == 0)) {
-                        setSecretary(ship);
+                        ShipContext.setSecretary(ship);
                     }
                     // 艦隊IDを設定
                     ship.setFleetid(fleetid);
@@ -1268,34 +1182,21 @@ public final class GlobalContext {
     }
 
     /**
-     * 秘書艦を設定します
-     *
-     * @param ship
-     */
-    private static void setSecretary(ShipDto ship) {
-        if ((secretary == null) || (ship.getId() != secretary.getId())) {
-            addConsole(ship.getName() + "(Lv" + ship.getLv() + ")" + " が秘書艦に任命されました");
-        }
-        // 秘書艦を設定
-        secretary = ship;
-    }
-
-    /**
      * 艦娘を解体します
      * @param data
      */
     private static void doDestroyShip(Data data) {
         try {
             Long shipid = Long.parseLong(data.getField("api_ship_id"));
-            ShipDto ship = shipMap.get(shipid);
+            ShipDto ship = ShipContext.get().get(shipid);
             if (ship != null) {
                 // 持っている装備を廃棄する
                 List<Long> items = ship.getItemId();
                 for (Long item : items) {
-                    itemMap.remove(item);
+                    ItemContext.get().remove(item);
                 }
                 // 艦娘を外す
-                shipMap.remove(ship.getId());
+                ShipContext.get().remove(ship.getId());
 
                 DockDto dockdto = dock.get(ship.getFleetid());
                 if (dockdto != null)
@@ -1327,7 +1228,7 @@ public final class GlobalContext {
             String itemids = data.getField("api_slotitem_ids");
             for (String itemid : itemids.split(",")) {
                 Long item = Long.parseLong(itemid);
-                itemMap.remove(item);
+                ItemContext.get().remove(item);
             }
 
             Date now = new Date();
@@ -1354,15 +1255,15 @@ public final class GlobalContext {
         try {
             String shipids = data.getField("api_id_items");
             for (String shipid : shipids.split(",")) {
-                ShipDto ship = shipMap.get(Long.parseLong(shipid));
+                ShipDto ship = ShipContext.get().get(Long.parseLong(shipid));
                 if (ship != null) {
                     // 持っている装備を廃棄する
                     List<Long> items = ship.getItemId();
                     for (Long item : items) {
-                        itemMap.remove(item);
+                        ItemContext.get().remove(item);
                     }
                     // 艦娘を外す
-                    shipMap.remove(ship.getId());
+                    ShipContext.get().remove(ship.getId());
                 }
             }
 
@@ -1414,75 +1315,6 @@ public final class GlobalContext {
         maxChara = apidata.getJsonNumber("api_max_chara").intValue();
         // 最大所有装備数
         maxSlotitem = apidata.getJsonNumber("api_max_slotitem").intValue();
-    }
-
-    /**
-     * 保有資材を更新する
-     *
-     * @param data
-     */
-    private static void doMaterial(Data data) {
-        try {
-            JsonArray apidata = data.getJsonObject().getJsonArray("api_data");
-
-            doMaterialSub(apidata);
-
-            addConsole("保有資材を更新しました");
-        } catch (Exception e) {
-            LOG.warn("保有資材を更新するに失敗しました", e);
-            LOG.warn(data);
-        }
-    }
-
-    /**
-     * 保有資材を更新する
-     *
-     * @param apidata
-     */
-    private static void doMaterialSub(JsonArray apidata) {
-        Date time = Calendar.getInstance().getTime();
-        MaterialDto dto = new MaterialDto();
-        dto.setTime(time);
-
-        for (JsonValue value : apidata) {
-            JsonObject entry = (JsonObject) value;
-
-            switch (entry.getInt("api_id")) {
-            case AppConstants.MATERIAL_FUEL:
-                dto.setFuel(entry.getInt("api_value"));
-                break;
-            case AppConstants.MATERIAL_AMMO:
-                dto.setAmmo(entry.getInt("api_value"));
-                break;
-            case AppConstants.MATERIAL_METAL:
-                dto.setMetal(entry.getInt("api_value"));
-                break;
-            case AppConstants.MATERIAL_BAUXITE:
-                dto.setBauxite(entry.getInt("api_value"));
-                break;
-            case AppConstants.MATERIAL_BURNER:
-                dto.setBurner(entry.getInt("api_value"));
-                break;
-            case AppConstants.MATERIAL_BUCKET:
-                dto.setBucket(entry.getInt("api_value"));
-                break;
-            case AppConstants.MATERIAL_RESEARCH:
-                dto.setResearch(entry.getInt("api_value"));
-                break;
-            default:
-                break;
-            }
-        }
-        material = dto;
-
-        // 資材ログに書き込む
-        if ((materialLogLastUpdate == null)
-                || (TimeUnit.MILLISECONDS.toSeconds(time.getTime() - materialLogLastUpdate.getTime()) >
-                AppConfig.get().getMaterialLogInterval())) {
-            CreateReportLogic.storeMaterialReport(material);
-
-            materialLogLastUpdate = time;
-        }
     }
 
     /**
@@ -1890,9 +1722,12 @@ public final class GlobalContext {
         return new ShipInfoDto(name, type, flagship, afterlv, maxBull, maxFuel);
     }
 
+    /**
+     * 母港画面のログ出力
+     *
+     * @param message ログメッセージ
+     */
     private static void addConsole(Object message) {
-        consoleQueue.offer(new SimpleDateFormat(AppConstants.DATE_SHORT_FORMAT)
-                .format(Calendar.getInstance().getTime())
-                + "  " + message.toString());
+        ConsoleContext.log(message);
     }
 }

@@ -17,6 +17,8 @@ import logbook.config.QuestConfig;
 import logbook.config.bean.QuestBean;
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
+import logbook.data.context.ItemContext;
+import logbook.data.context.ShipContext;
 import logbook.dto.BattleDto;
 import logbook.dto.BattleResultDto;
 import logbook.dto.CreateItemDto;
@@ -264,7 +266,7 @@ public final class CreateReportLogic {
      * @return 内容
      */
     public static List<String[]> getItemListBody() {
-        Set<Entry<Long, ItemDto>> items = GlobalContext.getItemMap().entrySet();
+        Set<Entry<Long, ItemDto>> items = ItemContext.get().entrySet();
         Map<ItemDto, Integer> itemCountMap = new HashMap<ItemDto, Integer>();
 
         for (Entry<Long, ItemDto> entry : items) {
@@ -319,7 +321,7 @@ public final class CreateReportLogic {
      * @return 内容
      */
     public static List<String[]> getShipListBody(boolean specdiff, ShipFilterDto filter) {
-        Set<Entry<Long, ShipDto>> ships = GlobalContext.getShipMap().entrySet();
+        Set<Entry<Long, ShipDto>> ships = ShipContext.get().entrySet();
         List<Object[]> body = new ArrayList<Object[]>();
         int count = 0;
         for (Entry<Long, ShipDto> entry : ships) {

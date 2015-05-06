@@ -8,7 +8,7 @@ import javax.annotation.CheckForNull;
 import logbook.config.bean.KdockBean;
 import logbook.config.bean.KdockMapBean;
 import logbook.constants.AppConstants;
-import logbook.data.context.GlobalContext;
+import logbook.data.context.ShipContext;
 import logbook.dto.ResourceDto;
 import logbook.dto.ShipDto;
 import logbook.util.BeanUtils;
@@ -29,7 +29,7 @@ public class KdockConfig {
 
     /**
      * 建造ドックの投入資源を設定します
-     * 
+     *
      * @param dock ドック
      * @param resource 資源
      * @throws IOException IOException
@@ -55,7 +55,7 @@ public class KdockConfig {
 
     /**
      * 建造ドックの投入資源を取得します
-     * 
+     *
      * @param dock ドック
      * @return 建造ドックの投入資源
      */
@@ -72,7 +72,7 @@ public class KdockConfig {
                     return null;
                 }
 
-                Map<Long, ShipDto> ships = GlobalContext.getShipMap();
+                Map<Long, ShipDto> ships = ShipContext.get();
                 if (!ships.isEmpty() && ships.containsKey(kdock.getShipId())) {
                     ResourceDto resource = new ResourceDto(kdock.getType(), kdock.getFuel(), kdock.getAmmo(),
                             kdock.getMetal(),
@@ -90,7 +90,7 @@ public class KdockConfig {
 
     /**
      * 建造ドックの投入資源を削除します
-     * 
+     *
      * @param dock ドック
      * @throws IOException IOException
      */

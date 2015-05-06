@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import logbook.data.context.GlobalContext;
+import logbook.data.context.ItemContext;
+import logbook.data.context.ShipContext;
 import logbook.dto.DeckMissionDto;
 import logbook.dto.NdockDto;
 import logbook.dto.ShipDto;
@@ -47,11 +49,11 @@ public final class TrayItemMenuListener implements MenuDetectListener {
         }
         this.menu = new Menu(this.shell);
         // 装備数
-        int itemCount = GlobalContext.getItemMap().size();
+        int itemCount = ItemContext.get().size();
         // 最大保有可能 装備数
         int itemMax = GlobalContext.maxSlotitem();
         // 艦娘数
-        int shipCount = GlobalContext.getShipMap().size();
+        int shipCount = ShipContext.get().size();
         // 最大保有可能 艦娘数
         int shipMax = GlobalContext.maxChara();
 
@@ -144,7 +146,7 @@ public final class TrayItemMenuListener implements MenuDetectListener {
         ndockItem.setText("入渠(&M)");
         Menu ndockMenu = new Menu(ndockItem);
         ndockItem.setMenu(ndockMenu);
-        Map<Long, ShipDto> shipMap = GlobalContext.getShipMap();
+        Map<Long, ShipDto> shipMap = ShipContext.get();
         NdockDto[] ndocks = GlobalContext.getNdocks();
         for (NdockDto ndockDto : ndocks) {
             if ((ndockDto != null) && (shipMap.get(ndockDto.getNdockid()) != null)) {
@@ -179,7 +181,7 @@ public final class TrayItemMenuListener implements MenuDetectListener {
 
     /**
      * 2つの日付から残り時間を計算する
-     * 
+     *
      * @param date1
      * @param date2
      * @return

@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
+import logbook.data.context.ItemContext;
+import logbook.data.context.ShipContext;
 import logbook.dto.DeckMissionDto;
 import logbook.dto.DockDto;
 import logbook.dto.NdockDto;
@@ -106,7 +108,7 @@ public final class AsyncExecApplicationMain extends Thread {
         @Override
         public void run() {
             Button itemList = this.main.getItemList();
-            String setText = "所有装備(" + GlobalContext.getItemMap().size() + "/"
+            String setText = "所有装備(" + ItemContext.get().size() + "/"
                     + GlobalContext.maxSlotitem() + ")";
             if (!setText.equals(itemList.getText())) {
                 itemList.setText(setText);
@@ -132,7 +134,7 @@ public final class AsyncExecApplicationMain extends Thread {
         @Override
         public void run() {
             Button shipList = this.main.getShipList();
-            String setText = "所有艦娘(" + GlobalContext.getShipMap().size() + "/" + GlobalContext.maxChara()
+            String setText = "所有艦娘(" + ShipContext.get().size() + "/" + GlobalContext.maxChara()
                     + ")";
             if (setText.equals(shipList.getText())) {
                 return;
@@ -145,9 +147,9 @@ public final class AsyncExecApplicationMain extends Thread {
                 TaskItem item = SwtUtils.getTaskBarItem(this.main.getShell());
                 if (item != null) {
                     int max = GlobalContext.maxChara();
-                    int size = GlobalContext.getShipMap().size();
+                    int size = ShipContext.get().size();
                     int locked = 0;
-                    for (Entry<Long, ShipDto> entry : GlobalContext.getShipMap().entrySet()) {
+                    for (Entry<Long, ShipDto> entry : ShipContext.get().entrySet()) {
                         if (entry.getValue().getLocked()) {
                             locked++;
                         }
@@ -229,7 +231,7 @@ public final class AsyncExecApplicationMain extends Thread {
                             }
                         }
 
-                        Map<Long, ShipDto> shipMap = GlobalContext.getShipMap();
+                        Map<Long, ShipDto> shipMap = ShipContext.get();
                         NdockDto[] ndocks = GlobalContext.getNdocks();
                         for (int i = 0; i < ndocks.length; i++) {
                             if (FLAG_NOTICE_NDOCK[i] && (ndocks[i].getNdockid() != 0)) {
@@ -339,7 +341,7 @@ public final class AsyncExecApplicationMain extends Thread {
         private boolean updateNdock(Date now) {
             boolean noticeflg = false;
 
-            Map<Long, ShipDto> shipMap = GlobalContext.getShipMap();
+            Map<Long, ShipDto> shipMap = ShipContext.get();
 
             Label[] ndockNameLabels = { this.main.getNdock1name(), this.main.getNdock2name(),
                     this.main.getNdock3name(), this.main.getNdock4name() };
@@ -426,9 +428,9 @@ public final class AsyncExecApplicationMain extends Thread {
             // タブを更新する
             CTabItem maintab = this.main.getTabFolder().getItem(0);
             maintab.setToolTipText(
-                    "装備:" + GlobalContext.getItemMap().size() + "/"
+                    "装備:" + ItemContext.get().size() + "/"
                             + GlobalContext.maxSlotitem()
-                            + " 艦娘:" + GlobalContext.getShipMap().size() + "/"
+                            + " 艦娘:" + ShipContext.get().size() + "/"
                             + GlobalContext.maxChara());
 
             for (int i = 0; i < 4; i++) {

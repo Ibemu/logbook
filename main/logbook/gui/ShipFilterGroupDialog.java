@@ -11,7 +11,7 @@ import logbook.config.ShipGroupConfig;
 import logbook.config.bean.ShipGroupBean;
 import logbook.config.bean.ShipGroupListBean;
 import logbook.constants.AppConstants;
-import logbook.data.context.GlobalContext;
+import logbook.data.context.ShipContext;
 import logbook.dto.ShipDto;
 import logbook.gui.logic.TableItemCreator;
 
@@ -236,7 +236,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialog {
 
     /**
      * コンボボックスに艦娘をセットします
-     * 
+     *
      * @param combo
      */
     private void setShipComboData() {
@@ -246,12 +246,12 @@ public final class ShipFilterGroupDialog extends AbstractTableDialog {
         this.shipmap.clear();
         // 艦娘IDの最大を取得してゼロ埋め長さを算出
         long maxshipid = 0;
-        for (ShipDto ship : GlobalContext.getShipMap().values()) {
+        for (ShipDto ship : ShipContext.get().values()) {
             maxshipid = Math.max(ship.getId(), maxshipid);
         }
         int padlength = Long.toString(maxshipid).length();
         // 表示用文字列と艦娘の紐付けを追加
-        for (ShipDto ship : GlobalContext.getShipMap().values()) {
+        for (ShipDto ship : ShipContext.get().values()) {
             this.shipmap.put(this.getShipLabel(ship, padlength), ship);
         }
         // 艦娘を経験値順でソート
@@ -274,7 +274,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialog {
 
     /**
      * 艦娘のプルダウン表示用文字列を作成します
-     * 
+     *
      * @param ship
      * @param padlength
      * @return
@@ -286,7 +286,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialog {
 
     /**
      * グループを追加するときに呼び出されるアダプター
-     * 
+     *
      */
     private static final class AddGroupAdapter extends SelectionAdapter {
 
@@ -359,7 +359,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialog {
 
     /**
      * 名前を変更した時に呼び出されるアダプター
-     * 
+     *
      */
     private static final class ModifyNameAdapter implements ModifyListener {
 
@@ -491,7 +491,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialog {
 
         /**
          * コンストラクター
-         * 
+         *
          * @param shipGroup 所有艦娘のグループ
          * @param item TreeItem
          */
@@ -502,7 +502,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialog {
 
         /**
          * 所有艦娘のグループを取得します
-         * 
+         *
          * @return 所有艦娘のグループ
          */
         public ShipGroupBean getShipGroupBean() {
@@ -519,12 +519,12 @@ public final class ShipFilterGroupDialog extends AbstractTableDialog {
 
         /**
          * 艦娘のリストを取得します
-         * 
+         *
          * @return 艦娘のリスト
          */
         public List<ShipDto> getShipList() {
             List<ShipDto> ships = new ArrayList<ShipDto>();
-            Map<Long, ShipDto> shipMap = GlobalContext.getShipMap();
+            Map<Long, ShipDto> shipMap = ShipContext.get();
             for (Long id : this.shipGroup.getShips()) {
                 ShipDto ship = shipMap.get(id);
                 if (ship != null) {

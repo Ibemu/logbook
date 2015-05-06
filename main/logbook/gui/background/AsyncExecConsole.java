@@ -1,6 +1,6 @@
 package logbook.gui.background;
 
-import logbook.data.context.GlobalContext;
+import logbook.data.context.ConsoleContext;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,7 +36,7 @@ public final class AsyncExecConsole extends Thread {
         try {
             // ログメッセージを取り出す
             String message;
-            while ((message = GlobalContext.getConsoleMessage()) != null) {
+            while ((message = ConsoleContext.getConsoleMessage()) != null) {
                 Display.getDefault().syncExec(new UpdateConsoleTask(this.console, message));
             }
         } catch (Exception e) {

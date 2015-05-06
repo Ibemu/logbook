@@ -88,7 +88,7 @@ public class ShipFilterLogic {
         // 艦種
         String type = ship.getType();
         // 装備
-        List<ItemDto> item = ship.getItem();
+        List<String> items = ship.getSlot();
 
         // テキストが入力されている場合処理する
         if (filter.regexp) {
@@ -108,12 +108,8 @@ public class ShipFilterLogic {
                 // 艦種で検索
                 find = find ? find : pattern.matcher(type).find();
                 // 装備で検索
-                for (ItemDto itemDto : item) {
-                    if ((itemDto == null) || (itemDto.getName() == null)) {
-                        find = find ? find : false;
-                    } else {
-                        find = find ? find : pattern.matcher(itemDto.getName()).find();
-                    }
+                for (String item : items) {
+                    find = find ? find : pattern.matcher(item).find();
                 }
 
                 if (!find) {
@@ -131,12 +127,8 @@ public class ShipFilterLogic {
                 // 艦種で検索
                 find = find ? find : type.indexOf(words[i]) != -1;
                 // 装備で検索
-                for (ItemDto itemDto : item) {
-                    if ((itemDto == null) || (itemDto.getName() == null)) {
-                        find = find ? find : false;
-                    } else {
-                        find = find ? find : itemDto.getName().indexOf(words[i]) != -1;
-                    }
+                for (String item : items) {
+                    find = find ? find : item.indexOf(words[i]) != -1;
                 }
 
                 if (!find) {

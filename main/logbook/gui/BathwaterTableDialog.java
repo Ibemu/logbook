@@ -11,6 +11,7 @@ import java.util.Set;
 
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
+import logbook.data.context.ShipContext;
 import logbook.dto.DeckMissionDto;
 import logbook.dto.NdockDto;
 import logbook.dto.ShipDto;
@@ -31,7 +32,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 
 /**
  * お風呂に入りたい艦娘
- * 
+ *
  */
 public final class BathwaterTableDialog extends AbstractTableDialog {
 
@@ -87,7 +88,7 @@ public final class BathwaterTableDialog extends AbstractTableDialog {
         this.nDockShips = this.getNDockShips();
 
         List<ShipDto> ships = new ArrayList<ShipDto>();
-        for (ShipDto ship : GlobalContext.getShipMap().values()) {
+        for (ShipDto ship : ShipContext.get().values()) {
             if (this.nDockShips.contains(ship.getId())) {
                 // 入渠中は外す
                 continue;
@@ -188,7 +189,7 @@ public final class BathwaterTableDialog extends AbstractTableDialog {
 
     /**
      * 遠征中の艦娘を取得します
-     * 
+     *
      * @return
      */
     private Set<Long> getDeckMissionShips() {
@@ -204,7 +205,7 @@ public final class BathwaterTableDialog extends AbstractTableDialog {
 
     /**
      * 入渠中の艦娘を取得します
-     * 
+     *
      * @return
      */
     private Set<Long> getNDockShips() {

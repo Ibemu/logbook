@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import javax.annotation.CheckForNull;
 import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
+import logbook.data.context.ShipContext;
 import logbook.dto.DockDto;
 import logbook.dto.ItemDto;
 import logbook.dto.ShipDto;
@@ -694,6 +696,21 @@ public class FleetComposite extends Composite {
         this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_DRUM, totalDrumShip, totalDrum),
                 null);
 
+        // 第1艦隊旗艦が明石の場合経過時間を表示(仮)
+        if (dock.getId().equals("1") && (dock.getShips().get(0).getName().indexOf("明石") != -1)) {
+            Date modifydate = ShipContext.getModifySecretaryDate();
+            if (modifydate != null) {
+                Date now = Calendar.getInstance().getTime();
+                long r = (now.getTime() - modifydate.getTime()) / 1000 / 60;
+                StyleRange style = new StyleRange();
+                style.fontStyle = SWT.BOLD;
+                if (r <= 20) {
+                    this.addStyledText(this.message, MessageFormat.format(AppConstants.BERTH_REPAIR_1, r), style);
+                } else {
+                    this.addStyledText(this.message, MessageFormat.format(AppConstants.BERTH_REPAIR_2, r), style);
+                }
+            }
+        }
         this.updateTabIcon();
         this.postFatal();
 

@@ -6,7 +6,7 @@ import java.util.TreeSet;
 
 import logbook.config.ShipGroupConfig;
 import logbook.config.bean.ShipGroupBean;
-import logbook.data.context.GlobalContext;
+import logbook.data.context.ItemContext;
 import logbook.dto.ItemDto;
 import logbook.dto.ShipFilterDto;
 
@@ -299,7 +299,7 @@ public final class ShipFilterDialog extends Dialog {
         this.itemcombo.setEnabled(false);
         this.itemcombo.addSelectionListener(listener);
         Set<String> items = new TreeSet<String>();
-        for (ItemDto entry : GlobalContext.getItemMap().values()) {
+        for (ItemDto entry : ItemContext.get().values()) {
             items.add(entry.getName());
         }
         for (String name : items) {

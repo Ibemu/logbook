@@ -39,6 +39,8 @@ public enum DataType {
     BATTLE_MIDNIGHT("/kcsapi/api_req_battle_midnight/battle"),
     /** 戦闘(夜戦) */
     BATTLE_SP_MIDNIGHT("/kcsapi/api_req_battle_midnight/sp_midnight"),
+    /** 戦闘(連合艦隊夜戦) */
+    BATTLE_COMBINED_MIDNIGHT_BATTLE("/kcsapi/api_req_combined_battle/midnight_battle"),
     /** 戦闘(夜戦→昼戦) */
     BATTLE_NIGHT_TO_DAY("/kcsapi/api_req_sortie/night_to_day"),
     /** 戦闘(航空戦) */
@@ -85,6 +87,20 @@ public enum DataType {
     PRACTICE_RESULT("/kcsapi/api_req_practice/battle_result"),
     /** 入渠 */
     NYUKYO("/kcsapi/api_req_nyukyo/start"),
+    /** 装備改修一覧 */
+    REMODEL_SLOTLIST("/kcsapi/api_req_kousyou/remodel_slotlist"),
+    /** 装備改修 */
+    REMODEL_SLOT("/kcsapi/api_req_kousyou/remodel_slot"),
+    /** 図鑑表示 */
+    PICTURE_BOOK("/kcsapi/api_get_member/picture_book"),
+    /** 戦績表示 */
+    RECORD("/kcsapi/api_get_member/record"),
+    /** ランキング */
+    RANKING("/kcsapi/api_req_ranking/getlist"),
+    /** アイテム */
+    PAYITEM("/kcsapi/api_get_member/payitem"),
+    /** 模様替え */
+    FURNITURE("/kcsapi/api_req_furniture/change"),
     /** フィルタ前のデータ */
     UNDEFINED(null);
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 import logbook.config.ShipGroupConfig;
 import logbook.config.bean.ShipGroupBean;
-import logbook.data.context.GlobalContext;
+import logbook.data.context.ShipContext;
 import logbook.dto.ShipDto;
 import logbook.dto.ShipFilterDto;
 import logbook.gui.logic.CreateReportLogic;
@@ -138,7 +138,7 @@ public final class ShipTable extends AbstractTableDialog {
                         List<String> name = new ArrayList<>();
                         for (int i = 0; i < tableItems.length; i++) {
                             long id = Long.parseLong(tableItems[i].getText(1));
-                            ShipDto ship = GlobalContext.getShipMap().get(id);
+                            ShipDto ship = ShipContext.get().get(id);
                             if (ship != null) {
                                 ships.add(ship);
                                 name.add(ship.getName());
@@ -177,7 +177,7 @@ public final class ShipTable extends AbstractTableDialog {
                         List<String> name = new ArrayList<>();
                         for (int i = 0; i < tableItems.length; i++) {
                             long id = Long.parseLong(tableItems[i].getText(1));
-                            ShipDto ship = GlobalContext.getShipMap().get(id);
+                            ShipDto ship = ShipContext.get().get(id);
                             if (ship != null) {
                                 ships.add(ship);
                                 name.add(ship.getName());

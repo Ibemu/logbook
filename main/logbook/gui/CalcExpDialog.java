@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import logbook.config.AppConfig;
-import logbook.data.context.GlobalContext;
+import logbook.data.context.ShipContext;
 import logbook.dto.ShipDto;
 import logbook.internal.EvaluateExp;
 import logbook.internal.ExpTable;
@@ -291,7 +291,7 @@ public final class CalcExpDialog extends Dialog {
 
     /**
      * コンボボックスに艦娘をセットします
-     * 
+     *
      * @param combo
      */
     private void setShipComboData() {
@@ -302,7 +302,7 @@ public final class CalcExpDialog extends Dialog {
             select = ship.getId();
         } else {
             // 誰も選択されてない状態の場合は秘書艦を選択する
-            ShipDto ship = GlobalContext.getSecretary();
+            ShipDto ship = ShipContext.getSecretary();
             if (ship != null) {
                 select = ship.getId();
             }
@@ -313,12 +313,12 @@ public final class CalcExpDialog extends Dialog {
         this.shipmap.clear();
         // 艦娘IDの最大を取得してゼロ埋め長さを算出
         long maxshipid = 0;
-        for (ShipDto ship : GlobalContext.getShipMap().values()) {
+        for (ShipDto ship : ShipContext.get().values()) {
             maxshipid = Math.max(ship.getId(), maxshipid);
         }
         int padlength = Long.toString(maxshipid).length();
         // 表示用文字列と艦娘の紐付けを追加
-        for (ShipDto ship : GlobalContext.getShipMap().values()) {
+        for (ShipDto ship : ShipContext.get().values()) {
             this.shipmap.put(this.getShipLabel(ship, padlength), ship);
         }
         // 艦娘を経験値順でソート
@@ -344,7 +344,7 @@ public final class CalcExpDialog extends Dialog {
 
     /**
      * 艦娘のプルダウン表示用文字列を作成します
-     * 
+     *
      * @param ship
      * @param padlength
      * @return
@@ -356,7 +356,7 @@ public final class CalcExpDialog extends Dialog {
 
     /**
      * 艦娘の状態を更新する
-     * 
+     *
      */
     private final class ReloadListener extends SelectionAdapter {
         @Override
