@@ -111,7 +111,7 @@ public final class GlobalContext {
     private static String lastBuildKdock;
 
     /** 戦闘詳細 */
-    private static Queue<BattleDto> battleList = new ArrayBlockingQueue<BattleDto>(2);
+    private static List<BattleDto> battleList = new ArrayList<BattleDto>();
 
     /** ボス戦 */
     private static boolean bossArrive = false;
@@ -301,7 +301,7 @@ public final class GlobalContext {
     /**
      * @return 海戦List
      */
-    public static Queue<BattleDto> getBattleList() {
+    public static List<BattleDto> getBattleList() {
         return battleList;
     }
 
@@ -743,12 +743,11 @@ public final class GlobalContext {
     private static void doBattle(Data data) {
         try {
             JsonObject apidata = data.getJsonObject().getJsonObject("api_data");
-            if (battleList.offer(new BattleDto(apidata, false, combined))) {
-                if (sortiePhase != SortiePhase.BATTLE)
-                    battleCount++;
-                sortiePhase = SortiePhase.BATTLE;
-                addConsole("海戦情報を更新しました");
-            }
+            battleList.add(new BattleDto(apidata, false, combined));
+            if (sortiePhase != SortiePhase.BATTLE)
+                battleCount++;
+            sortiePhase = SortiePhase.BATTLE;
+            addConsole("海戦情報を更新しました");
         } catch (Exception e) {
             LOG.warn("海戦情報を更新しますに失敗しました", e);
             LOG.warn(data);
@@ -762,12 +761,12 @@ public final class GlobalContext {
     private static void doBattleNight(Data data) {
         try {
             JsonObject apidata = data.getJsonObject().getJsonObject("api_data");
-            if (battleList.offer(new BattleDto(apidata, true, combined))) {
-                if (sortiePhase != SortiePhase.BATTLE)
-                    battleCount++;
-                sortiePhase = SortiePhase.BATTLE;
-                addConsole("海戦情報を更新しました");
-            }
+            battleList.add(new BattleDto(apidata, true, combined));
+            if (sortiePhase != SortiePhase.BATTLE)
+                battleCount++;
+            sortiePhase = SortiePhase.BATTLE;
+            addConsole("海戦情報を更新しました");
+
         } catch (Exception e) {
             LOG.warn("海戦情報を更新しますに失敗しました", e);
             LOG.warn(data);
