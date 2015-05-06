@@ -405,6 +405,7 @@ public final class SortieDialog extends Dialog
             setVisible(this.combined, true);
             dock = battleFirst.getFriends().get(1);
             this.combined.getDockName().setText(dock.getName());
+            this.combined.getFormation().setText(battleFirst.getCombinedType());
             for (int i = 0; i < dock.getShips().size(); i++)
             {
                 this.combined.getNames()[i].setText(dock.getShips().get(i).getName());

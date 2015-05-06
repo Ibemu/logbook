@@ -63,6 +63,9 @@ public final class BattleDto extends AbstractDto {
     /** 連合艦隊 */
     private final int combined;
 
+    /** 連合艦隊 */
+    private final String combinedType;
+
     /** 味方陣形 */
     private final String friendFormation;
 
@@ -85,6 +88,7 @@ public final class BattleDto extends AbstractDto {
 
         this.night = night;
         this.combined = combined;
+        this.combinedType = toCombined(this.combined);
 
         String dockId;
 
@@ -343,6 +347,21 @@ public final class BattleDto extends AbstractDto {
         return intercept;
     }
 
+    private static String toCombined(int i) {
+        String combined;
+        switch (i) {
+        case 1:
+            combined = "空母機動部隊";
+            break;
+        case 2:
+            combined = "水上打撃部隊";
+            break;
+        default:
+            combined = "";
+        }
+        return combined;
+    }
+
     /**
      * 味方艦隊を取得します。
      * @return 味方艦隊
@@ -454,6 +473,13 @@ public final class BattleDto extends AbstractDto {
      */
     public boolean isCombined() {
         return this.combined != 0;
+    }
+
+    /**
+     * @return combinedType
+     */
+    public String getCombinedType() {
+        return this.combinedType;
     }
 
     /**
