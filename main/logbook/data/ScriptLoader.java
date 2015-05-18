@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,7 +53,7 @@ public final class ScriptLoader implements Closeable {
      */
     @CheckForNull
     public EventListener getEventListener(Path script) throws IOException, ScriptException {
-        try (BufferedReader reader = Files.newBufferedReader(script, Charset.forName("UTF-8"))) {
+        try (BufferedReader reader = Files.newBufferedReader(script, StandardCharsets.UTF_8)) {
             // 拡張子からScriptEngineを取得
             String ext = FilenameUtils.getExtension(script.toString());
             ScriptEngine engine = this.manager.getEngineByExtension(ext);

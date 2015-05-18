@@ -21,6 +21,8 @@ public enum DataType {
     SHIP3("/kcsapi/api_get_member/ship3"),
     /** 遠征 */
     MISSION_START("/kcsapi/api_req_mission/start"),
+    /** 保有艦 */
+    SHIP_DECK("/kcsapi/api_get_member/ship_deck"),
     /** 遠征(帰還) */
     MISSION_RESULT("/kcsapi/api_req_mission/result"),
     /** 基本 */
@@ -39,17 +41,19 @@ public enum DataType {
     BATTLE_MIDNIGHT("/kcsapi/api_req_battle_midnight/battle"),
     /** 戦闘(夜戦) */
     BATTLE_SP_MIDNIGHT("/kcsapi/api_req_battle_midnight/sp_midnight"),
-    /** 戦闘(連合艦隊夜戦) */
-    BATTLE_COMBINED_MIDNIGHT_BATTLE("/kcsapi/api_req_combined_battle/midnight_battle"),
     /** 戦闘(夜戦→昼戦) */
     BATTLE_NIGHT_TO_DAY("/kcsapi/api_req_sortie/night_to_day"),
     /** 戦闘(航空戦) */
     BATTLE_AIRBATTLE("/kcsapi/api_req_sortie/airbattle"),
-    /** 戦闘(航空戦) */
-    COMBINED_AIR_BATTLE("/kcsapi/api_req_combined_battle/airbattle"),
-    /** 戦闘 */
+    /** 戦闘(連合艦隊) */
     COMBINED_BATTLE("/kcsapi/api_req_combined_battle/battle"),
-    /** 戦闘 */
+    /** 戦闘(連合艦隊・夜戦) */
+    COMBINED_BATTLE_MIDNIGHT("/kcsapi/api_req_combined_battle/midnight_battle"),
+    /** 戦闘(連合艦隊・夜戦) */
+    COMBINED_BATTLE_SP_MIDNIGHT("/kcsapi/api_req_combined_battle/sp_midnight"),
+    /** 戦闘(連合艦隊・航空戦) */
+    COMBINED_BATTLE_AIRBATTLE("/kcsapi/api_req_combined_battle/airbattle"),
+    /** 戦闘(連合艦隊) */
     COMBINED_BATTLE_WATER("/kcsapi/api_req_combined_battle/battle_water"),
     /** 戦闘(夜戦) */
     COMBINED_MIDNIGHT_BATTLE("/kcsapi/api_req_combined_battle/midnight_battle"),

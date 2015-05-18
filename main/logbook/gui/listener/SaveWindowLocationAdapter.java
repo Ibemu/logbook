@@ -17,8 +17,8 @@ public final class SaveWindowLocationAdapter extends ShellAdapter {
 
     /**
      * コンストラクター
-     * 
-     * @param dialog　ウインドウ
+     *
+     * @param dialog ウインドウ
      */
     public SaveWindowLocationAdapter(Class<? extends Dialog> dialogClass) {
         this.dialogClass = dialogClass;
@@ -27,7 +27,11 @@ public final class SaveWindowLocationAdapter extends ShellAdapter {
     @Override
     public void shellClosed(ShellEvent e) {
         if (e.widget instanceof Shell) {
-            LayoutLogic.saveWindowLocation(this.dialogClass, (Shell) e.widget);
+            Shell shell = (Shell) e.widget;
+            // 最大化の状態では保存しない
+            if (!shell.getMaximized()) {
+                LayoutLogic.saveWindowLocation(this.dialogClass, shell);
+            }
         }
     }
 }

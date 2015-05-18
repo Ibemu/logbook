@@ -371,6 +371,10 @@ public final class GlobalContext {
             case SHIP2:
                 doShip2(data);
                 break;
+            // 保有艦
+            case SHIP_DECK:
+                doShipDeck(data);
+                break;
             // 基本
             case BASIC:
                 doBasic(data);
@@ -436,7 +440,7 @@ public final class GlobalContext {
                 doBattle(data);
                 break;
             // 海戦
-            case COMBINED_AIR_BATTLE:
+            case COMBINED_BATTLE_AIRBATTLE:
                 doBattle(data);
                 break;
             // 海戦
@@ -1120,6 +1124,29 @@ public final class GlobalContext {
             doDeck(data.getJsonObject().getJsonArray("api_data_deck"));
 
             addConsole("保有艦娘情報を更新しました");
+        } catch (Exception e) {
+            LOG.warn("保有艦娘を更新しますに失敗しました", e);
+            LOG.warn(data);
+        }
+    }
+
+    /**
+     * 保有艦娘を更新します
+     *
+     * @param data
+     */
+    private static void doShipDeck(Data data) {
+        try {
+            JsonObject apidata = data.getJsonObject().getJsonObject("api_data");
+            // 艦娘を差し替える
+            JsonArray shipData = apidata.getJsonArray("api_ship_data");
+            for (int i = 0; i < shipData.size(); i++) {
+                ShipDto ship = new ShipDto((JsonObject) shipData.get(i));
+                ShipContext.get().put(Long.valueOf(ship.getId()), ship);
+            }
+            // 艦隊を設定
+            doDeck(apidata.getJsonArray("api_deck_data"));
+
         } catch (Exception e) {
             LOG.warn("保有艦娘を更新しますに失敗しました", e);
             LOG.warn(data);

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -69,12 +70,6 @@ public final class ResourceChartDialogEx extends Dialog {
     }
     /** ロガー */
     private static final Logger LOG = LogManager.getLogger(ResourceChartDialogEx.class);
-    /** スケールテキスト */
-    private static final String[] SCALE_TEXT = { "1日", "1週間", "2週間", "1ヶ月", "2ヶ月", "3ヶ月", "半年", "1年" };
-    /** スケールテキストに対応する日 */
-    private static final int[] SCALE_DAYS = { 0, 6, 13, 29, 59, 89, 179, 364 };
-    /** 日付の表示パターン */
-    private static final String DATE_PATTERN = "M月d日HH:mm";
     /** 資材テーブルに表示する資材のフォーマット */
     private static final String COMPARE_FORMAT = "{0,number,0}({1,number,+0;-0})";
 
@@ -161,7 +156,11 @@ public final class ResourceChartDialogEx extends Dialog {
         Label label1 = new Label(rangeComposite, SWT.NONE);
         label1.setText("期間");
         this.combo = new Combo(rangeComposite, SWT.READ_ONLY);
-        this.combo.setItems(SCALE_TEXT);
+        this.combo.setItems(
+                Arrays.stream(ScaleOption.values())
+                        .map(e -> e.toString())
+                        .toArray(String[]::new)
+                );
         this.combo.select(2);
         this.combo.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -328,10 +327,7 @@ public final class ResourceChartDialogEx extends Dialog {
      */
     private void setRange() {
         int idx = this.combo.getSelectionIndex();
-        if (idx == -1) {
-            idx = 2;
-        }
-        int days = SCALE_DAYS[idx];
+        int days = ScaleOption.values()[idx].getDay() - 1;
         // Toを取得
         Calendar base = getCalendar(this.dateTimeTo);
         // コンボボックスで選択された日数だけ日を減らす
@@ -344,6 +340,9 @@ public final class ResourceChartDialogEx extends Dialog {
      * 期間が変更された時の処理
      */
     private void changeRange() {
+        int idx = this.combo.getSelectionIndex();
+        ScaleOption option = ScaleOption.values()[idx];
+
         // 開始
         Date from = getCalendar(this.dateTimeFrom).getTime();
         // 終了
@@ -352,7 +351,11 @@ public final class ResourceChartDialogEx extends Dialog {
         calTo.add(Calendar.DAY_OF_YEAR, 1);
         Date to = calTo.getTime();
 
-        this.xaxis.setTickLabelFormatter(new DateTimeConverter(from));
+        this.xaxis.setAutoRanging(false);
+        this.xaxis.setLowerBound(0);
+        this.xaxis.setUpperBound(to.getTime() - from.getTime());
+        this.xaxis.setTickUnit(option.getTickUnit());
+        this.xaxis.setTickLabelFormatter(new DateTimeConverter(from, option.getFormat()));
         this.loadSeries(from, to);
     }
 
@@ -614,13 +617,14 @@ public final class ResourceChartDialogEx extends Dialog {
         /** チャートに設定する最小の時刻 */
         private final long from;
         /** フォーマッター */
-        private final SimpleDateFormat format = new SimpleDateFormat(DATE_PATTERN);
+        private final SimpleDateFormat format;
 
         /**
          * @param from チャートに設定する最小の時刻
          */
-        public DateTimeConverter(Date from) {
+        public DateTimeConverter(Date from, String format) {
             this.from = from.getTime();
+            this.format = new SimpleDateFormat(format);
         }
 
         @Override
@@ -631,6 +635,58 @@ public final class ResourceChartDialogEx extends Dialog {
         @Override
         public String toString(Number n) {
             return this.format.format(new Date(n.longValue() + this.from));
+        }
+    }
+
+    /**
+     * スケールの選択肢
+     *
+     */
+    private static enum ScaleOption {
+        /** 1日 */
+        ONE_DAY("1日", "HH:mm", 1, TimeUnit.HOURS.toMillis(2)),
+        /** 1週間 */
+        ONE_WEEK("1週間", "M月d日", 7, TimeUnit.DAYS.toMillis(1)),
+        /** 2週間 */
+        TWO_WEEK("2週間", "M月d日", 14, TimeUnit.DAYS.toMillis(1)),
+        /** 1ヶ月 */
+        ONE_MONTH("1ヶ月", "M月d日", 30, TimeUnit.DAYS.toMillis(2)),
+        /** 2ヶ月 */
+        TWO_MONTH("2ヶ月", "M月d日", 60, TimeUnit.DAYS.toMillis(5)),
+        /** 3ヶ月 */
+        THREE_MONTH("3ヶ月", "M月d日", 90, TimeUnit.DAYS.toMillis(10)),
+        /** 半年 */
+        HALF_YEAR("半年", "M月d日", 180, TimeUnit.DAYS.toMillis(15)),
+        /** 1年 */
+        ONE_YEAR("1年", "M月d日", 365, TimeUnit.DAYS.toMillis(30));
+
+        private String name;
+        private String format;
+        private int day;
+        private long tickUnit;
+
+        private ScaleOption(String name, String format, int day, long tickUnit) {
+            this.name = name;
+            this.format = format;
+            this.day = day;
+            this.tickUnit = tickUnit;
+        }
+
+        public String getFormat() {
+            return this.format;
+        }
+
+        public int getDay() {
+            return this.day;
+        }
+
+        public long getTickUnit() {
+            return this.tickUnit;
+        }
+
+        @Override
+        public String toString() {
+            return this.name;
         }
     }
 }
