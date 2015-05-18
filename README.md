@@ -3,7 +3,7 @@
 不具合の報告は[こちら](https://github.com/Ibemu/logbook/issues/new)にお願いします。(GitHubの登録が必要です)
 
 ## 機能
-[本家](http://kancolle.sanaechan.net/) 0.8.5の機能に加えて、
+[本家](http://kancolle.sanaechan.net/) 0.8.6の機能に加えて、
 
 * JSONを保存するオプションの復活
 * 受信した全てのJSONを保存
@@ -45,3 +45,6 @@
   * 支援艦隊が到着した場合
 * 出撃報告で連合艦隊の種類を表示するように変更
 
+### 0.8.5+1.0.4
+* 本家0.8.6に更新
+* 軽微な修正
