@@ -20,10 +20,7 @@ public class AppConstants {
     public static final String VERSION = "0.8.6";
 
     /**　アプリケーション名 */
-    public static final String NAME_PLUS = "+";
-
-    /**　アプリケーション名 */
-    public static final String NAME_FULL = NAME + NAME_PLUS;
+    public static final String NAME_PLUS = "航海日誌+";
 
     /** バージョン */
     public static final String VERSION_PLUS = "1.0.4";

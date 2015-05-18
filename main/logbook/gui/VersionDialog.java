@@ -88,7 +88,7 @@ public final class VersionDialog extends Dialog {
             }
         });
 
-        label(AppConstants.NAME_FULL, versionGroup);
+        label(AppConstants.NAME_PLUS, versionGroup);
         label(AppConstants.VERSION_PLUS, versionGroup);
 
         label("", versionGroup);
