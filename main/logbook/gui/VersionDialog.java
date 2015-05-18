@@ -88,7 +88,7 @@ public final class VersionDialog extends Dialog {
             }
         });
 
-        label("航海日誌+", versionGroup);
+        label(AppConstants.NAME_FULL, versionGroup);
         label(AppConstants.VERSION_PLUS, versionGroup);
 
         label("", versionGroup);
