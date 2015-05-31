@@ -3,7 +3,7 @@
 不具合の報告は[こちら](https://github.com/Ibemu/logbook/issues/new)にお願いします。(GitHubの登録が必要です)
 
 ## 機能
-[本家](http://kancolle.sanaechan.net/) 0.8.6の機能に加えて、
+[本家](http://kancolle.sanaechan.net/) の機能に加えて、
 
 * JSONを保存するオプションの復活
 * 受信した全てのJSONを保存
