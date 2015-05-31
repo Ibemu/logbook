@@ -45,7 +45,7 @@
               <include name="META-INF/MANIFEST.MF" />
             </patternset>
         </unjar>
-        <zip destfile="${build.dir}/logbook-plus-0.8.6+1.0.5.zip" basedir="./bin" update="true">
+        <zip destfile="${build.dir}/logbook-plus-0.8.7+1.0.5.zip" basedir="./bin" update="true">
             <include name="META-INF/MANIFEST.MF"/>
             <include name="logbook/config/QuestConfig.class"/>
             <include name="logbook/config/QuestConfig$*.class"/>

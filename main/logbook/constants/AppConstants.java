@@ -17,7 +17,7 @@ public class AppConstants {
     public static final String NAME = "航海日誌";
 
     /** バージョン */
-    public static final String VERSION = "0.8.6";
+    public static final String VERSION = "0.8.7";
 
     /**　アプリケーション名 */
     public static final String NAME_PLUS = "航海日誌+";
