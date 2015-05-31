@@ -140,6 +140,9 @@ public class AppConstants {
     /** 所有艦娘グループ設定ファイル  */
     public static final File GROUP_CONFIG_FILE = new File("./config/group.xml");
 
+    /** 資材チャートcss */
+    public static final File CHART_STYLESHEET_FILE = new File("./config/chart.css");
+
     /** 保有資材:燃料 */
     public static final int MATERIAL_FUEL = 1;
 

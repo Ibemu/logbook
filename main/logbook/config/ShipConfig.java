@@ -16,11 +16,14 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * 艦娘のIDと名前の紐付けを保存・復元します
- * 
+ *
  */
 public class ShipConfig {
-    /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(ShipConfig.class);
+
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(ShipConfig.class);
+    }
 
     /**
      * 設定ファイルに書き込みます
@@ -37,7 +40,7 @@ public class ShipConfig {
 
     /**
      * 艦娘のIDと名前の紐付けを設定ファイルから読み込みます
-     * 
+     *
      * @param properties
      * @return
      */
@@ -50,7 +53,7 @@ public class ShipConfig {
                 }
             }
         } catch (Exception e) {
-            LOG.warn("艦娘のIDと名前の紐付けを設定ファイルから読み込みますに失敗しました", e);
+            LoggerHolder.LOG.warn("艦娘のIDと名前の紐付けを設定ファイルから読み込みますに失敗しました", e);
         }
     }
 }

@@ -37,7 +37,7 @@ public final class Deck {
             this.put(21, "北方鼠輸送作戦");
             this.put(22, "艦隊演習");
             this.put(23, "航空戦艦運用演習");
-            this.put(24, "<UNKNOWN>");
+            this.put(24, "北方航路海上護衛");
             this.put(25, "通商破壊作戦");
             this.put(26, "敵母港空襲作戦");
             this.put(27, "潜水艦通商破壊作戦");
@@ -53,7 +53,7 @@ public final class Deck {
             this.put(37, "東京急行");
             this.put(38, "東京急行(弐)");
             this.put(39, "遠洋潜水艦作戦");
-            this.put(40, "<UNKNOWN>");
+            this.put(40, "水上機前線輸送");
             this.put(41, "<UNKNOWN>");
             this.put(42, "<UNKNOWN>");
             this.put(43, "<UNKNOWN>");
@@ -131,7 +131,7 @@ public final class Deck {
 
     /**
      * 遠征を取得します
-     * 
+     *
      * @param id ID
      * @return 遠征
      */

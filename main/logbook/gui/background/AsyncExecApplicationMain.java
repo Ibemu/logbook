@@ -41,7 +41,11 @@ import org.eclipse.wb.swt.SWTResourceManager;
  * 非同期にメイン画面を更新します
  */
 public final class AsyncExecApplicationMain extends Thread {
-    private static final Logger LOG = LogManager.getLogger(AsyncExecApplicationMain.class);
+
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(AsyncExecApplicationMain.class);
+    }
 
     private static final int ONE_MINUTES = 60;
 
@@ -75,7 +79,7 @@ public final class AsyncExecApplicationMain extends Thread {
             // 遠征と入渠を更新する
             Display.getDefault().asyncExec(new UpdateDeckNdockTask(this.main));
         } catch (Exception e) {
-            LOG.fatal("スレッドが異常終了しました", e);
+            LoggerHolder.LOG.fatal("スレッドが異常終了しました", e);
             throw new RuntimeException(e);
         }
     }
@@ -173,8 +177,6 @@ public final class AsyncExecApplicationMain extends Thread {
      */
     private static final class UpdateDeckNdockTask implements Runnable {
 
-        private static final Logger LOG = LogManager.getLogger(UpdateDeckNdockTask.class);
-
         private static final boolean[] FLAG_NOTICE_DECK = { false, false, false };
         private static final boolean[] FLAG_NOTICE_NDOCK = { false, false, false, false };
 
@@ -251,7 +253,7 @@ public final class AsyncExecApplicationMain extends Thread {
                         tip.setVisible(true);
                     }
                 } catch (Exception e) {
-                    LOG.warn("お知らせの表示に失敗しました", e);
+                    LoggerHolder.LOG.warn("お知らせの表示に失敗しました", e);
                 }
             }
         }

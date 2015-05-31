@@ -7,8 +7,6 @@ import logbook.server.proxy.Filter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -27,9 +25,6 @@ import org.eclipse.swt.widgets.Shell;
  *
  */
 public final class VersionDialog extends Dialog {
-
-    private static final Logger LOG = LogManager.getLogger(VersionDialog.class);
-
     private Shell shell;
 
     /**
@@ -83,7 +78,6 @@ public final class VersionDialog extends Dialog {
                 try {
                     Desktop.getDesktop().browse(AppConstants.HOME_PAGE_URI);
                 } catch (Exception e) {
-                    LOG.warn("ウェブサイトに移動が失敗しました", e);
                 }
             }
         });
@@ -101,7 +95,6 @@ public final class VersionDialog extends Dialog {
                 try {
                     Desktop.getDesktop().browse(AppConstants.HOME_PAGE_URI_PLUS);
                 } catch (Exception e) {
-                    LOG.warn("ウェブサイトに移動が失敗しました", e);
                 }
             }
         });

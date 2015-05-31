@@ -14,8 +14,11 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class ShipGroupConfig {
-    /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(ShipGroupConfig.class);
+
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(ShipGroupConfig.class);
+    }
 
     /** 所有艦娘グループ */
     private static ShipGroupListBean group;
@@ -42,13 +45,13 @@ public class ShipGroupConfig {
                 group = new ShipGroupListBean();
             }
         } catch (Exception e) {
-            LOG.warn("所有艦娘グループを読み込みますに失敗しました", e);
+            LoggerHolder.LOG.warn("所有艦娘グループを読み込みますに失敗しました", e);
         }
     }
 
     /**
      * 所有艦娘グループを取得します
-     * 
+     *
      * @return 所有艦娘グループ
      */
     public static ShipGroupListBean get() {

@@ -23,8 +23,11 @@ import org.apache.logging.log4j.Logger;
  */
 @EventTarget(DataType.REMODEL_SLOT)
 public class RemodelSlot implements EventListener {
-    /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(RemodelSlot.class);
+
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(RemodelSlot.class);
+    }
 
     @Override
     public void update(DataType type, Data data) {
@@ -60,8 +63,8 @@ public class RemodelSlot implements EventListener {
             }
             ConsoleContext.log("装備改修を更新しました");
         } catch (Exception e) {
-            LOG.warn("装備改修に失敗しました", e);
-            LOG.warn(data);
+            LoggerHolder.LOG.warn("装備改修に失敗しました", e);
+            LoggerHolder.LOG.warn(data);
         }
     }
 

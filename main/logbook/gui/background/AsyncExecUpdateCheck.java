@@ -1,6 +1,7 @@
 package logbook.gui.background;
 
 import java.awt.Desktop;
+import java.text.MessageFormat;
 
 import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
@@ -19,7 +20,19 @@ import org.eclipse.swt.widgets.Shell;
  */
 public final class AsyncExecUpdateCheck implements Runnable {
 
-    private static final Logger LOG = LogManager.getLogger(AsyncExecUpdateCheck.class);
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(AsyncExecUpdateCheck.class);
+    }
+
+    private static final String MESSAGE = "新しいバージョンがあります。ダウンロードサイトを開きますか？\r\n"
+            + "現在のバージョン:" + AppConstants.VERSION + "\r\n"
+            + "新しいバージョン:{0}\r\n"
+            + "※自動アップデートチェックは[その他]-[設定]からOFFに出来ます";
+    private static final String MESSAGE_PLUS = "新しいバージョンがあります。ダウンロードサイトを開きますか？\r\n"
+            + "現在のバージョン:" + AppConstants.VERSION_FULL + "\r\n"
+            + "新しいバージョン:{0}\r\n"
+            + "※自動アップデートチェックは[その他]-[設定]からOFFに出来ます";
 
     private final Shell shell;
 
@@ -38,30 +51,19 @@ public final class AsyncExecUpdateCheck implements Runnable {
             final String newversion = IOUtils.toString(AppConstants.UPDATE_CHECK_URI_PLUS);
 
             if (!AppConstants.VERSION_FULL.equals(newversion)) {
-                Display.getDefault().asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        Shell shell = AsyncExecUpdateCheck.this.shell;
-
-                        if (shell.isDisposed()) {
-                            // ウインドウが閉じられていたらなにもしない
-                            return;
-                        }
-
-                        MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO
+                Display.getDefault().asyncExec(() -> {
+                    if (!this.shell.isDisposed()) {
+                        MessageBox box = new MessageBox(this.shell, SWT.YES | SWT.NO
                                 | SWT.ICON_QUESTION);
                         box.setText("新しいバージョン");
-                        box.setMessage("新しいバージョンがあります。ダウンロードサイトを開きますか？\r\n"
-                                + "現在のバージョン:" + AppConstants.VERSION_FULL + "\r\n"
-                                + "新しいバージョン:" + newversion + "\r\n"
-                                + "※自動アップデートチェックは[その他]-[設定]からOFFに出来ます");
+                        box.setMessage(MessageFormat.format(MESSAGE_PLUS, newversion));
 
-                        // OKを押されたらホームページへ移動する
+                        // OKを押されたらダウンロードサイトへ移動する
                         if (box.open() == SWT.YES) {
                             try {
                                 Desktop.getDesktop().browse(AppConstants.HOME_PAGE_URI_PLUS);
                             } catch (Exception e) {
-                                LOG.warn("ウェブサイトに移動が失敗しました", e);
+                                LoggerHolder.LOG.warn("ダウンロードサイトに移動が失敗しました", e);
                             }
                         }
                     }
@@ -85,17 +87,14 @@ public final class AsyncExecUpdateCheck implements Runnable {
                             MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO
                                     | SWT.ICON_QUESTION);
                             box.setText("新しいバージョン(本家)");
-                            box.setMessage("本家のバージョンが更新されました。ダウンロードサイトを開きますか？\r\n"
-                                    + "現在のバージョン:" + AppConstants.VERSION + "\r\n"
-                                    + "新しいバージョン:" + newversionorg + "\r\n"
-                                    + "※自動アップデートチェックは[その他]-[設定]からOFFに出来ます");
+                            box.setMessage(MessageFormat.format(MESSAGE, newversionorg));
 
                             // OKを押されたらホームページへ移動する
                             if (box.open() == SWT.YES) {
                                 try {
                                     Desktop.getDesktop().browse(AppConstants.HOME_PAGE_URI);
                                 } catch (Exception e) {
-                                    LOG.warn("ウェブサイトに移動が失敗しました", e);
+                                    LoggerHolder.LOG.warn("ウェブサイトに移動が失敗しました", e);
                                 }
                             }
                         }
@@ -103,8 +102,7 @@ public final class AsyncExecUpdateCheck implements Runnable {
                 }
             }
         } catch (Exception e) {
-            // アップデートチェック失敗はクラス名のみ
-            LOG.info(e.getClass().getName() + "が原因でアップデートチェックに失敗しました");
+            LoggerHolder.LOG.info(e.toString() + "が原因でアップデートチェックに失敗しました");
         }
     }
 }

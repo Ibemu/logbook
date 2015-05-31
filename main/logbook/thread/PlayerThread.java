@@ -27,8 +27,10 @@ import org.apache.logging.log4j.Logger;
  */
 public final class PlayerThread implements Runnable {
 
-    /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(PlayerThread.class);
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(PlayerThread.class);
+    }
 
     /** バッファーサイズ */
     private static final int BUFFER_SIZE = 1024 * 8;
@@ -47,7 +49,7 @@ public final class PlayerThread implements Runnable {
                 play(file);
             }
         } catch (Exception e) {
-            LOG.fatal("スレッドが異常終了しました", e);
+            LoggerHolder.LOG.fatal("スレッドが異常終了しました", e);
             throw new RuntimeException(e);
         }
     }
@@ -97,9 +99,9 @@ public final class PlayerThread implements Runnable {
                 line.drain();
             }
         } catch (UnsupportedAudioFileException e) {
-            LOG.warn("サポートされていないサウンドファイル形式です", file);
+            LoggerHolder.LOG.warn("サポートされていないサウンドファイル形式です", file);
         } catch (Exception e) {
-            LOG.warn("サウンドの再生に失敗しました", e);
+            LoggerHolder.LOG.warn("サウンドの再生に失敗しました", e);
         }
     }
 

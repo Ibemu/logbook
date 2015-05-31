@@ -21,8 +21,11 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class KdockConfig {
-    /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(KdockConfig.class);
+
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(KdockConfig.class);
+    }
 
     /** 建造ドックのBean */
     private static KdockMapBean mapBean;
@@ -83,7 +86,7 @@ public class KdockConfig {
                 }
             }
         } catch (Exception e) {
-            LOG.warn("建造ドックの投入資源を取得しますに失敗しました", e);
+            LoggerHolder.LOG.warn("建造ドックの投入資源を取得しますに失敗しました", e);
         }
         return null;
     }

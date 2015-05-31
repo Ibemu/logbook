@@ -12,7 +12,7 @@ import logbook.dto.DeckMissionDto;
 import logbook.dto.NdockDto;
 import logbook.dto.ShipDto;
 import logbook.gui.BattleAggDialog;
-import logbook.gui.ResourceChartDialog;
+import logbook.gui.ResourceChartDialogEx;
 import logbook.gui.logic.TimeLogic;
 
 import org.eclipse.swt.SWT;
@@ -110,7 +110,7 @@ public final class TrayItemMenuListener implements MenuDetectListener {
         resourceChart.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                new ResourceChartDialog(TrayItemMenuListener.this.shell).open();
+                new ResourceChartDialogEx(TrayItemMenuListener.this.shell).open();
             }
         });
         // 出撃統計

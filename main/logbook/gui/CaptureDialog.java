@@ -49,6 +49,11 @@ import org.eclipse.swt.widgets.Text;
  */
 public final class CaptureDialog extends Dialog {
 
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(CaptureDialog.class);
+    }
+
     private Shell shell;
 
     private Composite composite;
@@ -286,8 +291,6 @@ public final class CaptureDialog extends Dialog {
      *
      */
     public static final class CaptureTask extends TimerTask {
-        /** ロガー */
-        private static final Logger LOG = LogManager.getLogger(CaptureTask.class);
         /** Jpeg品質 */
         private static final float QUALITY = 0.9f;
         /** 日付フォーマット(ファイル名) */
@@ -358,7 +361,7 @@ public final class CaptureDialog extends Dialog {
                     }
                 }
             } catch (Exception e) {
-                LOG.warn("キャプチャ中に例外が発生しました", e);
+                LoggerHolder.LOG.warn("キャプチャ中に例外が発生しました", e);
             }
         }
     }

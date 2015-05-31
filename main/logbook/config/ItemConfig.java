@@ -19,8 +19,11 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class ItemConfig {
-    /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(ItemConfig.class);
+
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(ItemConfig.class);
+    }
 
     /**
      * 設定ファイルに書き込みます
@@ -77,7 +80,7 @@ public class ItemConfig {
                 }
             }
         } catch (Exception e) {
-            LOG.warn("装備の復元に失敗しました", e);
+            LoggerHolder.LOG.warn("装備の復元に失敗しました", e);
         }
     }
 
@@ -91,7 +94,7 @@ public class ItemConfig {
                 ItemContext.level().putAll(map);
             }
         } catch (Exception e) {
-            LOG.warn("レベルの復元に失敗しました", e);
+            LoggerHolder.LOG.warn("レベルの復元に失敗しました", e);
         }
     }
 }

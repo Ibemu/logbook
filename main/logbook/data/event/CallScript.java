@@ -20,8 +20,10 @@ import org.apache.logging.log4j.Logger;
  */
 public final class CallScript implements EventListener {
 
-    /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(CallScript.class);
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(CallScript.class);
+    }
 
     /** ScriptLoader */
     private ScriptLoader loader;
@@ -44,10 +46,10 @@ public final class CallScript implements EventListener {
                             if (listener != null) {
                                 this.listeners.add(listener);
                             } else {
-                                LOG.warn("ユーザースクリプト " + script + " にupdate(DataType, Data)関数が見つかりません");
+                                LoggerHolder.LOG.warn("ユーザースクリプト " + script + " にupdate(DataType, Data)関数が見つかりません");
                             }
                         } catch (Exception e) {
-                            LOG.warn("ユーザースクリプト " + script + " の初期化で例外が発生しました", e);
+                            LoggerHolder.LOG.warn("ユーザースクリプト " + script + " の初期化で例外が発生しました", e);
                         }
                     }
                 }
@@ -57,8 +59,8 @@ public final class CallScript implements EventListener {
                 try {
                     listener.update(type, data);
                 } catch (Exception e) {
-                    LOG.warn(((ScriptEventAdapter) listener).getPath() + " でキャッチされない例外が発生しました", e);
-                    LOG.warn(data);
+                    LoggerHolder.LOG.warn(((ScriptEventAdapter) listener).getPath() + " でキャッチされない例外が発生しました", e);
+                    LoggerHolder.LOG.warn(data);
                 }
             }
         }

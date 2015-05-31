@@ -14,7 +14,10 @@ import org.apache.logging.log4j.Logger;
  */
 public final class EventSender {
 
-    private static final Logger LOG = LogManager.getLogger(EventSender.class);
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(EventSender.class);
+    }
 
     private final Map<DataType, List<EventListener>> listenerMap = new EnumMap<>(DataType.class);
 
@@ -101,7 +104,7 @@ public final class EventSender {
      * @param e
      */
     private void handle(EventListener listener, Data data, Exception e) {
-        LOG.warn(listener.getClass() + " でキャッチされない例外が発生しました", e);
-        LOG.warn(data);
+        LoggerHolder.LOG.warn(listener.getClass() + " でキャッチされない例外が発生しました", e);
+        LoggerHolder.LOG.warn(data);
     }
 }

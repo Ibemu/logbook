@@ -68,8 +68,12 @@ public final class ResourceChartDialogEx extends Dialog {
     static {
         Platform.setImplicitExit(false);
     }
-    /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(ResourceChartDialogEx.class);
+
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(ResourceChartDialogEx.class);
+    }
+
     /** 資材テーブルに表示する資材のフォーマット */
     private static final String COMPARE_FORMAT = "{0,number,0}({1,number,+0;-0})";
 
@@ -109,7 +113,7 @@ public final class ResourceChartDialogEx extends Dialog {
      */
     public ResourceChartDialogEx(Shell parent) {
         super(parent, SWT.SHELL_TRIM | SWT.MODELESS);
-        this.setText("資材チャート改");
+        this.setText("資材チャート");
     }
 
     /**
@@ -199,7 +203,7 @@ public final class ResourceChartDialogEx extends Dialog {
         this.fuelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.changeSeries();
+                ResourceChartDialogEx.this.reload();
             }
         });
         this.ammoBtn = new Button(checkComposite, SWT.CHECK);
@@ -208,7 +212,7 @@ public final class ResourceChartDialogEx extends Dialog {
         this.ammoBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.changeSeries();
+                ResourceChartDialogEx.this.reload();
             }
         });
         this.metalBtn = new Button(checkComposite, SWT.CHECK);
@@ -217,7 +221,7 @@ public final class ResourceChartDialogEx extends Dialog {
         this.metalBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.changeSeries();
+                ResourceChartDialogEx.this.reload();
             }
         });
         this.bauxiteBtn = new Button(checkComposite, SWT.CHECK);
@@ -226,7 +230,7 @@ public final class ResourceChartDialogEx extends Dialog {
         this.bauxiteBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.changeSeries();
+                ResourceChartDialogEx.this.reload();
             }
         });
         this.bucketBtn = new Button(checkComposite, SWT.CHECK);
@@ -234,7 +238,7 @@ public final class ResourceChartDialogEx extends Dialog {
         this.bucketBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.changeSeries();
+                ResourceChartDialogEx.this.reload();
             }
         });
         this.burnerBtn = new Button(checkComposite, SWT.CHECK);
@@ -242,7 +246,7 @@ public final class ResourceChartDialogEx extends Dialog {
         this.burnerBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.changeSeries();
+                ResourceChartDialogEx.this.reload();
             }
         });
         this.researchBtn = new Button(checkComposite, SWT.CHECK);
@@ -250,7 +254,7 @@ public final class ResourceChartDialogEx extends Dialog {
         this.researchBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.changeSeries();
+                ResourceChartDialogEx.this.reload();
             }
         });
         this.forceZeroBtn = new Button(checkComposite, SWT.CHECK);
@@ -260,7 +264,7 @@ public final class ResourceChartDialogEx extends Dialog {
             public void widgetSelected(SelectionEvent e) {
                 ResourceChartDialogEx.this.yaxis.setForceZeroInRange(ResourceChartDialogEx.this.forceZeroBtn
                         .getSelection());
-                ResourceChartDialogEx.this.changeSeries();
+                ResourceChartDialogEx.this.reload();
             }
         });
 
@@ -279,6 +283,7 @@ public final class ResourceChartDialogEx extends Dialog {
             this.chart.setCreateSymbols(false);
             // アニメーションを有効にするとなぜかaxisの描画が正しく行われない
             this.chart.setAnimated(false);
+            this.chart.getStylesheets().add(AppConstants.CHART_STYLESHEET_FILE.toPath().toUri().toString());
             group.getChildren().add(this.chart);
             // データを用意する
             this.setRange();
@@ -290,7 +295,7 @@ public final class ResourceChartDialogEx extends Dialog {
                     this.shell.getBackground().getBlue()));
             this.fxCanvas.setScene(scene);
         } catch (Exception e) {
-            LOG.warn("資材チャートを作成中に例外が発生しました", e);
+            LoggerHolder.LOG.warn("資材チャートを作成中に例外が発生しました", e);
         }
 
         Composite compositeTable = new Composite(sashForm, SWT.NONE);
@@ -310,7 +315,7 @@ public final class ResourceChartDialogEx extends Dialog {
             this.setTableBody();
             this.packTableHeader();
         } catch (Exception e) {
-            LOG.warn("資材ログのテーブルを作成中例外が発生しました", e);
+            LoggerHolder.LOG.warn("資材ログのテーブルを作成中例外が発生しました", e);
         }
     }
 
@@ -319,7 +324,6 @@ public final class ResourceChartDialogEx extends Dialog {
      */
     private void reload() {
         this.changeRange();
-        this.changeSeries();
     }
 
     /**
@@ -360,29 +364,6 @@ public final class ResourceChartDialogEx extends Dialog {
     }
 
     /**
-     * 表示する資材の種類が変更された時の処理
-     */
-    private void changeSeries() {
-        this.chart.getData().clear();
-        List<XYChart.Series<Number, Number>> list = new ArrayList<>();
-        if (this.fuelBtn.getSelection())
-            list.add(this.fuel);
-        if (this.ammoBtn.getSelection())
-            list.add(this.ammo);
-        if (this.metalBtn.getSelection())
-            list.add(this.metal);
-        if (this.bauxiteBtn.getSelection())
-            list.add(this.bauxite);
-        if (this.bucketBtn.getSelection())
-            list.add(this.bucket);
-        if (this.burnerBtn.getSelection())
-            list.add(this.burner);
-        if (this.researchBtn.getSelection())
-            list.add(this.research);
-        this.chart.getData().addAll(list);
-    }
-
-    /**
      * 資材ログを読み込む
      *
      * @param from 開始(自身を含む)
@@ -418,7 +399,7 @@ public final class ResourceChartDialogEx extends Dialog {
                                 });
             }
         } catch (Exception e) {
-            LOG.warn("資材チャートの読み込み中に例外が発生しました", e);
+            LoggerHolder.LOG.warn("資材チャートの読み込み中に例外が発生しました", e);
         }
 
         this.fuel = new XYChart.Series<>();
@@ -428,13 +409,7 @@ public final class ResourceChartDialogEx extends Dialog {
         this.bucket = new XYChart.Series<>();
         this.burner = new XYChart.Series<>();
         this.research = new XYChart.Series<>();
-        this.fuel.getData().addAll(fuelList);
-        this.ammo.getData().addAll(ammoList);
-        this.metal.getData().addAll(metalList);
-        this.bauxite.getData().addAll(bauxiteList);
-        this.bucket.getData().addAll(bucketList);
-        this.burner.getData().addAll(burnerList);
-        this.research.getData().addAll(researchList);
+
         this.fuel.setName("燃料");
         this.ammo.setName("弾薬");
         this.metal.setName("鋼材");
@@ -442,6 +417,32 @@ public final class ResourceChartDialogEx extends Dialog {
         this.bucket.setName("高速修復材");
         this.burner.setName("高速建造材");
         this.research.setName("開発資材");
+
+        if (this.fuelBtn.getSelection())
+            this.fuel.getData().addAll(fuelList);
+        if (this.ammoBtn.getSelection())
+            this.ammo.getData().addAll(ammoList);
+        if (this.metalBtn.getSelection())
+            this.metal.getData().addAll(metalList);
+        if (this.bauxiteBtn.getSelection())
+            this.bauxite.getData().addAll(bauxiteList);
+        if (this.bucketBtn.getSelection())
+            this.bucket.getData().addAll(bucketList);
+        if (this.burnerBtn.getSelection())
+            this.burner.getData().addAll(burnerList);
+        if (this.researchBtn.getSelection())
+            this.research.getData().addAll(researchList);
+
+        this.chart.getData().clear();
+        List<XYChart.Series<Number, Number>> list = new ArrayList<>();
+        list.add(this.fuel);
+        list.add(this.ammo);
+        list.add(this.metal);
+        list.add(this.bauxite);
+        list.add(this.bucket);
+        list.add(this.burner);
+        list.add(this.research);
+        this.chart.getData().addAll(list);
     }
 
     /**
@@ -597,14 +598,14 @@ public final class ResourceChartDialogEx extends Dialog {
                 this.burner = Integer.parseInt(cols[6]);
                 this.research = Integer.parseInt(cols[7]);
             } catch (ParseException e) {
-                LOG.warn("資材ログを読み込み中に例外が発生しました:日付の形式が間違っています", e);
-                LOG.warn(line);
+                LoggerHolder.LOG.warn("資材ログを読み込み中に例外が発生しました:日付の形式が間違っています", e);
+                LoggerHolder.LOG.warn(line);
             } catch (NumberFormatException e) {
-                LOG.warn("資材ログを読み込み中に例外が発生しました:数値型に変換出来ません", e);
-                LOG.warn(line);
+                LoggerHolder.LOG.warn("資材ログを読み込み中に例外が発生しました:数値型に変換出来ません", e);
+                LoggerHolder.LOG.warn(line);
             } catch (IndexOutOfBoundsException e) {
-                LOG.warn("資材ログを読み込み中に例外が発生しました:項目数が一致しません", e);
-                LOG.warn(line);
+                LoggerHolder.LOG.warn("資材ログを読み込み中に例外が発生しました:項目数が一致しません", e);
+                LoggerHolder.LOG.warn(line);
             }
         }
     }

@@ -1,5 +1,6 @@
 package logbook.gui;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -69,8 +70,10 @@ import org.eclipse.wb.swt.SWTResourceManager;
  */
 public final class ApplicationMain {
 
-    /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(ApplicationMain.class);
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(ApplicationMain.class);
+    }
 
     /**
      * <p>
@@ -78,10 +81,6 @@ public final class ApplicationMain {
      * </p>
      */
     private static final class ShutdownHookThread implements Runnable {
-
-        /** ロガー */
-        private static final Logger LOG = LogManager.getLogger(ShutdownHookThread.class);
-
         @Override
         public void run() {
             try {
@@ -96,7 +95,7 @@ public final class ApplicationMain {
                 ItemConfig.store();
                 QuestConfig.store();
             } catch (Exception e) {
-                LOG.fatal("シャットダウンスレッドで異常終了しました", e);
+                LoggerHolder.LOG.fatal("シャットダウンスレッドで異常終了しました", e);
             }
         }
     }
@@ -171,20 +170,22 @@ public final class ApplicationMain {
             Display.setAppName(AppConstants.NAME);
             // 設定読み込み
             AppConfig.load();
-            ShipConfig.load();
             ShipGroupConfig.load();
-            ItemMasterConfig.load();
-            ItemConfig.load();
             QuestConfig.load();
+            // lazy load
+            ExecutorService service = ThreadManager.getExecutorService();
+            service.submit(() -> ShipConfig.load());
+            service.submit(() -> ItemMasterConfig.load());
+            service.submit(() -> ItemConfig.load());
             // シャットダウンフックを登録します
             Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHookThread()));
             // アプリケーション開始
             window = new ApplicationMain();
             window.open();
         } catch (Error e) {
-            LOG.fatal("メインスレッドが異常終了しました", e);
+            LoggerHolder.LOG.fatal("メインスレッドが異常終了しました", e);
         } catch (Exception e) {
-            LOG.fatal("メインスレッドが異常終了しました", e);
+            LoggerHolder.LOG.fatal("メインスレッドが異常終了しました", e);
         } finally {
             // リソースを開放する
             SWTResourceManager.dispose();
@@ -373,16 +374,8 @@ public final class ApplicationMain {
         calcexp.addSelectionListener(new CalcExpAdapter(this.shell));
 
         // その他-資材チャート
-        MenuItem resourceChart = new MenuItem(etcmenu, SWT.NONE);
-        resourceChart.setText("資材チャート");
-        resourceChart.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                new ResourceChartDialog(ApplicationMain.this.shell).open();
-            }
-        });
         MenuItem resourceChart2 = new MenuItem(etcmenu, SWT.NONE);
-        resourceChart2.setText("資材チャート改(&R)");
+        resourceChart2.setText("資材チャート(&R)");
         resourceChart2.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {

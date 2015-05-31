@@ -12,7 +12,12 @@ import org.eclipse.swt.widgets.List;
  *
  */
 public final class AsyncExecConsole extends Thread {
-    private static final Logger LOG = LogManager.getLogger(AsyncExecConsole.class);
+
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(AsyncExecConsole.class);
+    }
+
     private static final int MAX_LOG_LINES = 200;
 
     private final List console;
@@ -40,7 +45,7 @@ public final class AsyncExecConsole extends Thread {
                 Display.getDefault().syncExec(new UpdateConsoleTask(this.console, message));
             }
         } catch (Exception e) {
-            LOG.fatal("スレッドが異常終了しました", e);
+            LoggerHolder.LOG.fatal("スレッドが異常終了しました", e);
             throw new RuntimeException(e);
         }
     }

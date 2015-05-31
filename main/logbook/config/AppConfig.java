@@ -11,11 +11,14 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * アプリケーション設定を保存・復元します
- * 
+ *
  */
 public class AppConfig {
-    /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(AppConfig.class);
+
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(AppConfig.class);
+    }
 
     /** アプリケーション設定 */
     private static AppConfigBean configBean;
@@ -42,13 +45,13 @@ public class AppConfig {
                 configBean = new AppConfigBean();
             }
         } catch (Exception e) {
-            LOG.warn("アプリケーション設定を読み込みますに失敗しました", e);
+            LoggerHolder.LOG.warn("アプリケーション設定を読み込みますに失敗しました", e);
         }
     }
 
     /**
      * アプリケーション設定を取得します
-     * 
+     *
      * @return アプリケーション設定
      */
     public static AppConfigBean get() {

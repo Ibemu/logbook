@@ -15,11 +15,14 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * 装備マスターを保存・復元します
- * 
+ *
  */
 public class ItemMasterConfig {
-    /** ロガー */
-    private static final Logger LOG = LogManager.getLogger(ItemMasterConfig.class);
+
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(ItemMasterConfig.class);
+    }
 
     /**
      * 設定ファイルに書き込みます
@@ -34,7 +37,7 @@ public class ItemMasterConfig {
 
     /**
      * 装備マスターを設定ファイルから読み込みます
-     * 
+     *
      * @param properties
      * @return
      */
@@ -47,7 +50,7 @@ public class ItemMasterConfig {
                 }
             }
         } catch (Exception e) {
-            LOG.warn("装備マスターを設定ファイルから読み込みますに失敗しました", e);
+            LoggerHolder.LOG.warn("装備マスターを設定ファイルから読み込みますに失敗しました", e);
         }
     }
 }
