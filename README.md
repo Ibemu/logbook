@@ -1,6 +1,6 @@
 # 艦これ 航海日誌+
-[航海日誌](http://kancolle.sanaechan.net/)を自分用に改造したものです。
-不具合の報告は[こちら](https://github.com/Ibemu/logbook/issues/new)にお願いします。(GitHubの登録が必要です)
+@sanae_hirotaka 氏の[航海日誌](http://kancolle.sanaechan.net/)を自分用に改造したものです。
+不具合の報告は[GitHubの報告ページ](https://github.com/Ibemu/logbook/issues/new)か[Twitter](https://twitter.com/Ibemu231)にお願いします。
 
 ## 機能
 [本家](http://kancolle.sanaechan.net/) の機能に加えて、
@@ -18,7 +18,14 @@
 
 ## 導入方法
 1. 本家の航海日誌をまだ導入していない場合はインストールします(起動する必要はありません)
-2. [ここ](https://github.com/Ibemu/logbook/releases)からlogbook.jarをダウンロードし同じファイルを置き換えます
+2. [リリースページ](https://github.com/Ibemu/logbook/releases)からlogbook.jarをダウンロードし同じファイルを置き換えます
+
+## 作者
+### 本家
+@sanae_hirotaka 氏
+
+### 改造
+@Ibemu231
 
 ## チェンジログ
 ### 0.8.1+1.0.0
@@ -31,7 +38,7 @@
 
 ### 0.8.3+1.0.2
 * 本家0.8.3に更新
-  * 必要ライブラリが増えているので[本家](http://kancolle.sanaechan.net/)から最新版に更新してから導入して下さい
+  * 必要ライブラリが増えているので[本家](http://kancolle.sanaechan.net/)を最新版に更新してから導入して下さい
 * 出撃報告の表示位置とレイアウトを保存するように変更
 
 ### 0.8.4+1.0.3
@@ -51,3 +58,7 @@
 
 ### 0.8.7+1.0.5
 * 本家0.8.7に更新
+
+### 0.8.8+1.0.6
+* 本家0.8.8に更新
+* 内部的な修正(本家のリファクタリングに合わせて)
