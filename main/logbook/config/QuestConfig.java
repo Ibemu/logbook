@@ -36,7 +36,7 @@ public class QuestConfig {
         if (mapBean != null) {
             try {
                 BeanUtils.writeObject(AppConstants.QUEST_CONFIG_FILE, mapBean);
-                last = AppConstants.QUEST_CONFIG_FILE.lastModified();
+                last = AppConstants.QUEST_CONFIG_FILE.toFile().lastModified();
             } catch (Exception e) {
                 LOG.warn("任務の進行状況を保存しますに失敗しました", e);
             }
@@ -68,10 +68,10 @@ public class QuestConfig {
         try {
             if (mapBean == null) {
                 mapBean = BeanUtils.readObject(AppConstants.QUEST_CONFIG_FILE, QuestMapBean.class);
-                last = AppConstants.QUEST_CONFIG_FILE.lastModified();
-            } else if (last != AppConstants.QUEST_CONFIG_FILE.lastModified()) {
+                last = AppConstants.QUEST_CONFIG_FILE.toFile().lastModified();
+            } else if (last != AppConstants.QUEST_CONFIG_FILE.toFile().lastModified()) {
                 mapBean.marge(BeanUtils.readObject(AppConstants.QUEST_CONFIG_FILE, QuestMapBean.class));
-                last = AppConstants.QUEST_CONFIG_FILE.lastModified();
+                last = AppConstants.QUEST_CONFIG_FILE.toFile().lastModified();
             }
         } catch (Exception e) {
             LOG.warn("任務の進行状況を復元しますに失敗しました", e);

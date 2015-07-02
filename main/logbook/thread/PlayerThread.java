@@ -39,7 +39,7 @@ public final class PlayerThread implements Runnable {
     private static final String[] EXTENSIONS = { "wav" };
 
     /** 再生待ち */
-    private static Queue<File> soundfileQueue = new ArrayBlockingQueue<File>(10);
+    private static Queue<File> soundfileQueue = new ArrayBlockingQueue<File>(3);
 
     @Override
     public void run() {

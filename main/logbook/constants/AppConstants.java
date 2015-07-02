@@ -1,8 +1,9 @@
 package logbook.constants;
 
-import java.io.File;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.TimeZone;
 
 import org.eclipse.swt.graphics.RGB;
@@ -17,7 +18,7 @@ public class AppConstants {
     public static final String NAME = "航海日誌";
 
     /** バージョン */
-    public static final String VERSION = "0.8.7";
+    public static final String VERSION = "0.8.8";
 
     /**　アプリケーション名 */
     public static final String NAME_PLUS = "航海日誌+";
@@ -117,31 +118,31 @@ public class AppConstants {
     public static final Charset CHARSET = Charset.forName("MS932");
 
     /** アプリケーション設定ファイル  */
-    public static final File APP_CONFIG_FILE = new File("./config/internal.xml");
+    public static final Path APP_CONFIG_FILE = Paths.get("./config/internal.xml");
 
     /** 艦娘設定ファイル  */
-    public static final File SHIP_CONFIG_FILE = new File("./config/ship.xml");
+    public static final Path SHIP_CONFIG_FILE = Paths.get("./config/ship.xml");
 
     /** 装備一覧設定ファイル  */
-    public static final File ITEM_CONFIG_FILE = new File("./config/item.xml");
+    public static final Path ITEM_CONFIG_FILE = Paths.get("./config/item.xml");
 
     /** レベル付き装備設定ファイル  */
-    public static final File ITEM_LEVEL_CONFIG_FILE = new File("./config/itemlevel.xml");
+    public static final Path ITEM_LEVEL_CONFIG_FILE = Paths.get("./config/itemlevel.xml");
 
     /** 装備マスター設定ファイル  */
-    public static final File ITEM_MST_CONFIG_FILE = new File("./config/itemmst.xml");
+    public static final Path ITEM_MST_CONFIG_FILE = Paths.get("./config/itemmst.xml");
 
     /** 建造ドック設定ファイル  */
-    public static final File KDOCK_CONFIG_FILE = new File("./config/kdock.xml");
+    public static final Path KDOCK_CONFIG_FILE = Paths.get("./config/kdock.xml");
 
     /** 任務設定ファイル  */
-    public static final File QUEST_CONFIG_FILE = new File("./config/quest.xml");
+    public static final Path QUEST_CONFIG_FILE = Paths.get("./config/quest.xml");
 
     /** 所有艦娘グループ設定ファイル  */
-    public static final File GROUP_CONFIG_FILE = new File("./config/group.xml");
+    public static final Path GROUP_CONFIG_FILE = Paths.get("./config/group.xml");
 
     /** 資材チャートcss */
-    public static final File CHART_STYLESHEET_FILE = new File("./config/chart.css");
+    public static final Path CHART_STYLESHEET_FILE = Paths.get("./config/chart.css");
 
     /** 保有資材:燃料 */
     public static final int MATERIAL_FUEL = 1;

@@ -283,7 +283,7 @@ public final class ResourceChartDialogEx extends Dialog {
             this.chart.setCreateSymbols(false);
             // アニメーションを有効にするとなぜかaxisの描画が正しく行われない
             this.chart.setAnimated(false);
-            this.chart.getStylesheets().add(AppConstants.CHART_STYLESHEET_FILE.toPath().toUri().toString());
+            this.chart.getStylesheets().add(AppConstants.CHART_STYLESHEET_FILE.toUri().toString());
             group.getChildren().add(this.chart);
             // データを用意する
             this.setRange();

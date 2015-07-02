@@ -1,7 +1,9 @@
 package logbook.gui.listener;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +38,7 @@ public final class TableToCsvSaveAdapter extends SelectionAdapter {
 
     /**
      * コンストラクター
-     * 
+     *
      * @param shell シェル
      * @param name ファイル名
      * @param table テーブル
@@ -55,8 +57,8 @@ public final class TableToCsvSaveAdapter extends SelectionAdapter {
         dialog.setFilterExtensions(new String[] { "*.csv" });
         String filename = dialog.open();
         if (filename != null) {
-            File file = new File(filename);
-            if (file.exists()) {
+            Path path = Paths.get(filename);
+            if (Files.exists(path)) {
                 MessageBox messageBox = new MessageBox(this.shell, SWT.YES | SWT.NO);
                 messageBox.setText("確認");
                 messageBox.setMessage("指定されたファイルは存在します。\n上書きしますか？");
@@ -75,7 +77,7 @@ public final class TableToCsvSaveAdapter extends SelectionAdapter {
                     body.add(colums);
                 }
 
-                FileUtils.writeCsv(file, this.header, body, false);
+                FileUtils.writeCsv(path, this.header, body, false);
             } catch (IOException e) {
                 MessageBox messageBox = new MessageBox(this.shell, SWT.ICON_ERROR);
                 messageBox.setText("書き込めませんでした");

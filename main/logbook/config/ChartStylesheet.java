@@ -21,7 +21,12 @@ public class ChartStylesheet {
         create(2, AppConfig.get().getMetalColor(), sb);
         create(3, AppConfig.get().getBauxiteColor(), sb);
 
-        try (Writer writer = Files.newBufferedWriter(AppConstants.CHART_STYLESHEET_FILE.toPath())) {
+        // stroke-width
+        sb.append(".chart-series-line {").append("\n");
+        sb.append("    -fx-stroke-width: ").append(AppConfig.get().getStrokeWidth()).append("px;").append("\n");
+        sb.append("}").append("\n");
+
+        try (Writer writer = Files.newBufferedWriter(AppConstants.CHART_STYLESHEET_FILE)) {
             writer.write(sb.toString());
         }
     }

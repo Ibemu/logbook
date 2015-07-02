@@ -396,7 +396,8 @@ public final class ApplicationMain {
         new MenuItem(etcmenu, SWT.SEPARATOR);
         // その他-グループエディター
         MenuItem shipgroup = new MenuItem(etcmenu, SWT.NONE);
-        shipgroup.setText("グループエディター(&G)");
+        shipgroup.setText("グループエディター(&G)\tCtrl+G");
+        shipgroup.setAccelerator(SWT.CTRL + 'G');
         shipgroup.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {

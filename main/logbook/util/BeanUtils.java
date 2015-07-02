@@ -2,10 +2,13 @@ package logbook.util;
 
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 
 import javax.annotation.CheckForNull;
 
@@ -17,31 +20,34 @@ public final class BeanUtils {
 
     /**
      * JavaBeanオブジェクトをXML形式でファイルに書き込みます
-     * 
-     * @param file ファイル
+     *
+     * @param path ファイル
      * @param obj JavaBean
      * @throws IOException IOException
      */
-    public static void writeObject(File file, Object obj) throws IOException {
-        if (file.exists()) {
-            if (file.isDirectory()) {
-                throw new IOException("File '" + file + "' exists but is a directory");
+    public static void writeObject(Path path, Object obj) throws IOException {
+        if (Files.exists(path)) {
+            if (Files.isDirectory(path)) {
+                throw new IOException("File '" + path + "' exists but is a directory");
             }
-            if (!(file.canWrite()))
-                throw new IOException("File '" + file + "' cannot be written to");
+            if (!Files.isWritable(path)) {
+                throw new IOException("File '" + path + "' cannot be written to");
+            }
         } else {
-            File parent = file.getParentFile();
-            if ((parent != null) &&
-                    (!(parent.mkdirs())) && (!(parent.isDirectory()))) {
-                throw new IOException("Directory '" + parent + "' could not be created");
+            Path parent = path.getParent();
+            if (parent != null) {
+                if (!Files.exists(parent)) {
+                    Files.createDirectories(parent);
+                }
             }
         }
-        File backup = new File(file.getAbsolutePath() + ".backup");
-        if ((file.exists() && (file.length() > 0)) && (!backup.exists() || backup.delete())) {
-            // ファイルが存在してかつサイズが0を超える場合、バックアップを削除した後、ファイルをバックアップにリネームする
-            file.renameTo(backup);
+        Path backup = path.resolveSibling(path.getFileName() + ".backup");
+        if (Files.exists(path) && (Files.size(path) > 0)) {
+            // ファイルが存在してかつサイズが0を超える場合、ファイルをバックアップにリネームする
+            Files.move(path, backup, StandardCopyOption.REPLACE_EXISTING);
         }
-        try (XMLEncoder encoder = new XMLEncoder(new FileOutputStream(file))) {
+        try (XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(Files.newOutputStream(path,
+                StandardOpenOption.CREATE)))) {
             encoder.writeObject(obj);
         }
     }
@@ -51,24 +57,28 @@ public final class BeanUtils {
      * XML形式で書き込まれたファイルからJavaBeanオブジェクトを復元します<br>
      * 復元時に型の検査を行います
      * </p>
-     * 
-     * @param file ファイル
+     *
+     * @param path ファイル
      * @param clazz 期待する型
      * @return オブジェクト
+     * @throws IOException
      */
     @CheckForNull
-    public static <T> T readObject(File file, Class<T> clazz) {
-        File target = file;
-
-        if (!target.canRead() || (target.length() <= 0)) {
-            // ファイルが読み込めないまたはサイズがゼロの場合バックアップファイルを読み込む
-            target = new File(file.getAbsolutePath() + ".backup");
-            if (!target.canRead()) {
-                // バックアップファイルも読めない場合nullを返す
-                return null;
+    public static <T> T readObject(Path path, Class<T> clazz) {
+        Path target = path;
+        try {
+            if (!Files.isReadable(target) || (Files.size(target) <= 0)) {
+                // ファイルが読み込めないまたはサイズがゼロの場合バックアップファイルを読み込む
+                target = path.resolveSibling(path.getFileName() + ".backup");
+                if (!Files.isReadable(target)) {
+                    // バックアップファイルも読めない場合nullを返す
+                    return null;
+                }
             }
+        } catch (IOException e) {
+            return null;
         }
-        try (XMLDecoder decoder = new XMLDecoder(new FileInputStream(target))) {
+        try (XMLDecoder decoder = new XMLDecoder(new BufferedInputStream(Files.newInputStream(target)))) {
             Object obj = decoder.readObject();
             if (clazz.isInstance(obj)) {
                 return (T) obj;

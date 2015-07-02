@@ -151,6 +151,9 @@ public final class AppConfigBean {
     /** 開発者オプション-本家の更新を通知する */
     private boolean checkUpdateOriginal = false;
 
+    /** 線の太さ */
+    private int strokeWidth = 3;
+
     /** テーブル列を表示する設定(キー:java.lang.Class.getName()) */
     private Map<String, boolean[]> visibleColumnMap = new HashMap<>();
 
@@ -922,6 +925,22 @@ public final class AppConfigBean {
      */
     public void setCheckUpdateOriginal(boolean checkUpdateOriginal) {
         this.checkUpdateOriginal = checkUpdateOriginal;
+    }
+
+    /**
+     * 線の太さを取得します。
+     * @return 線の太さ
+     */
+    public int getStrokeWidth() {
+        return this.strokeWidth;
+    }
+
+    /**
+     * 線の太さを設定します。
+     * @param stroke 線の太さ
+     */
+    public void setStrokeWidth(int stroke) {
+        this.strokeWidth = stroke;
     }
 
     /**

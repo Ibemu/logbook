@@ -58,8 +58,10 @@ public class UndefinedData implements Data {
             }
             // レスポンスのJSONを復号します
             InputStream stream = new ByteArrayInputStream(this.response);
-            if ((this.response[0] == (byte) 0x1f) && (this.response[1] == (byte) 0x8b)) {
-                // レスポンスの先頭2バイトが0x1f, 0x8bであればgzip圧縮されている
+            // Check header
+            int header = (stream.read() | (stream.read() << 8));
+            stream.reset();
+            if (header == GZIPInputStream.GZIP_MAGIC) {
                 stream = new GZIPInputStream(stream);
             }
             // レスポンスボディのJSONはsvdata=から始まるので除去します
