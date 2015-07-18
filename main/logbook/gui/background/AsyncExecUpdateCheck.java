@@ -50,7 +50,7 @@ public final class AsyncExecUpdateCheck implements Runnable {
     public void run() {
         try {
             final String newversion = IOUtils.toString(AppConstants.UPDATE_CHECK_URI_PLUS);
-            final String newversions[] = newversion.split("+");
+            final String newversions[] = newversion.split("\\+");
             Version newversion_o = new Version(newversions[0]);
             Version newversion_p = new Version(newversions[1]);
 
