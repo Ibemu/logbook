@@ -66,7 +66,7 @@ public final class VersionDialog extends Dialog {
         versionGroup.setLayout(new GridLayout(2, true));
 
         label(AppConstants.NAME, versionGroup);
-        label(AppConstants.VERSION, versionGroup);
+        label(AppConstants.VERSION.toString(), versionGroup);
 
         label("", versionGroup);
         Link gowebsite = new Link(versionGroup, SWT.NONE);
@@ -83,7 +83,7 @@ public final class VersionDialog extends Dialog {
         });
 
         label(AppConstants.NAME_PLUS, versionGroup);
-        label(AppConstants.VERSION_PLUS, versionGroup);
+        label(AppConstants.VERSION_PLUS.toString(), versionGroup);
 
         label("", versionGroup);
         gowebsite = new Link(versionGroup, SWT.NONE);

@@ -12,11 +12,19 @@ import java.nio.file.StandardOpenOption;
 
 import javax.annotation.CheckForNull;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * JavaBeanのutilです
  *
  */
 public final class BeanUtils {
+
+    private static class LoggerHolder {
+        /** ロガー */
+        private static final Logger LOG = LogManager.getLogger(BeanUtils.class);
+    }
 
     /**
      * JavaBeanオブジェクトをXML形式でファイルに書き込みます
@@ -48,6 +56,13 @@ public final class BeanUtils {
         }
         try (XMLEncoder encoder = new XMLEncoder(new BufferedOutputStream(Files.newOutputStream(path,
                 StandardOpenOption.CREATE)))) {
+            encoder.setExceptionListener(e -> {
+                Class<?> clazz = null;
+                if (obj != null) {
+                    clazz = obj.getClass();
+                }
+                LoggerHolder.LOG.warn("File '" + path + "', Bean Class '" + clazz + "' の書き込み時に例外", e);
+            });
             encoder.writeObject(obj);
         }
     }
@@ -63,6 +78,7 @@ public final class BeanUtils {
      * @return オブジェクト
      * @throws IOException
      */
+    @SuppressWarnings("unchecked")
     @CheckForNull
     public static <T> T readObject(Path path, Class<T> clazz) {
         Path target = path;
@@ -79,6 +95,9 @@ public final class BeanUtils {
             return null;
         }
         try (XMLDecoder decoder = new XMLDecoder(new BufferedInputStream(Files.newInputStream(target)))) {
+            decoder.setExceptionListener(e -> {
+                LoggerHolder.LOG.warn("File '" + path + "', Bean Class '" + clazz + "' の読み込み時に例外", e);
+            });
             Object obj = decoder.readObject();
             if (clazz.isInstance(obj)) {
                 return (T) obj;

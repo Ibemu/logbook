@@ -5,6 +5,7 @@ import java.text.MessageFormat;
 
 import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
+import logbook.internal.Version;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -49,8 +50,12 @@ public final class AsyncExecUpdateCheck implements Runnable {
     public void run() {
         try {
             final String newversion = IOUtils.toString(AppConstants.UPDATE_CHECK_URI_PLUS);
+            final String newversions[] = newversion.split("+");
+            Version newversion_o = new Version(newversions[0]);
+            Version newversion_p = new Version(newversions[1]);
 
-            if (!AppConstants.VERSION_FULL.equals(newversion)) {
+            if ((AppConstants.VERSION.compareTo(newversion_o) < 0)
+                    || (AppConstants.VERSION_PLUS.compareTo(newversion_p) < 0)) {
                 Display.getDefault().asyncExec(() -> {
                     if (!this.shell.isDisposed()) {
                         MessageBox box = new MessageBox(this.shell, SWT.YES | SWT.NO
@@ -71,9 +76,9 @@ public final class AsyncExecUpdateCheck implements Runnable {
             }
             else if (AppConfig.get().isCheckUpdateOriginal())
             {
-                final String newversionorg = IOUtils.toString(AppConstants.UPDATE_CHECK_URI);
+                Version newversionorg = new Version(IOUtils.toString(AppConstants.UPDATE_CHECK_URI));
 
-                if (!AppConstants.VERSION.equals(newversionorg)) {
+                if (AppConstants.VERSION.compareTo(newversionorg) < 0) {
                     Display.getDefault().asyncExec(new Runnable() {
                         @Override
                         public void run() {

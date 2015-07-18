@@ -37,6 +37,7 @@ import logbook.gui.listener.SaveWindowLocationAdapter;
 import logbook.gui.logic.CreateReportLogic;
 import logbook.gui.logic.LayoutLogic;
 import logbook.gui.logic.TableItemCreator;
+import logbook.util.ImageWriter;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
@@ -54,7 +55,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -294,6 +299,39 @@ public final class ResourceChartDialogEx extends Dialog {
                     this.shell.getBackground().getGreen(),
                     this.shell.getBackground().getBlue()));
             this.fxCanvas.setScene(scene);
+
+            Menu menu = new Menu(this.fxCanvas);
+            this.fxCanvas.setMenu(menu);
+            MenuItem saveimage = new MenuItem(menu, SWT.NONE);
+            saveimage.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent paramSelectionEvent) {
+                    try {
+                        FileDialog dialog = new FileDialog(ResourceChartDialogEx.this.shell, SWT.SAVE);
+                        dialog.setFileName("資材チャート.png");
+                        dialog.setFilterExtensions(new String[] { "*.png" });
+                        String filename = dialog.open();
+                        if (filename != null) {
+                            Path path = Paths.get(filename);
+                            if (Files.exists(path)) {
+                                MessageBox messageBox = new MessageBox(ResourceChartDialogEx.this.shell, SWT.YES
+                                        | SWT.NO);
+                                messageBox.setText("確認");
+                                messageBox.setMessage("指定されたファイルは存在します。\n上書きしますか？");
+                                if (messageBox.open() == SWT.NO) {
+                                    return;
+                                }
+                            }
+                            new ImageWriter(path)
+                                    .format(SWT.IMAGE_PNG)
+                                    .write(ResourceChartDialogEx.this.fxCanvas);
+                        }
+                    } catch (IOException ex) {
+                        LoggerHolder.LOG.warn("資材チャートのイメージを作成中に例外が発生しました", ex);
+                    }
+                }
+            });
+            saveimage.setText("画像ファイルとして保存");
         } catch (Exception e) {
             LoggerHolder.LOG.warn("資材チャートを作成中に例外が発生しました", e);
         }

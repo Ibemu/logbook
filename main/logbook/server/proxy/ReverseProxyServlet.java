@@ -31,6 +31,9 @@ import org.eclipse.jetty.proxy.ProxyServlet;
  */
 public final class ReverseProxyServlet extends ProxyServlet {
 
+    /** SerialVersionUID */
+    private static final long serialVersionUID = -4365763167330189086L;
+
     /** ライブラリバグ対応 (HttpRequest#queryを上書きする) */
     private static final Field QUERY_FIELD = getDeclaredField(HttpRequest.class, "query");
 

@@ -29,6 +29,7 @@ import logbook.data.DataQueue;
 import logbook.data.EventSender;
 import logbook.data.event.CallScript;
 import logbook.data.event.Material;
+import logbook.data.event.Nyukyo;
 import logbook.data.event.RemodelSlot;
 import logbook.dto.BattleDto;
 import logbook.dto.BattleResultDto;
@@ -83,6 +84,7 @@ public final class GlobalContext {
             SENDER.addEventListener(new CallScript());
             SENDER.addEventListener(new RemodelSlot());
             SENDER.addEventListener(new Material());
+            SENDER.addEventListener(new Nyukyo());
         }
     }
 
@@ -405,6 +407,9 @@ public final class GlobalContext {
             // 入渠
             case NDOCK:
                 doNdock(data);
+                break;
+            case SPEED_CHANGE:
+                doSpeedChange(data);
                 break;
             // 建造
             case CREATE_SHIP:
@@ -1491,7 +1496,7 @@ public final class GlobalContext {
      * @param apidata
      */
     private static void doNdockSub(JsonArray apidata) {
-        ndocks = new NdockDto[] { NdockDto.EMPTY, NdockDto.EMPTY, NdockDto.EMPTY, NdockDto.EMPTY };
+        NdockDto[] newNdocks = new NdockDto[] { NdockDto.EMPTY, NdockDto.EMPTY, NdockDto.EMPTY, NdockDto.EMPTY };
 
         for (int i = 0; i < apidata.size(); i++) {
             JsonObject object = (JsonObject) apidata.get(i);
@@ -1502,7 +1507,50 @@ public final class GlobalContext {
             if (milis > 0) {
                 time = new Date(milis);
             }
-            ndocks[i] = new NdockDto(id, time);
+            newNdocks[i] = new NdockDto(id, time);
+            if ((id == 0) && (ndocks[i].getNdockid() > 0)) {
+                processSpeedChange(i);
+            }
+        }
+        ndocks = newNdocks;
+    }
+
+    /**
+     * 高速修復を更新します
+     * @param data
+     */
+    private static void doSpeedChange(Data data) {
+        try {
+            String ndockIdStr = data.getField("api_ndock_id");
+            if (ndockIdStr != null) {
+                int ndockId = Integer.parseInt(ndockIdStr);
+                processSpeedChange(ndockId - 1);
+            }
+            addConsole("高速修復情報を更新しました");
+        } catch (Exception e) {
+            LoggerHolder.LOG.warn("高速修復情報を更新しますに失敗しました", e);
+            LoggerHolder.LOG.warn(data);
+        }
+    }
+
+    /**
+     * 高速修復または（母港に戻る前に）修復完了済みの艦娘を処理します
+     * @param ndockId
+     */
+    private static void processSpeedChange(int ndockId) {
+        NdockDto ndock = ndocks[ndockId];
+        ndocks[ndockId] = new NdockDto(0, null);
+        ShipDto ship = ShipContext.get().get(ndock.getNdockid());
+        if (ship != null) {
+            ship.setNowHp(ship.getMaxhp());
+            ship.setDocktime(0);
+            String fleetid = ship.getFleetid();
+            if (fleetid != null) {
+                DockDto dockdto = dock.get(fleetid);
+                if (dockdto != null) {
+                    dockdto.setUpdate(true);
+                }
+            }
         }
     }
 
@@ -1770,7 +1818,10 @@ public final class GlobalContext {
         if ("-".equals(flagship)) {
             flagship = "";
         }
-        int afterlv = object.getJsonNumber("api_afterlv").intValue();
+        int afterlv = 0;
+        if (object.containsKey("api_afterlv")) {
+            afterlv = object.getJsonNumber("api_afterlv").intValue();
+        }
         int maxBull = 0;
         if (object.containsKey("api_bull_max")) {
             maxBull = object.getJsonNumber("api_bull_max").intValue();
