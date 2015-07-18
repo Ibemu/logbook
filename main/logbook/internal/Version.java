@@ -86,6 +86,10 @@ public final class Version implements Comparable<Version> {
         return version;
     }
 
+    public String toStringFull() {
+        return this.major + "." + this.minor + "." + this.revision;
+    }
+
     @Override
     public int compareTo(Version o) {
         if (this.major != o.major)

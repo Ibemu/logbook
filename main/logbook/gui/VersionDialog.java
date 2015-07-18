@@ -83,7 +83,7 @@ public final class VersionDialog extends Dialog {
         });
 
         label(AppConstants.NAME_PLUS, versionGroup);
-        label(AppConstants.VERSION_PLUS.toString(), versionGroup);
+        label(AppConstants.VERSION_PLUS.toStringFull(), versionGroup);
 
         label("", versionGroup);
         gowebsite = new Link(versionGroup, SWT.NONE);

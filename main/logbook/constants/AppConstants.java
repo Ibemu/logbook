@@ -29,7 +29,7 @@ public class AppConstants {
     public static final Version VERSION_PLUS = new Version(1, 0, 6);
 
     /** バージョン */
-    public static final String VERSION_FULL = VERSION + "+" + VERSION_PLUS;
+    public static final String VERSION_FULL = VERSION + "+" + VERSION_PLUS.toStringFull();
 
     /** ホームページ */
     public static final URI HOME_PAGE_URI = URI.create("https://kancolle.sanaechan.net/");
