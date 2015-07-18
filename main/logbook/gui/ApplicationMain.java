@@ -26,6 +26,7 @@ import logbook.gui.listener.ItemListReportAdapter;
 import logbook.gui.listener.MainShellAdapter;
 import logbook.gui.listener.MissionResultReportAdapter;
 import logbook.gui.listener.ShipListReportAdapter;
+import logbook.gui.listener.TabFolderMouseListener;
 import logbook.gui.listener.TrayItemMenuListener;
 import logbook.gui.listener.TraySelectionListener;
 import logbook.gui.logic.LayoutLogic;
@@ -449,6 +450,8 @@ public final class ApplicationMain {
         this.tabFolder.setTabHeight(26);
         this.tabFolder.marginWidth = 0;
         this.tabFolder.setMinimumCharacters(2);
+
+        this.tabFolder.addMouseListener(new TabFolderMouseListener(this.shell, this));
 
         // 母港タブ
         CTabItem mainItem = new CTabItem(this.tabFolder, SWT.NONE);
