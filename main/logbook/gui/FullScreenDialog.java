@@ -92,8 +92,9 @@ public final class FullScreenDialog extends Dialog {
         Canvas canvas = new Canvas(this.shell, SWT.NONE);
         canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
         canvas.addPaintListener(e -> {
+            Rectangle m = this.monitor.getBounds();
             GC gc = e.gc;
-            gc.drawImage(this.image, 0, 0);
+            gc.drawImage(this.image, m.x, m.y, m.width, m.height, 0, 0, m.width, m.height);
             gc.setFont(this.font);
             gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
             gc.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
