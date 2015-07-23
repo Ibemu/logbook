@@ -80,7 +80,7 @@ public final class FleetCompositeDialog extends Dialog
         };
         // 再読み込みするようにスケジュールする
         this.future = ThreadManager.getExecutorService()
-                .scheduleWithFixedDelay(command, 1, 1, TimeUnit.SECONDS);
+                .scheduleAtFixedRate(command, 1, 1, TimeUnit.SECONDS);
 
         while (!this.shell.isDisposed()) {
             if (!this.display.readAndDispatch()) {

@@ -28,7 +28,7 @@ public class Nyukyo implements EventListener {
                 String fleetid = ship.getFleetid();
                 DockDto dockdto = GlobalContext.getDock(fleetid);
                 if (dockdto != null) {
-                    dockdto.setUpdate(true);
+                    dockdto.setUpdate();
                 }
             }
         }

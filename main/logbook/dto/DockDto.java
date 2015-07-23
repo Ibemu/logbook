@@ -2,6 +2,7 @@ package logbook.dto;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,8 +23,8 @@ public final class DockDto extends AbstractDto {
     /** 艦娘達 */
     private final List<ShipDto> ships = new ArrayList<ShipDto>(DOCK_MAX_SIZE);
 
-    /** 更新フラグ */
-    private boolean update;
+    /** 更新時刻 */
+    private Date update;
 
     /**
      * コンストラクター
@@ -43,7 +44,7 @@ public final class DockDto extends AbstractDto {
 
     /**
      * 艦娘を艦隊に追加します
-     * 
+     *
      * @param ship
      */
     public void addShip(ShipDto ship) {
@@ -51,7 +52,7 @@ public final class DockDto extends AbstractDto {
             ship.setFleetid(this.id);
             this.ships.add(ship);
 
-            this.setUpdate(true);
+            this.setUpdate();
             return;
         }
         throw new IndexOutOfBoundsException();
@@ -72,7 +73,7 @@ public final class DockDto extends AbstractDto {
         if (setEmptyFleet)
             oship.setFleetid(EMPTY_FLEET_ID);
 
-        this.setUpdate(true);
+        this.setUpdate();
         return oship;
     }
 
@@ -80,7 +81,7 @@ public final class DockDto extends AbstractDto {
         ShipDto ship = this.ships.remove(fleet_position);
         ship.setFleetid(EMPTY_FLEET_ID);
 
-        this.setUpdate(true);
+        this.setUpdate();
     }
 
     public void removeOthers() {
@@ -91,7 +92,7 @@ public final class DockDto extends AbstractDto {
 
         this.ships.removeAll(other_ships);
 
-        this.setUpdate(true);
+        this.setUpdate();
     }
 
     public int size() {
@@ -122,15 +123,22 @@ public final class DockDto extends AbstractDto {
      * 更新フラグを取得します。
      * @return 更新フラグ
      */
-    public boolean isUpdate() {
-        return this.update;
+    public boolean isUpdate(Date d) {
+        return this.update.after(d);
     }
 
     /**
-     * 更新フラグを設定します。
-     * @param update 更新フラグ
+     * 更新時刻を設定します。
      */
-    public void setUpdate(boolean update) {
-        this.update = update;
+    public void setUpdate() {
+        this.update = new Date();
+    }
+
+    /**
+     * 更新時刻を取得します。
+     * @return 更新時刻
+     */
+    public Date getUpdate() {
+        return this.update;
     }
 }

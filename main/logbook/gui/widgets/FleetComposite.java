@@ -85,6 +85,8 @@ public class FleetComposite extends Composite {
     private final Font small;
     /** 艦隊 */
     private DockDto dock;
+    /** 更新時刻 */
+    private Date dockUpdate;
 
     private final Composite fleetGroup;
 
@@ -299,14 +301,14 @@ public class FleetComposite extends Composite {
      * @param dock
      */
     public void updateFleet(DockDto dock) {
-        if ((this.dock == dock) && !this.dock.isUpdate()) {
+        if ((this.dock == dock) && !this.dock.isUpdate(this.dockUpdate)) {
             return;
         }
 
         this.getShell().setRedraw(false);
 
         this.dock = dock;
-        this.dock.setUpdate(false);
+        this.dockUpdate = this.dock.getUpdate();
         this.state.set(WARN, false);
         this.state.set(FATAL, false);
         this.cond = 49;
