@@ -105,7 +105,7 @@ public abstract class AbstractTableDialog extends Dialog {
         // テーブルより前に作成する必要があるコンポジットを作成
         this.createContentsBefore();
         // テーブル
-        this.table = new Table(this.getTableParent(), SWT.FULL_SELECTION | SWT.MULTI | SWT.VIRTUAL);
+        this.table = new Table(this.getTableParent(), SWT.FULL_SELECTION | SWT.MULTI);
         this.table.addKeyListener(new TableKeyShortcutAdapter(this.header, this.table));
         this.table.setLinesVisible(true);
         this.table.setHeaderVisible(true);
