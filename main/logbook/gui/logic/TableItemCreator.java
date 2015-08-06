@@ -29,11 +29,19 @@ public interface TableItemCreator {
         @Override
         public TableItem create(Table table, String[] text, int count) {
             TableItem item = new TableItem(table, SWT.NONE);
+            item.setText(text);
+            update(item, text, count);
+            return item;
+        }
+
+        @Override
+        public TableItem update(TableItem item, String[] text, int count) {
             // 偶数行に背景色を付ける
             if ((count % 2) != 0) {
                 item.setBackground(SWTResourceManager.getColor(AppConstants.ROW_BACKGROUND));
+            } else {
+                item.setBackground(null);
             }
-            item.setText(text);
             return item;
         }
     };
@@ -64,41 +72,56 @@ public interface TableItemCreator {
 
         @Override
         public TableItem create(Table table, String[] text, int count) {
+            TableItem item = new TableItem(table, SWT.NONE);
+            item.setText(text);
+            update(item, text, count);
+            return item;
+        }
+
+        /* (非 Javadoc)
+         * @see logbook.gui.logic.TableItemCreator#update(org.eclipse.swt.widgets.TableItem, java.lang.String[], int)
+         */
+        @Override
+        public TableItem update(TableItem item, String[] text, int count) {
+
             // 艦娘
             Long ship = Long.valueOf(text[1]);
 
-            TableItem item = new TableItem(table, SWT.NONE);
             // 偶数行に背景色を付ける
             if ((count % 2) != 0) {
                 item.setBackground(SWTResourceManager.getColor(AppConstants.ROW_BACKGROUND));
+            } else {
+                item.setBackground(null);
             }
 
             // 疲労
             int cond = Integer.parseInt(text[5]);
-            if (cond <= AppConstants.COND_RED) {
+
+            if ("1".equals(text[7])) {
+                // Lv1の艦娘をグレー色にする
+                item.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GRAY));
+            } else if (this.docks.contains(ship)) {
+                // 入渠
+                item.setForeground(SWTResourceManager.getColor(AppConstants.NDOCK_COLOR));
+            } else if (this.deckmissions.contains(ship)) {
+                // 遠征
+                item.setForeground(SWTResourceManager.getColor(AppConstants.MISSION_COLOR));
+            } else if (cond <= AppConstants.COND_RED) {
+                // 赤疲労
                 item.setForeground(SWTResourceManager.getColor(AppConstants.COND_RED_COLOR));
             } else if (cond <= AppConstants.COND_ORANGE) {
+                // 疲労
                 item.setForeground(SWTResourceManager.getColor(AppConstants.COND_ORANGE_COLOR));
             } else if ((cond >= AppConstants.COND_DARK_GREEN) && (cond < AppConstants.COND_GREEN)) {
+                // cond.50-52
                 item.setForeground(SWTResourceManager.getColor(AppConstants.COND_DARK_GREEN_COLOR));
             } else if (cond >= AppConstants.COND_GREEN) {
+                // cond.53-
                 item.setForeground(SWTResourceManager.getColor(AppConstants.COND_GREEN_COLOR));
+            } else {
+                item.setForeground(null);
             }
 
-            // 遠征
-            if (this.deckmissions.contains(ship)) {
-                item.setForeground(SWTResourceManager.getColor(AppConstants.MISSION_COLOR));
-            }
-            // 入渠
-            if (this.docks.contains(ship)) {
-                item.setForeground(SWTResourceManager.getColor(AppConstants.NDOCK_COLOR));
-            }
-            // Lv1の艦娘をグレー色にする
-            if ("1".equals(text[7])) {
-                item.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GRAY));
-            }
-
-            item.setText(text);
             return item;
         }
     };
@@ -106,4 +129,6 @@ public interface TableItemCreator {
     void init();
 
     TableItem create(Table table, String[] text, int count);
+
+    TableItem update(TableItem item, String[] text, int count);
 }
