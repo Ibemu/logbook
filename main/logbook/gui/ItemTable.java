@@ -37,7 +37,7 @@ public final class ItemTable extends AbstractTableDialog {
                     String itemName = tableItem.getText(1);
                     ShipFilterDto filter = new ShipFilterDto();
                     filter.itemname = itemName;
-                    new ShipTable(ItemTable.this.shell, filter).open();
+                    new ShipTable(ItemTable.this.getParent(), filter).open();
                 }
             }
         });
