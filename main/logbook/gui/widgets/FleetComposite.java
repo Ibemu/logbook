@@ -24,6 +24,7 @@ import logbook.internal.EvaluateExp;
 import logbook.internal.SeaExp;
 import logbook.thread.PlayerThread;
 import logbook.util.CalcExpUtils;
+import logbook.util.SwtUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
@@ -35,7 +36,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
@@ -560,7 +560,8 @@ public class FleetComposite extends Composite {
             // HP
             this.hpLabels[i].setText(MessageFormat.format("{0}/{1} ", nowhp, maxhp));
             // HPゲージ
-            Image gauge = this.getHpGaugeImage(hpratio, expraito);
+            Image gauge = SwtUtils.getHpAndExpGaugeImage(hpratio, expraito, GAUGE_WIDTH, GAUGE_HEIGHT, EXP_GAUGE_HEIGHT,
+                    GAUGE_EMPTY, GAUGE_HALF, GAUGE_FULL, EXP_GAUGE);
             this.hpgaugeLabels[i].setImage(gauge);
             if (this.hpgaugeImages[i] != null) {
                 // 古いイメージを破棄
@@ -717,25 +718,6 @@ public class FleetComposite extends Composite {
     }
 
     /**
-     * HPゲージのイメージを取得します
-     * @param hpratio HP割合
-     * @return HPゲージのイメージ
-     */
-    private Image getHpGaugeImage(float hpratio, float expraito) {
-        Image image = new Image(Display.getDefault(), GAUGE_WIDTH, GAUGE_HEIGHT);
-        GC gc = new GC(image);
-        gc.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-        gc.fillRectangle(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT);
-        gc.setBackground(SWTResourceManager.getColor(gradation(hpratio, GAUGE_EMPTY, GAUGE_HALF, GAUGE_FULL)));
-        gc.fillRectangle(0, 0, (int) (GAUGE_WIDTH * hpratio), GAUGE_HEIGHT);
-        gc.setBackground(SWTResourceManager.getColor(EXP_GAUGE));
-        gc.fillRectangle(0, GAUGE_HEIGHT - EXP_GAUGE_HEIGHT, (int) (GAUGE_WIDTH * expraito), EXP_GAUGE_HEIGHT);
-        gc.drawImage(image, 0, 0);
-        gc.dispose();
-        return image;
-    }
-
-    /**
      * スタイル付きテキストを設定します
      *
      * @param text StyledText
@@ -801,47 +783,5 @@ public class FleetComposite extends Composite {
                 image.dispose();
             }
         }
-    }
-
-    /**
-     * 複数の色の中間色を取得する
-     *
-     * @param raito 割合
-     * @param rgbs 色たち
-     * @return 色
-     */
-    private static RGB gradation(float raito, RGB... rgbs) {
-        if (raito <= 0.0f) {
-            return rgbs[0];
-        }
-        if (raito >= 1.0f) {
-            return rgbs[rgbs.length - 1];
-        }
-        int length = rgbs.length - 1;
-
-        // 開始色
-        int start = (int) (length * raito);
-        // 終了色
-        int end = start + 1;
-        // 開始色と終了色の割合を算出
-        float startPer = (float) start / length;
-        float endPer = (float) end / length;
-        float subPer = (raito - startPer) / (endPer - startPer);
-        return gradation(subPer, rgbs[start], rgbs[end]);
-    }
-
-    /**
-     * 2つの色の中間色を取得する
-     *
-     * @param raito 割合
-     * @param start 開始色
-     * @param end 終了色
-     * @return 色
-     */
-    private static RGB gradation(float raito, RGB start, RGB end) {
-        int r = (int) (start.red + ((end.red - start.red) * raito));
-        int g = (int) (start.green + ((end.green - start.green) * raito));
-        int b = (int) (start.blue + ((end.blue - start.blue) * raito));
-        return new RGB(r, g, b);
     }
 }
