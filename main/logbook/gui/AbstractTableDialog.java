@@ -194,18 +194,17 @@ public abstract class AbstractTableDialog extends Dialog {
      */
     protected void reloadTable() {
         TableColumn sortColumn = this.table.getSortColumn();
-        int topindex = this.table.getTopIndex();
-        int[] selection = this.table.getSelectionIndices();
         this.table.setSortColumn(null);
         this.updateTableBody();
         if (this.comparator.getHasSetConfig()) {
             Collections.sort(this.body, this.comparator);
         }
+        this.table.setRedraw(false);
         this.setTableBody();
         this.packTableHeader();
+        this.table.setRedraw(true);
         this.table.setSortColumn(sortColumn);
-        this.table.setSelection(selection);
-        this.table.setTopIndex(topindex);
+
     }
 
     /**
@@ -218,14 +217,12 @@ public abstract class AbstractTableDialog extends Dialog {
             col.setText(this.header[i]);
             col.addSelectionListener(listener);
         }
-        this.packTableHeader();
     }
 
     /**
      * テーブルボディーをセットする
      */
     protected void setTableBody() {
-        this.table.setRedraw(false);
         TableItem[] items = this.table.getItems();
         int size = this.body.size();
         int override = Math.min(items.length, size);
@@ -248,7 +245,6 @@ public abstract class AbstractTableDialog extends Dialog {
         for (int i = size; i < items.length; i++) {
             items[i].dispose();
         }
-        this.table.setRedraw(true);
     }
 
     /**
@@ -267,7 +263,6 @@ public abstract class AbstractTableDialog extends Dialog {
             }
         }
 
-        this.table.setRedraw(false);
         for (int i = 0; i < columns.length; i++) {
             if ((visibles == null) || visibles[i]) {
                 columns[i].pack();
@@ -275,7 +270,6 @@ public abstract class AbstractTableDialog extends Dialog {
                 columns[i].setWidth(0);
             }
         }
-        this.table.setRedraw(true);
     }
 
     /**
