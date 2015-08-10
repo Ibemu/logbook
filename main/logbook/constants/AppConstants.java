@@ -16,11 +16,11 @@ import org.eclipse.swt.graphics.RGB;
  */
 public class AppConstants {
 
-    /**　アプリケーション名 */
+    /** アプリケーション名 */
     public static final String NAME = "航海日誌";
 
     /** バージョン */
-    public static final Version VERSION = new Version(0, 9, 0);
+    public static final Version VERSION = new Version(0, 9, 1);
 
     /**　アプリケーション名 */
     public static final String NAME_PLUS = "航海日誌+";
@@ -101,6 +101,18 @@ public class AppConstants {
     /** テーブル行(偶数行)背景色 */
     public static final RGB ROW_BACKGROUND = new RGB(246, 246, 246);
 
+    /** HPゲージ最小色 */
+    public static final RGB HP_EMPTY_COLOR = new RGB(0xff, 0, 0);
+
+    /** HPゲージ中間色 */
+    public static final RGB HP_HALF_COLOR = new RGB(0xff, 0xd7, 0);
+
+    /** HPゲージ最大色 */
+    public static final RGB HP_FULL_COLOR = new RGB(0, 0xd7, 0);
+
+    /** 経験値ゲージ色 */
+    public static final RGB EXP_COLOR = new RGB(0, 0x80, 0xff);
+
     /** 小破(75%) */
     public static final float SLIGHT_DAMAGE = 0.75f;
 
@@ -130,6 +142,9 @@ public class AppConstants {
 
     /** レベル付き装備設定ファイル  */
     public static final Path ITEM_LEVEL_CONFIG_FILE = Paths.get("./config/itemlevel.xml");
+
+    /** 熟練度設定ファイル  */
+    public static final Path ITEM_ALV_CONFIG_FILE = Paths.get("./config/itemalv.xml");
 
     /** 装備マスター設定ファイル  */
     public static final Path ITEM_MST_CONFIG_FILE = Paths.get("./config/itemmst.xml");

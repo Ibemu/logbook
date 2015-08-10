@@ -162,11 +162,17 @@ public final class BathwaterTableDialog extends AbstractTableDialog {
             @Override
             public TableItem create(Table table, String[] text, int count) {
                 TableItem item = new TableItem(table, SWT.NONE);
+                item.setText(text);
+                this.update(item, text, count);
+                return item;
+            }
+
+            @Override
+            public TableItem update(TableItem item, String[] text, int count) {
                 // 偶数行に背景色を付ける
                 if ((count % 2) != 0) {
                     item.setBackground(SWTResourceManager.getColor(AppConstants.ROW_BACKGROUND));
                 }
-                item.setText(text);
                 if (text[10].equals("遠征")) {
                     item.setForeground(SWTResourceManager.getColor(AppConstants.MISSION_COLOR));
                 }

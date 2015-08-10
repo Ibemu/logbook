@@ -193,22 +193,18 @@ public abstract class AbstractTableDialog extends Dialog {
      * テーブルをリロードする
      */
     protected void reloadTable() {
-        this.shell.setRedraw(false);
         TableColumn sortColumn = this.table.getSortColumn();
-        int topindex = this.table.getTopIndex();
-        int[] selection = this.table.getSelectionIndices();
         this.table.setSortColumn(null);
-        this.disposeTableBody();
         this.updateTableBody();
         if (this.comparator.getHasSetConfig()) {
             Collections.sort(this.body, this.comparator);
         }
+        this.table.setRedraw(false);
         this.setTableBody();
         this.packTableHeader();
+        this.table.setRedraw(true);
         this.table.setSortColumn(sortColumn);
-        this.table.setSelection(selection);
-        this.table.setTopIndex(topindex);
-        this.shell.setRedraw(true);
+
     }
 
     /**
@@ -221,27 +217,32 @@ public abstract class AbstractTableDialog extends Dialog {
             col.setText(this.header[i]);
             col.addSelectionListener(listener);
         }
-        this.packTableHeader();
     }
 
     /**
      * テーブルボディーをセットする
      */
     protected void setTableBody() {
+        TableItem[] items = this.table.getItems();
+        int size = this.body.size();
+        int override = Math.min(items.length, size);
+
         TableItemCreator creator = this.getTableItemCreator();
         creator.init();
-        for (int i = 0; i < this.body.size(); i++) {
+
+        // Override Row
+        for (int i = 0; i < override; i++) {
+            String[] text = this.body.get(i);
+            items[i].setText(text);
+            creator.update(items[i], text, i);
+        }
+        // Create Row
+        for (int i = override; i < size; i++) {
             String[] line = this.body.get(i);
             creator.create(this.table, line, i);
         }
-    }
-
-    /**
-     * テーブルボディーをクリアする
-     */
-    protected void disposeTableBody() {
-        TableItem[] items = this.table.getItems();
-        for (int i = 0; i < items.length; i++) {
+        // Dispose Row
+        for (int i = size; i < items.length; i++) {
             items[i].dispose();
         }
     }
@@ -349,9 +350,6 @@ public abstract class AbstractTableDialog extends Dialog {
      * @param headerColumn ソートするカラム
      */
     protected void sortTableItems(int index, TableColumn headerColumn) {
-        this.shell.setRedraw(false);
-        this.disposeTableBody();
-
         final boolean orderflg = !this.orderflgs[index];
         for (int i = 0; i < this.orderflgs.length; i++) {
             this.orderflgs[i] = false;
@@ -370,9 +368,6 @@ public abstract class AbstractTableDialog extends Dialog {
         this.comparator.setOrder(orderflg);
         Collections.sort(this.body, this.comparator);
         this.setTableBody();
-
-        this.shell.setRedraw(true);
-
     }
 
     /**

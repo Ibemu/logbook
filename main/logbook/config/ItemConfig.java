@@ -31,6 +31,7 @@ public class ItemConfig {
     public static void store() throws IOException {
         storeItem();
         storeLevel();
+        storeALv();
     }
 
     /**
@@ -42,6 +43,7 @@ public class ItemConfig {
     public static void load() {
         loadItem();
         loadLevel();
+        loadALv();
     }
 
     /**
@@ -62,6 +64,15 @@ public class ItemConfig {
         Map<Long, Integer> map = new HashMap<Long, Integer>();
         map.putAll(ItemContext.level());
         BeanUtils.writeObject(AppConstants.ITEM_LEVEL_CONFIG_FILE, map);
+    }
+
+    /**
+     * @throws IOException
+     */
+    private static void storeALv() throws IOException {
+        Map<Long, Integer> map = new HashMap<Long, Integer>();
+        map.putAll(ItemContext.alv());
+        BeanUtils.writeObject(AppConstants.ITEM_ALV_CONFIG_FILE, map);
     }
 
     /**
@@ -95,6 +106,20 @@ public class ItemConfig {
             }
         } catch (Exception e) {
             LoggerHolder.LOG.warn("レベルの復元に失敗しました", e);
+        }
+    }
+
+    /**
+     * レベルの復元
+     */
+    private static void loadALv() {
+        try {
+            Map<Long, Integer> map = BeanUtils.readObject(AppConstants.ITEM_ALV_CONFIG_FILE, Map.class);
+            if (map != null) {
+                ItemContext.alv().putAll(map);
+            }
+        } catch (Exception e) {
+            LoggerHolder.LOG.warn("熟練度の復元に失敗しました", e);
         }
     }
 }

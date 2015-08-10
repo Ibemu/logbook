@@ -59,6 +59,7 @@ public class RemodelSlot implements EventListener {
                 for (JsonValue id : ids) {
                     Long key = ((JsonNumber) id).longValue();
                     ItemContext.get().remove(key);
+                    ItemContext.alv().remove(key);
                 }
             }
             ConsoleContext.log("装備改修を更新しました");
