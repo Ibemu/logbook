@@ -85,6 +85,18 @@ public class AppConstants {
     /** テーブル行(偶数行)背景色 */
     public static final RGB ROW_BACKGROUND = new RGB(246, 246, 246);
 
+    /** HPゲージ最小色 */
+    public static final RGB HP_EMPTY_COLOR = new RGB(0xff, 0, 0);
+
+    /** HPゲージ中間色 */
+    public static final RGB HP_HALF_COLOR = new RGB(0xff, 0xd7, 0);
+
+    /** HPゲージ最大色 */
+    public static final RGB HP_FULL_COLOR = new RGB(0, 0xd7, 0);
+
+    /** 経験値ゲージ色 */
+    public static final RGB EXP_COLOR = new RGB(0, 0x80, 0xff);
+
     /** 小破(75%) */
     public static final float SLIGHT_DAMAGE = 0.75f;
 

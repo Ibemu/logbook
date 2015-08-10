@@ -38,7 +38,6 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -66,14 +65,6 @@ public class FleetComposite extends Composite {
     private static final int GAUGE_HEIGHT = 10;
     /** 経験値ゲージ高さ */
     private static final int EXP_GAUGE_HEIGHT = 2;
-    /** HPゲージ最小色 */
-    private static final RGB GAUGE_EMPTY = new RGB(0xff, 0, 0);
-    /** HPゲージ中間色 */
-    private static final RGB GAUGE_HALF = new RGB(0xff, 0xd7, 0);
-    /** HPゲージ最大色 */
-    private static final RGB GAUGE_FULL = new RGB(0, 0xd7, 0);
-    /** 経験値ゲージ色 */
-    private static final RGB EXP_GAUGE = new RGB(0, 0x80, 0xff);
 
     /** タブ */
     private final CTabItem tab;
@@ -560,8 +551,10 @@ public class FleetComposite extends Composite {
             // HP
             this.hpLabels[i].setText(MessageFormat.format("{0}/{1} ", nowhp, maxhp));
             // HPゲージ
-            Image gauge = SwtUtils.getHpAndExpGaugeImage(hpratio, expraito, GAUGE_WIDTH, GAUGE_HEIGHT, EXP_GAUGE_HEIGHT,
-                    GAUGE_EMPTY, GAUGE_HALF, GAUGE_FULL, EXP_GAUGE);
+            Image gauge = SwtUtils.getHpAndExpGaugeImage(hpratio, expraito,
+                    GAUGE_WIDTH, GAUGE_HEIGHT, EXP_GAUGE_HEIGHT,
+                    AppConstants.HP_EMPTY_COLOR, AppConstants.HP_HALF_COLOR, AppConstants.HP_FULL_COLOR,
+                    AppConstants.EXP_COLOR);
             this.hpgaugeLabels[i].setImage(gauge);
             if (this.hpgaugeImages[i] != null) {
                 // 古いイメージを破棄

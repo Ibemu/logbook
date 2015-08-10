@@ -79,8 +79,10 @@ public final class SwtUtils {
         Image image = new Image(Display.getDefault(), width, height);
         GC gc = new GC(image);
         gc.drawImage(image, 0, 0);
+        gc.setAlpha(0);
         gc.setBackground(SWTResourceManager.getColor(background));
         gc.fillRectangle(0, 0, width, height);
+        gc.setAlpha(255);
         gc.setBackground(SWTResourceManager.getColor(gradation(ratio, colors)));
         gc.fillRectangle(0, 0, (int) (width * ratio), height);
         gc.dispose();
