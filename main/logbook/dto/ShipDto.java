@@ -192,6 +192,10 @@ public final class ShipDto extends AbstractDto {
             JsonNumber itemid = (JsonNumber) jsonValue;
             this.slot.add(Long.valueOf(itemid.longValue()));
         }
+        if (object.containsKey("api_slot_ex")) {
+            long itemid = object.getJsonNumber("api_slot_ex").longValue();
+            this.slot.add(itemid);
+        }
         this.onslot = new ArrayList<Integer>();
         JsonArray onslot = object.getJsonArray("api_onslot");
         for (JsonValue jsonValue : onslot) {
@@ -399,16 +403,25 @@ public final class ShipDto extends AbstractDto {
             this.itemNames = new ArrayList<String>();
             Map<Long, ItemDto> itemMap = ItemContext.get();
             Map<Long, Integer> levelMap = ItemContext.level();
+            Map<Long, Integer> alvMap = ItemContext.alv();
             for (Long itemid : this.slot) {
-                if (-1 != itemid) {
+                if (itemid > 0) {
                     ItemDto name = itemMap.get(itemid);
                     Integer level = levelMap.get(itemid);
+                    Integer alv = alvMap.get(itemid);
+                    boolean viewLevel = (level != null) && (level.intValue() > 0);
                     if (name != null) {
-                        if ((level != null) && (level.intValue() > 0)) {
+                        if (viewLevel || (alv != null)) {
                             StringBuilder sb = new StringBuilder();
                             sb.append(name.getName());
-                            sb.append("★+");
-                            sb.append(level);
+                            if (alv != null) {
+                                sb.append("☆+");
+                                sb.append(alv);
+                            }
+                            if (viewLevel) {
+                                sb.append("★+");
+                                sb.append(level);
+                            }
                             this.itemNames.add(sb.toString());
                         } else {
                             this.itemNames.add(name.getName());

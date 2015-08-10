@@ -535,6 +535,7 @@ public final class GlobalContext {
                         for (Long item : entry.getValue().getItemId()) {
                             ItemContext.get().remove(item);
                             ItemContext.level().remove(item);
+                            ItemContext.alv().remove(item);
                         }
                         ShipContext.get().remove(entry.getKey());
                     }
@@ -796,13 +797,21 @@ public final class GlobalContext {
                 JsonObject object = (JsonObject) apidata.get(i);
                 int typeid = object.getJsonNumber("api_slotitem_id").intValue();
                 int level = object.getJsonNumber("api_level").intValue();
+                int alv = -1;
+                if (object.containsKey("api_alv")) {
+                    alv = object.getJsonNumber("api_alv").intValue();
+                }
                 Long id = object.getJsonNumber("api_id").longValue();
                 ItemDto item = Item.get(typeid);
                 if (item != null) {
                     ItemContext.get().put(id, item);
                     ItemContext.level().put(id, level);
+                    if (alv > 0) {
+                        ItemContext.alv().put(id, alv);
+                    }
                 }
             }
+            System.out.println(ItemContext.alv());
 
             addConsole("保有装備情報を更新しました");
         } catch (Exception e) {
@@ -964,6 +973,7 @@ public final class GlobalContext {
                 for (Long item : items) {
                     ItemContext.get().remove(item);
                     ItemContext.level().remove(item);
+                    ItemContext.alv().remove(item);
                 }
                 // 艦娘を外す
                 ShipContext.get().remove(ship.getId());
@@ -991,6 +1001,7 @@ public final class GlobalContext {
                 Long item = Long.parseLong(itemid);
                 ItemContext.get().remove(item);
                 ItemContext.level().remove(item);
+                ItemContext.alv().remove(item);
             }
             addConsole("装備を廃棄しました");
         } catch (Exception e) {
@@ -1014,6 +1025,7 @@ public final class GlobalContext {
                     for (Long item : items) {
                         ItemContext.get().remove(item);
                         ItemContext.level().remove(item);
+                        ItemContext.alv().remove(item);
                     }
                     // 艦娘を外す
                     ShipContext.get().remove(ship.getId());

@@ -16,6 +16,9 @@ public class ItemContext {
     /** 改修レベルMap */
     private static Map<Long, Integer> levelMap = new ConcurrentSkipListMap<Long, Integer>();
 
+    /** 熟練度レベルMap */
+    private static Map<Long, Integer> alvMap = new ConcurrentSkipListMap<Long, Integer>();
+
     /**
      * @return 装備Map
      */
@@ -28,5 +31,12 @@ public class ItemContext {
      */
     public static Map<Long, Integer> level() {
         return levelMap;
+    }
+
+    /**
+     * @return 熟練度レベルMap
+     */
+    public static Map<Long, Integer> alv() {
+        return alvMap;
     }
 }

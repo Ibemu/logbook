@@ -94,7 +94,7 @@ public final class BattleDialog extends Dialog {
 
         Composite fComposite = new Composite(this.shell, SWT.NONE);
         fComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        fComposite.setLayout(new GridLayout(9, false));
+        fComposite.setLayout(new GridLayout(10, false));
 
         // 味方艦隊
         List<DockDto> docks = battle.getFriends();
@@ -103,7 +103,7 @@ public final class BattleDialog extends Dialog {
             List<ShipDto> ships = dock.getShips();
 
             Label lblfName = new Label(fComposite, SWT.NONE);
-            lblfName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 9, 1));
+            lblfName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 10, 1));
             lblfName.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
             if (i == 0) {
                 lblfName.setText(dock.getName() + "(" + battle.getFriendFormation() + ")");
@@ -159,6 +159,13 @@ public final class BattleDialog extends Dialog {
             GridData gdfItem5 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
             gdfItem5.widthHint = 100;
             lblfItem5.setLayoutData(gdfItem5);
+
+            Label lblfItem6 = new Label(fComposite, SWT.NONE);
+            lblfItem6.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
+            lblfItem6.setText("補強増設");
+            GridData gdfItem6 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+            gdfItem6.widthHint = 100;
+            lblfItem6.setLayoutData(gdfItem6);
 
             for (int j = 0; j < ships.size(); j++) {
                 ShipDto ship = ships.get(j);
@@ -325,6 +332,7 @@ public final class BattleDialog extends Dialog {
             sb.append("             <th>装備3</th>").append("\r\n");
             sb.append("             <th>装備4</th>").append("\r\n");
             sb.append("             <th>装備5</th>").append("\r\n");
+            sb.append("             <th>補強増設</th>").append("\r\n");
             sb.append("         </tr>").append("\r\n");
             sb.append("     </thead>").append("\r\n");
             sb.append("     <tbody>").append("\r\n");

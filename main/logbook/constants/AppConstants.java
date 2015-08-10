@@ -127,6 +127,9 @@ public class AppConstants {
     /** レベル付き装備設定ファイル  */
     public static final Path ITEM_LEVEL_CONFIG_FILE = Paths.get("./config/itemlevel.xml");
 
+    /** 熟練度設定ファイル  */
+    public static final Path ITEM_ALV_CONFIG_FILE = Paths.get("./config/itemalv.xml");
+
     /** 装備マスター設定ファイル  */
     public static final Path ITEM_MST_CONFIG_FILE = Paths.get("./config/itemmst.xml");
 

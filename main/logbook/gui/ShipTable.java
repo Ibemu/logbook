@@ -449,7 +449,7 @@ public final class ShipTable extends AbstractTableDialog {
                 }
 
                 // HPのゲージイメージ
-                item.setImage(16, ShipTable.this.hpGauge(ship));
+                item.setImage(17, ShipTable.this.hpGauge(ship));
                 // 次のLvまでの経験値のゲージ
                 item.setImage(8, ShipTable.this.expGauge(ship));
                 // 経験値のゲージイメージ
