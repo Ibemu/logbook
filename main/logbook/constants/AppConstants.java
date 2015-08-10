@@ -16,11 +16,11 @@ import org.eclipse.swt.graphics.RGB;
  */
 public class AppConstants {
 
-    /**　アプリケーション名 */
+    /** アプリケーション名 */
     public static final String NAME = "航海日誌";
 
     /** バージョン */
-    public static final Version VERSION = new Version(0, 9, 0);
+    public static final Version VERSION = new Version(0, 9, 1);
 
     /** ホームページ */
     public static final URI HOME_PAGE_URI = URI.create("https://kancolle.sanaechan.net/");
