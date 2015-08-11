@@ -811,7 +811,6 @@ public final class GlobalContext {
                     }
                 }
             }
-            System.out.println(ItemContext.alv());
 
             addConsole("保有装備情報を更新しました");
         } catch (Exception e) {
