@@ -416,6 +416,7 @@ public final class CreateReportLogic {
                         ship.getSlot().get(1),
                         ship.getSlot().get(2),
                         ship.getSlot().get(3),
+                        ship.getSlot().get(5),
                         ship.getMaxhp(),
                         karyoku,
                         raisou,
