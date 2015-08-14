@@ -26,6 +26,8 @@ public class UseItem {
             .put(57, "勲章")
             .put(59, "給糧艦「伊良湖」")
             .put(62, "菱餅")
+            .put(66, "戦闘糧食")
+            .put(67, "洋上補給")
             .build();
 
     /**
