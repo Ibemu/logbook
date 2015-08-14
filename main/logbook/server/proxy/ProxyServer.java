@@ -1,6 +1,7 @@
 package logbook.server.proxy;
 
 import java.net.BindException;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,6 +45,8 @@ public final class ProxyServer extends Thread {
             ServletHandler context = new ServletHandler();
             ServletHolder holder = new ServletHolder(new ReverseProxyServlet());
             holder.setInitParameter("maxThreads", "256");
+            holder.setInitParameter("idleTimeout", Long.toString(TimeUnit.MINUTES.toMillis(2)));
+            holder.setInitParameter("timeout", Long.toString(TimeUnit.MINUTES.toMillis(2)));
             context.addServletWithMapping(holder, "/*");
             server.setHandler(context);
 

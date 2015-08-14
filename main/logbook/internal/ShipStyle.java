@@ -36,6 +36,7 @@ public class ShipStyle {
             .put("19", "工作艦")
             .put("20", "潜水母艦")
             .put("21", "練習巡洋艦")
+            .put("22", "補給艦")
             .build();
 
     /**

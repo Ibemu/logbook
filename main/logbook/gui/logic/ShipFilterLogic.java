@@ -235,6 +235,11 @@ public class ShipFilterLogic {
                 return false;
             }
         }
+        if (!filter.supply) {
+            if ("補給艦".equals(ship.getType())) {
+                return false;
+            }
+        }
         return true;
     }
 

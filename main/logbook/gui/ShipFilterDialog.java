@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -84,6 +85,8 @@ public final class ShipFilterDialog extends Dialog {
     private Button submarineTender;
     /** 艦種.練習巡洋艦 */
     private Button trainingShip;
+    /** 艦種.補給艦 */
+    private Button supply;
     /** 全て選択 */
     private Button selectall;
     /** グループ */
@@ -263,6 +266,15 @@ public final class ShipFilterDialog extends Dialog {
         this.trainingShip.setSelection(true);
         this.trainingShip.addSelectionListener(listener);
 
+        this.supply = new Button(shiptypegroup, SWT.CHECK);
+        this.supply.setText("補給艦");
+        this.supply.setSelection(true);
+        this.supply.addSelectionListener(listener);
+
+        new Label(shiptypegroup, SWT.NONE);
+
+        new Label(shiptypegroup, SWT.NONE);
+
         this.selectall = new Button(shiptypegroup, SWT.CHECK);
         this.selectall.setText("全て選択");
         this.selectall.setSelection(true);
@@ -370,6 +382,8 @@ public final class ShipFilterDialog extends Dialog {
             this.submarineTender.setSelection(this.filter.submarineTender);
             // 艦種.練習巡洋艦
             this.trainingShip.setSelection(this.filter.trainingShip);
+            // 艦種.補給艦
+            this.supply.setSelection(this.filter.supply);
 
             if (this.filter.group != null) {
                 // グループ
@@ -433,6 +447,7 @@ public final class ShipFilterDialog extends Dialog {
         filter.repairship = this.repairship.getSelection();
         filter.submarineTender = this.submarineTender.getSelection();
         filter.trainingShip = this.trainingShip.getSelection();
+        filter.supply = this.supply.getSelection();
         filter.group = null;
         if (ShipFilterDialog.this.group.getSelection()) {
             int idx = ShipFilterDialog.this.groupcombo.getSelectionIndex();
@@ -500,6 +515,7 @@ public final class ShipFilterDialog extends Dialog {
             ShipFilterDialog.this.repairship.setSelection(select);
             ShipFilterDialog.this.submarineTender.setSelection(select);
             ShipFilterDialog.this.trainingShip.setSelection(select);
+            ShipFilterDialog.this.supply.setSelection(select);
 
             ShipFilterDialog.this.shipTable.updateFilter(ShipFilterDialog.this.createFilter());
         }

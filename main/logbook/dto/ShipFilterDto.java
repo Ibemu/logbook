@@ -46,6 +46,8 @@ public final class ShipFilterDto extends AbstractDto {
     public boolean submarineTender = true;
     /** 艦種.練習巡洋艦 */
     public boolean trainingShip = true;
+    /** 艦種.補給艦 */
+    public boolean supply = true;
 
     /** グループ */
     public ShipGroupBean group;

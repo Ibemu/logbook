@@ -17,6 +17,8 @@ import logbook.data.UndefinedData;
 import logbook.thread.ThreadManager;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpRequest;
 import org.eclipse.jetty.client.api.ProxyConfiguration;
@@ -114,6 +116,22 @@ public final class ReverseProxyServlet extends ProxyServlet {
             }
         }
         super.onResponseSuccess(request, response, proxyResponse);
+    }
+
+    /*
+     * 通信に失敗した
+     */
+    @Override
+    protected void onResponseFailure(HttpServletRequest request, HttpServletResponse response, Response proxyResponse,
+            Throwable failure) {
+
+        Logger logger = LogManager.getLogger(ReverseProxyServlet.class);
+
+        logger.warn("通信に失敗しました", failure);
+        logger.warn(request);
+        logger.warn(proxyResponse);
+
+        super.onResponseFailure(request, response, proxyResponse, failure);
     }
 
     /*
