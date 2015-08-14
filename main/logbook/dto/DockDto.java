@@ -32,6 +32,7 @@ public final class DockDto extends AbstractDto {
     public DockDto(String id, String name) {
         this.id = id;
         this.name = name;
+        this.update = new Date();
     }
 
     /**
