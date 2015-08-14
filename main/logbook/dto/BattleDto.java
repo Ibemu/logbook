@@ -1,6 +1,7 @@
 package logbook.dto;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.json.JsonArray;
@@ -298,13 +299,12 @@ public final class BattleDto extends AbstractDto {
                 }
             }
             else {
-                boolean c = comb
-                        || ((e.getKey() != null) && e.getKey().contains("_combined"))
-                        ||
-                        (
-                        ((this.combined == 1) && ("api_hougeki1".equals(e.getKey()) || "api_raigeki".equals(e.getKey()))) ||
-                        ((this.combined == 2) && ("api_hougeki3".equals(e.getKey()) || "api_raigeki".equals(e.getKey())))
-                        );
+                final List<String> conb1 = Arrays.asList("api_hougeki1", "api_raigeki", "api_opening_atack");
+                final List<String> conb2 = Arrays.asList("api_hougeki3", "api_raigeki", "api_opening_atack");
+                boolean c = comb ||
+                        ((e.getKey() != null) && e.getKey().contains("_combined")) ||
+                        (((this.combined == 1) && conb1.contains(e.getKey())) ||
+                        ((this.combined == 2) && conb2.contains(e.getKey())));
                 if (e.getValue() instanceof JsonObject) {
                     this.searchDamage((JsonObject) e.getValue(), c);
                 }
