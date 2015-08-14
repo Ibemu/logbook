@@ -53,7 +53,7 @@ public final class DockDto extends AbstractDto {
             ship.setFleetid(this.id);
             this.ships.add(ship);
 
-            this.setUpdate();
+            this.setUpdate(true);
             return;
         }
         throw new IndexOutOfBoundsException();
@@ -74,7 +74,7 @@ public final class DockDto extends AbstractDto {
         if (setEmptyFleet)
             oship.setFleetid(EMPTY_FLEET_ID);
 
-        this.setUpdate();
+        this.setUpdate(true);
         return oship;
     }
 
@@ -82,7 +82,7 @@ public final class DockDto extends AbstractDto {
         ShipDto ship = this.ships.remove(fleet_position);
         ship.setFleetid(EMPTY_FLEET_ID);
 
-        this.setUpdate();
+        this.setUpdate(true);
     }
 
     public void removeOthers() {
@@ -93,7 +93,7 @@ public final class DockDto extends AbstractDto {
 
         this.ships.removeAll(other_ships);
 
-        this.setUpdate();
+        this.setUpdate(true);
     }
 
     public int size() {
@@ -130,9 +130,11 @@ public final class DockDto extends AbstractDto {
 
     /**
      * 更新時刻を設定します。
+     * @param update 更新フラグ
      */
-    public void setUpdate() {
-        this.update = new Date();
+    public void setUpdate(boolean update) {
+        if (update)
+            this.update = new Date();
     }
 
     /**

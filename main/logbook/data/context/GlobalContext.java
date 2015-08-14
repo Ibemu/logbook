@@ -551,7 +551,7 @@ public final class GlobalContext {
                         if (fleetid != null) {
                             DockDto dockdto = dock.get(fleetid);
                             if (dockdto != null) {
-                                dockdto.setUpdate();
+                                dockdto.setUpdate(true);
                             }
                         }
                     }
@@ -1559,7 +1559,7 @@ public final class GlobalContext {
             if (fleetid != null) {
                 DockDto dockdto = dock.get(fleetid);
                 if (dockdto != null) {
-                    dockdto.setUpdate();
+                    dockdto.setUpdate(true);
                 }
             }
         }
