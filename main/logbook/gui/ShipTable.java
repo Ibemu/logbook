@@ -167,6 +167,8 @@ public final class ShipTable extends AbstractTableDialog {
                 }
             });
         }
+        // セパレータ
+        new MenuItem(this.tablemenu, SWT.SEPARATOR);
 
         MenuItem addGroupCascade = new MenuItem(this.tablemenu, SWT.CASCADE);
         addGroupCascade.setText("選択した艦娘をグループに追加(&A)");

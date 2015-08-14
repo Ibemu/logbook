@@ -173,7 +173,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialog {
 
     @Override
     protected String[] getTableHeader() {
-        return new String[] { "", "ID", "艦隊", "名前", "艦種", "Lv", "疲労" };
+        return new String[] { "", "ID", "艦隊", "名前", "艦種", "Lv", "疲労", "出撃海域" };
     }
 
     @Override
@@ -190,7 +190,8 @@ public final class ShipFilterGroupDialog extends AbstractTableDialog {
                         ship.getName(),
                         ship.getType(),
                         Long.toString(ship.getLv()),
-                        Long.toString(ship.getCond())
+                        Long.toString(ship.getCond()),
+                        ship.getSallyArea().getName()
                 });
             }
         }
