@@ -112,6 +112,14 @@ public final class ReverseProxyServlet extends ProxyServlet {
         return client;
     }
 
+    /*
+     * プロキシヘッダの追加
+     */
+    @Override
+    protected void addProxyHeaders(HttpServletRequest clientRequest, Request proxyRequest) {
+        // 何もしない
+    }
+
     /**
      * パースを別スレッドで行うためのタスク
      */
