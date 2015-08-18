@@ -1,7 +1,10 @@
 package logbook.server.proxy;
 
 import java.net.BindException;
+import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
+
+import logbook.config.AppConfig;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,6 +42,9 @@ public final class ProxyServer extends Thread {
         try {
             Server server = new Server();
             ServerConnector connector = new ServerConnector(server);
+            if (AppConfig.get().isAllowOnlyFromLocalhost()) {
+                connector.setHost(InetAddress.getLoopbackAddress().getHostName());
+            }
             connector.setPort(this.port);
             server.addConnector(connector);
 

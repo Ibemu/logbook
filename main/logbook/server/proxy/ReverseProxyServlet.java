@@ -3,9 +3,7 @@ package logbook.server.proxy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.InetAddress;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -38,22 +36,6 @@ public final class ReverseProxyServlet extends ProxyServlet {
 
     /** ライブラリバグ対応 (HttpRequest#queryを上書きする) */
     private static final Field QUERY_FIELD = getDeclaredField(HttpRequest.class, "query");
-
-    /** ローカルループバックアドレスからの接続のみ受け入れる */
-    private final boolean allowOnlyFromLocalhost = AppConfig.get().isAllowOnlyFromLocalhost();
-
-    /*
-     * リモートホストがローカルループバックアドレス以外の場合400を返し通信しない
-     */
-    @Override
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-            IOException {
-        if (this.allowOnlyFromLocalhost && !InetAddress.getByName(request.getRemoteAddr()).isLoopbackAddress()) {
-            response.setStatus(400);
-            return;
-        }
-        super.service(request, response);
-    }
 
     /*
      * Hop-by-Hop ヘッダーを除去します
