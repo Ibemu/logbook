@@ -76,6 +76,15 @@ public final class BattleDto extends AbstractDto {
     /** 艦隊行動 */
     private final String intercept;
 
+    /** 索敵 */
+    private final String friendSearch;
+
+    /** 索敵 */
+    private final String enemySearch;
+
+    /** 制空 */
+    private final String dispSeiku;
+
     /** 退避 */
     private final boolean[] friendEscape = { false, false, false, false, false, false };
 
@@ -208,6 +217,92 @@ public final class BattleDto extends AbstractDto {
             this.enemyFormation = "陣形不明";
             this.intercept = "不明";
         }
+
+        if (object.containsKey("api_search")) {
+            JsonArray search = object.getJsonArray("api_search");
+            // 味方
+            switch (search.get(0).getValueType()) {
+            case NUMBER:
+                this.friendSearch = toSearch(search.getInt(0));
+                break;
+            default:
+                this.friendSearch = toSearch(Integer.parseInt(search.getString(0)));
+            }
+            // 敵
+            switch (search.get(1).getValueType()) {
+            case NUMBER:
+                this.enemySearch = toSearch(search.getInt(1));
+                break;
+            default:
+                this.enemySearch = toSearch(Integer.parseInt(search.getString(1)));
+            }
+        } else {
+            this.friendSearch = "不明";
+            this.enemySearch = "不明";
+        }
+
+        String dispSeiku;
+
+        try {
+            JsonObject stage1 = object.getJsonObject("api_kouku").getJsonObject("api_stage1");
+            dispSeiku = toDispSeiku(stage1.getInt("api_disp_seiku"));
+        } catch (Exception e) {
+            dispSeiku = "不明";
+        }
+        this.dispSeiku = dispSeiku;
+    }
+
+    private static String toDispSeiku(int s) {
+        String dispSeiku;
+        switch (s) {
+        case 0:
+            dispSeiku = "制空均衡";
+            break;
+        case 1:
+            dispSeiku = "制空権確保";
+            break;
+        case 2:
+            dispSeiku = "航空優勢";
+            break;
+        case 3:
+            dispSeiku = "航空劣勢";
+            break;
+        case 4:
+            dispSeiku = "制空権喪失";
+            break;
+        default:
+            dispSeiku = "不明";
+            break;
+        }
+        return dispSeiku;
+    }
+
+    private static String toSearch(int s) {
+        String search;
+        switch (s) {
+        case 1:
+            search = "成功";
+            break;
+        case 2:
+            search = "成功(未帰還有)";
+            break;
+        case 3:
+            search = "未帰還";
+            break;
+        case 4:
+            search = "失敗";
+            break;
+        case 5:
+            search = "成功";
+            break;
+        case 6:
+            search = "失敗";
+            break;
+        default:
+            search = "不明";
+            break;
+        }
+        return search;
     }
 
     private static String toFormation(int f) {
@@ -556,6 +651,30 @@ public final class BattleDto extends AbstractDto {
      */
     public String getIntercept() {
         return this.intercept;
+    }
+
+    /**
+     * 味方索敵を取得します。
+     * @return 味方索敵
+     */
+    public String getFriendSearch() {
+        return this.friendSearch;
+    }
+
+    /**
+     * 敵索敵を取得します。
+     * @return 敵索敵
+     */
+    public String getEnemySearch() {
+        return this.enemySearch;
+    }
+
+    /**
+     * 制空を取得します。
+     * @return 制空
+     */
+    public String getDispSeiku() {
+        return this.dispSeiku;
     }
 
     /**

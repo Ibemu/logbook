@@ -58,6 +58,9 @@ public final class SortieDialog extends Dialog
 
     private Composite summary;
 
+    private Composite summaryMap;
+    private Composite summaryBattle;
+
     private CLabel lblMapId;
     private CLabel lblCellId;
     private CLabel lblBossArrive;
@@ -65,6 +68,9 @@ public final class SortieDialog extends Dialog
     private CLabel lblBattleCount;
     private CLabel lblDayNight;
     private CLabel lblRank;
+    private CLabel lblFriendSearch;
+    private CLabel lblEnemySearch;
+    private CLabel lblDispSeiku;
 
     private Label lblSeparator1;
     private Label lblSeparatorH;
@@ -174,68 +180,101 @@ public final class SortieDialog extends Dialog
             }
         });
 
-        // マップ|マス|ボス|戦闘回数|対峙|昼夜|ランク
         CLabel lblText;
         this.summary = new Composite(this.shell, SWT.NONE);
         this.summary.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-        this.summary.setLayout(getGridLayout(7, false, 2));
-        lblText = new CLabel(this.summary, SWT.BORDER);
+        this.summary.setLayout(getGridLayout(1, false, 2));
+        // マップ|マス|ボス|戦闘回数
+        this.summaryMap = new Composite(this.summary, SWT.NONE);
+        this.summaryMap.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.summaryMap.setLayout(getGridLayout(4, false, 2, 0));
+        lblText = new CLabel(this.summaryMap, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
         lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
         lblText.setText("マップ");
-        lblText = new CLabel(this.summary, SWT.BORDER);
+        lblText = new CLabel(this.summaryMap, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
         lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
         lblText.setText("マス");
-        lblText = new CLabel(this.summary, SWT.BORDER);
+        lblText = new CLabel(this.summaryMap, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
         lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
         lblText.setText("ボス");
-        lblText = new CLabel(this.summary, SWT.BORDER);
+        lblText = new CLabel(this.summaryMap, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
         lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
         lblText.setText("回数");
-        lblText = new CLabel(this.summary, SWT.BORDER);
+
+        this.lblMapId = new CLabel(this.summaryMap, SWT.BORDER);
+        this.lblMapId.setAlignment(SWT.CENTER);
+        this.lblMapId.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        this.lblCellId = new CLabel(this.summaryMap, SWT.BORDER);
+        this.lblCellId.setAlignment(SWT.CENTER);
+        this.lblCellId.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        this.lblBossArrive = new CLabel(this.summaryMap, SWT.BORDER);
+        this.lblBossArrive.setAlignment(SWT.CENTER);
+        this.lblBossArrive.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        this.lblBattleCount = new CLabel(this.summaryMap, SWT.BORDER);
+        this.lblBattleCount.setAlignment(SWT.CENTER);
+        this.lblBattleCount.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
+        // 対峙|昼夜|ランク|制空|索敵(味方)|(敵)
+        this.summaryBattle = new Composite(this.summary, SWT.NONE);
+        this.summaryBattle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.summaryBattle.setLayout(getGridLayout(6, false, 2, 0));
+        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
         lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
         lblText.setText("対峙");
-        lblText = new CLabel(this.summary, SWT.BORDER);
+        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
         lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
         lblText.setText("昼夜");
-        lblText = new CLabel(this.summary, SWT.BORDER);
+        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
         lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
         lblText.setText("ランク");
+        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
+        lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
+        lblText.setAlignment(SWT.CENTER);
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        lblText.setText("制空");
+        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
+        lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
+        lblText.setAlignment(SWT.CENTER);
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        lblText.setText("索敵(味方)");
+        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
+        lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
+        lblText.setAlignment(SWT.CENTER);
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        lblText.setText("(敵)");
 
-        this.lblMapId = new CLabel(this.summary, SWT.BORDER);
-        this.lblMapId.setAlignment(SWT.CENTER);
-        this.lblMapId.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-        this.lblCellId = new CLabel(this.summary, SWT.BORDER);
-        this.lblCellId.setAlignment(SWT.CENTER);
-        this.lblCellId.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-        this.lblBossArrive = new CLabel(this.summary, SWT.BORDER);
-        this.lblBossArrive.setAlignment(SWT.CENTER);
-        this.lblBossArrive.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-        this.lblBattleCount = new CLabel(this.summary, SWT.BORDER);
-        this.lblBattleCount.setAlignment(SWT.CENTER);
-        this.lblBattleCount.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-        this.lblIntercept = new CLabel(this.summary, SWT.BORDER);
+        this.lblIntercept = new CLabel(this.summaryBattle, SWT.BORDER);
         this.lblIntercept.setAlignment(SWT.CENTER);
         this.lblIntercept.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-        this.lblDayNight = new CLabel(this.summary, SWT.BORDER);
+        this.lblDayNight = new CLabel(this.summaryBattle, SWT.BORDER);
         this.lblDayNight.setAlignment(SWT.CENTER);
         this.lblDayNight.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-        this.lblRank = new CLabel(this.summary, SWT.BORDER);
+        this.lblRank = new CLabel(this.summaryBattle, SWT.BORDER);
         this.lblRank.setAlignment(SWT.CENTER);
         this.lblRank.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        this.lblDispSeiku = new CLabel(this.summaryBattle, SWT.BORDER);
+        this.lblDispSeiku.setAlignment(SWT.CENTER);
+        this.lblDispSeiku.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        this.lblFriendSearch = new CLabel(this.summaryBattle, SWT.BORDER);
+        this.lblFriendSearch.setAlignment(SWT.CENTER);
+        this.lblFriendSearch.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        this.lblEnemySearch = new CLabel(this.summaryBattle, SWT.BORDER);
+        this.lblEnemySearch.setAlignment(SWT.CENTER);
+        this.lblEnemySearch.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
         this.lblSeparator1 = new Label(this.shell, SWT.SEPARATOR | SWT.HORIZONTAL);
         this.lblSeparator1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
@@ -277,6 +316,7 @@ public final class SortieDialog extends Dialog
     {
         this.shell.setLayout(new GridLayout(2, false));
 
+        this.summary.setLayout(getGridLayout(1, false, 2));
         this.summary.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 
         this.lblSeparator1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
@@ -296,6 +336,7 @@ public final class SortieDialog extends Dialog
     {
         this.shell.setLayout(new GridLayout(5, false));
 
+        this.summary.setLayout(getGridLayout(2, false, 2));
         this.summary.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 5, 1));
 
         this.lblSeparator1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
@@ -368,6 +409,9 @@ public final class SortieDialog extends Dialog
         }
         this.lblIntercept.setText(battleFirst.getIntercept());
         this.lblDayNight.setText(battleLast.isNight() ? "夜戦" : "昼戦");
+        this.lblFriendSearch.setText(battleFirst.getFriendSearch());
+        this.lblEnemySearch.setText(battleFirst.getEnemySearch());
+        this.lblDispSeiku.setText(battleFirst.getDispSeiku());
 
         //味方(第1)
         DockDto dock = battleFirst.getFriends().get(0);
@@ -655,6 +699,24 @@ public final class SortieDialog extends Dialog
         return gl;
     }
 
+    private static GridLayout getGridLayout(int numColumns, boolean makeColumnsEqualWidth, int spacing, int margin)
+    {
+        return getGridLayout(numColumns, makeColumnsEqualWidth, spacing, margin, margin);
+    }
+
+    private static GridLayout getGridLayout(int numColumns, boolean makeColumnsEqualWidth, int spacing,
+            int marginWidth, int marginHeight)
+    {
+        GridLayout gl = getGridLayout(numColumns, makeColumnsEqualWidth, spacing);
+        gl.marginTop = 0;
+        gl.marginLeft = 0;
+        gl.marginBottom = 0;
+        gl.marginRight = 0;
+        gl.marginWidth = marginWidth;
+        gl.marginHeight = marginHeight;
+        return gl;
+    }
+
     private class DockComposite extends Composite
     {
         private final CLabel dockName;
@@ -676,6 +738,7 @@ public final class SortieDialog extends Dialog
             String fontName = fontData.getName();
             int size = fontData.getHeight();
 
+            CLabel lblText;
             this.dockName = new CLabel(this, SWT.NONE);
             this.dockName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 11, 1));
             this.dockName.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
@@ -686,7 +749,6 @@ public final class SortieDialog extends Dialog
             this.formation.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
             this.formation.setMargins(0, 0, 0, 0);
 
-            CLabel lblText;
             lblText = new CLabel(this, SWT.BORDER);
             lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
             lblText.setAlignment(SWT.CENTER);
