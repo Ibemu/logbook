@@ -40,6 +40,12 @@ public class ShipFilterLogic {
                 return false;
             }
         }
+        // 出撃海域でフィルタ
+        if (filter.area != null) {
+            if (filter.area != ship.getSallyArea()) {
+                return false;
+            }
+        }
         // 装備でフィルタ
         if (!StringUtils.isEmpty(filter.itemname)) {
             if (!itemFilter(ship, filter)) {

@@ -1,6 +1,7 @@
 package logbook.dto;
 
 import logbook.config.bean.ShipGroupBean;
+import logbook.internal.SallyArea;
 
 /**
  * 所有艦娘一覧で使用するフィルター
@@ -51,6 +52,8 @@ public final class ShipFilterDto extends AbstractDto {
 
     /** グループ */
     public ShipGroupBean group;
+    /** 出撃海域 */
+    public SallyArea area;
     /** 装備 */
     public String itemname;
     /** 艦隊に所属 */

@@ -9,6 +9,7 @@ import logbook.config.bean.ShipGroupBean;
 import logbook.data.context.ItemContext;
 import logbook.dto.ItemDto;
 import logbook.dto.ShipFilterDto;
+import logbook.internal.SallyArea;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
@@ -93,6 +94,10 @@ public final class ShipFilterDialog extends Dialog {
     private Button group;
     /** グループ選択 */
     private Combo groupcombo;
+    /** 出撃海域 */
+    private Button area;
+    /** 出撃海域選択 */
+    private Combo areacombo;
     /** 装備 */
     private Button item;
     /** 装備 */
@@ -302,6 +307,22 @@ public final class ShipFilterDialog extends Dialog {
         }
         this.group.addSelectionListener(new CheckAdapter(this.group, this.groupcombo));
 
+        this.area = new Button(etcgroup, SWT.CHECK);
+        this.area.setText("出撃海域");
+        this.area.setSelection(false);
+        this.area.addSelectionListener(listener);
+
+        this.areacombo = new Combo(etcgroup, SWT.READ_ONLY);
+        this.areacombo.setEnabled(false);
+        this.areacombo.addSelectionListener(listener);
+        for (SallyArea entry : SallyArea.values()) {
+            String n = entry.getName();
+            if (StringUtils.isBlank(n))
+                n = "(なし)";
+            this.areacombo.add(n);
+        }
+        this.area.addSelectionListener(new CheckAdapter(this.area, this.areacombo));
+
         this.item = new Button(etcgroup, SWT.CHECK);
         this.item.setText("装備");
         this.item.setSelection(false);
@@ -394,6 +415,18 @@ public final class ShipFilterDialog extends Dialog {
                     this.groupcombo.select(idx);
                 }
             }
+            if (this.filter.area != null) {
+                // 出撃海域
+                String n = this.filter.area.getName();
+                if (StringUtils.isBlank(n))
+                    n = "(なし)";
+                int idx = this.areacombo.indexOf(n);
+                if (idx != -1) {
+                    this.area.setSelection(true);
+                    this.areacombo.setEnabled(true);
+                    this.areacombo.select(idx);
+                }
+            }
             if (!StringUtils.isEmpty(this.filter.itemname)) {
                 // 装備
                 this.item.setSelection(true);
@@ -453,6 +486,13 @@ public final class ShipFilterDialog extends Dialog {
             int idx = ShipFilterDialog.this.groupcombo.getSelectionIndex();
             if ((idx >= 0) && (idx < this.groups.size())) {
                 filter.group = this.groups.get(idx);
+            }
+        }
+        filter.area = null;
+        if (ShipFilterDialog.this.area.getSelection()) {
+            int idx = ShipFilterDialog.this.areacombo.getSelectionIndex();
+            if ((idx >= 0) && (idx < SallyArea.values().length)) {
+                filter.area = SallyArea.values()[idx];
             }
         }
         if (ShipFilterDialog.this.item.getSelection()) {
