@@ -247,22 +247,74 @@ public final class BattleDto extends AbstractDto {
         return formation;
     }
 
+    enum DockType {
+        FRIEND, COMBINED, ENEMY
+    }
+
+    private void damage(DockType t, int i, int dam)
+    {
+        int[] endHp;
+        int[] maxHp;
+        ShipDto ship;
+        switch (t) {
+        case FRIEND:
+            endHp = this.endFriendHp;
+            maxHp = this.maxFriendHp;
+            try {
+                ship = this.friends.get(0).getShips().get(i);
+            } catch (Exception e) {
+                ship = null;
+            }
+            break;
+        case COMBINED:
+            endHp = this.endCombinedHp;
+            maxHp = this.maxCombinedHp;
+            try {
+                ship = this.friends.get(1).getShips().get(i);
+            } catch (Exception e) {
+                ship = null;
+            }
+            break;
+        case ENEMY:
+            endHp = this.endEnemyHp;
+            maxHp = this.maxEnemyHp;
+            ship = null;
+            break;
+        default:
+            return;
+        }
+
+        endHp[i] -= dam;
+        if ((endHp[i] <= 0) && (ship != null)) {
+            for (ItemDto item : ship.getItem()) {
+                if (item.getName().equals("応急修理要員")) {
+                    endHp[i] = maxHp[i] / 5;
+                } else if (item.getName().equals("応急修理女神")) {
+                    endHp[i] = maxHp[i];
+                }
+            }
+        }
+        if (endHp[i] < 0) {
+            endHp[i] = 0;
+        }
+    }
+
     private void searchDamage(JsonObject object, boolean comb) {
         for (JsonObject.Entry<String, JsonValue> e : object.entrySet()) {
             if ("api_fdam".equals(e.getKey())) {
                 JsonArray fdam = (JsonArray) e.getValue();
                 for (int i = 1; i < fdam.size(); i++) {
                     if (comb) {
-                        this.endCombinedHp[i - 1] -= fdam.getJsonNumber(i).intValue();
+                        this.damage(DockType.COMBINED, i - 1, fdam.getJsonNumber(i).intValue());
                     } else {
-                        this.endFriendHp[i - 1] -= fdam.getJsonNumber(i).intValue();
+                        this.damage(DockType.FRIEND, i - 1, fdam.getJsonNumber(i).intValue());
                     }
                 }
             }
             else if ("api_edam".equals(e.getKey())) {
                 JsonArray edam = (JsonArray) e.getValue();
                 for (int i = 1; i < edam.size(); i++) {
-                    this.endEnemyHp[i - 1] -= edam.getJsonNumber(i).intValue();
+                    this.damage(DockType.ENEMY, i - 1, edam.getJsonNumber(i).intValue());
                 }
             }
             else if ("api_damage".equals(e.getKey())) {
@@ -272,7 +324,7 @@ public final class BattleDto extends AbstractDto {
                     JsonValue v = damage.get(i);
                     switch (v.getValueType()) {
                     case NUMBER:
-                        this.endEnemyHp[i - 1] -= ((JsonNumber) v).intValue();
+                        this.damage(DockType.ENEMY, i - 1, ((JsonNumber) v).intValue());
                         break;
                     case ARRAY:
                         JsonArray dm = (JsonArray) v;
@@ -284,12 +336,12 @@ public final class BattleDto extends AbstractDto {
                             }
                             else if (idx <= 6) {
                                 if (comb) {
-                                    this.endCombinedHp[idx - 1] -= dm.getJsonNumber(j).intValue();
+                                    this.damage(DockType.COMBINED, idx - 1, dm.getJsonNumber(j).intValue());
                                 } else {
-                                    this.endFriendHp[idx - 1] -= dm.getJsonNumber(j).intValue();
+                                    this.damage(DockType.FRIEND, idx - 1, dm.getJsonNumber(j).intValue());
                                 }
                             } else {
-                                this.endEnemyHp[idx - 1 - 6] -= dm.getJsonNumber(j).intValue();
+                                this.damage(DockType.ENEMY, idx - 1 - 6, dm.getJsonNumber(j).intValue());
                             }
                         }
                         break;
