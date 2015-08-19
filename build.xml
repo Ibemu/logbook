@@ -40,4 +40,13 @@
 			<fileset refid="jar.set" />
 		</copy>
 	</target>
+	<!-- ライブラリまとめる用 -->
+	<target name="groupby">
+		<!-- ライブラリ -->
+		<property name="lib.dir" value="lib" />
+		<!-- jettyのライブラリをまとめる -->
+		<jar destfile="${lib.dir}/jetty.jar" duplicate="preserve">
+			<zipgroupfileset dir="${lib.dir}" includes="jetty-*.jar servlet-api-*.jar" />
+		</jar>
+	</target>
 </project>
