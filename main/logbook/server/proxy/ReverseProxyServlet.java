@@ -1,11 +1,7 @@
 package logbook.server.proxy;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.net.InetAddress;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,16 +12,14 @@ import logbook.data.DataType;
 import logbook.data.UndefinedData;
 import logbook.thread.ThreadManager;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.HttpRequest;
-import org.eclipse.jetty.client.api.ProxyConfiguration;
+import org.eclipse.jetty.client.HttpProxy;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
-import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.proxy.ProxyServlet;
+import org.eclipse.jetty.util.Callback;
 
 /**
  * リバースプロキシ
@@ -34,56 +28,22 @@ import org.eclipse.jetty.proxy.ProxyServlet;
 public final class ReverseProxyServlet extends ProxyServlet {
 
     /** SerialVersionUID */
-    private static final long serialVersionUID = -4365763167330189086L;
+    private static final long serialVersionUID = -8052613366290303176L;
 
-    /** ライブラリバグ対応 (HttpRequest#queryを上書きする) */
-    private static final Field QUERY_FIELD = getDeclaredField(HttpRequest.class, "query");
-
-    /** ローカルループバックアドレスからの接続のみ受け入れる */
-    private final boolean allowOnlyFromLocalhost = AppConfig.get().isAllowOnlyFromLocalhost();
-
-    /*
-     * リモートホストがローカルループバックアドレス以外の場合400を返し通信しない
-     */
     @Override
-    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-            IOException {
-        if (this.allowOnlyFromLocalhost && !InetAddress.getByName(request.getRemoteAddr()).isLoopbackAddress()) {
-            response.setStatus(400);
-            return;
-        }
-        super.service(request, response);
-    }
+    protected void sendProxyRequest(HttpServletRequest clientRequest, HttpServletResponse proxyResponse,
+            Request proxyRequest) {
+        proxyRequest.onRequestContent(new RequestContentListener(clientRequest));
 
-    /*
-     * Hop-by-Hop ヘッダーを除去します
-     */
-    @Override
-    protected void customizeProxyRequest(Request proxyRequest, HttpServletRequest request) {
-        proxyRequest.onRequestContent(new RequestContentListener(request));
-
-        // Hop-by-Hop ヘッダーを除去します
-        proxyRequest.header(HttpHeader.VIA, null);
-        proxyRequest.header(HttpHeader.X_FORWARDED_FOR, null);
-        proxyRequest.header(HttpHeader.X_FORWARDED_PROTO, null);
-        proxyRequest.header(HttpHeader.X_FORWARDED_HOST, null);
-        proxyRequest.header(HttpHeader.X_FORWARDED_SERVER, null);
-        proxyRequest.header("Origin", null);
-
-        String queryString = ((org.eclipse.jetty.server.Request) request).getQueryString();
-        fixQueryString(proxyRequest, queryString);
-
-        super.customizeProxyRequest(proxyRequest, request);
+        super.sendProxyRequest(clientRequest, proxyResponse, proxyRequest);
     }
 
     /*
      * レスポンスが帰ってきた
      */
     @Override
-    protected void onResponseContent(HttpServletRequest request, HttpServletResponse response,
-            Response proxyResponse,
-            byte[] buffer, int offset, int length) throws IOException {
-
+    protected void onResponseContent(HttpServletRequest request, HttpServletResponse response, Response proxyResponse,
+            byte[] buffer, int offset, int length, Callback callback) {
         // フィルタークラスで必要かどうかを判別後、必要であれば内容をキャプチャする
         // 注意: 1回のリクエストで複数回の応答が帰ってくるので全ての応答をキャプチャする必要がある
         if (Filter.isNeed(request.getServerName(), response.getContentType())) {
@@ -95,15 +55,14 @@ public final class ReverseProxyServlet extends ProxyServlet {
             // ストリームに書き込む
             stream.write(buffer, offset, length);
         }
-
-        super.onResponseContent(request, response, proxyResponse, buffer, offset, length);
+        super.onResponseContent(request, response, proxyResponse, buffer, offset, length, callback);
     }
 
     /*
      * レスポンスが完了した
      */
     @Override
-    protected void onResponseSuccess(HttpServletRequest request, HttpServletResponse response,
+    protected void onProxyResponseSuccess(HttpServletRequest request, HttpServletResponse response,
             Response proxyResponse) {
 
         if (Filter.isNeed(request.getServerName(), response.getContentType())) {
@@ -115,14 +74,15 @@ public final class ReverseProxyServlet extends ProxyServlet {
                 ThreadManager.getExecutorService().submit(task);
             }
         }
-        super.onResponseSuccess(request, response, proxyResponse);
+        super.onProxyResponseSuccess(request, response, proxyResponse);
     }
 
     /*
      * 通信に失敗した
      */
     @Override
-    protected void onResponseFailure(HttpServletRequest request, HttpServletResponse response, Response proxyResponse,
+    protected void onProxyResponseFailure(HttpServletRequest request, HttpServletResponse response,
+            Response proxyResponse,
             Throwable failure) {
 
         Logger logger = LogManager.getLogger(ReverseProxyServlet.class);
@@ -131,7 +91,7 @@ public final class ReverseProxyServlet extends ProxyServlet {
         logger.warn(request);
         logger.warn(proxyResponse);
 
-        super.onResponseFailure(request, response, proxyResponse, failure);
+        super.onProxyResponseFailure(request, response, proxyResponse, failure);
     }
 
     /*
@@ -147,43 +107,17 @@ public final class ReverseProxyServlet extends ProxyServlet {
             // ホスト
             String host = AppConfig.get().getProxyHost();
             // 設定する
-            client.setProxyConfiguration(new ProxyConfiguration(host, port));
+            client.getProxyConfiguration().getProxies().add(new HttpProxy(host, port));
         }
         return client;
     }
 
-    /**
-     * private フィールドを取得する
-     * @param clazz クラス
-     * @param string フィールド名
-     * @return フィールドオブジェクト
+    /*
+     * プロキシヘッダの追加
      */
-    private static <T> Field getDeclaredField(Class<T> clazz, String string) {
-        try {
-            Field field = clazz.getDeclaredField(string);
-            field.setAccessible(true);
-            return field;
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * <p>
-     * ライブラリのバグを修正します<br>
-     * URLにマルチバイト文字が含まれている場合にURLが正しく組み立てられないバグを修正します
-     * </p>
-     */
-    private static void fixQueryString(Request proxyRequest, String queryString) {
-        if (!StringUtils.isEmpty(queryString)) {
-            if (proxyRequest instanceof HttpRequest) {
-                try {
-                    QUERY_FIELD.set(proxyRequest, queryString);
-                } catch (IllegalArgumentException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
+    @Override
+    protected void addProxyHeaders(HttpServletRequest clientRequest, Request proxyRequest) {
+        // 何もしない
     }
 
     /**
