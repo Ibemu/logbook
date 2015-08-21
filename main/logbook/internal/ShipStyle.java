@@ -1,5 +1,6 @@
 package logbook.internal;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,5 +48,14 @@ public class ShipStyle {
      */
     public static String get(String id) {
         return SHIPSTYLE.get(id);
+    }
+
+    /**
+     * 艦種を取得します
+     *
+     * @return 艦種
+     */
+    public static Map<String, String> get() {
+        return Collections.unmodifiableMap(SHIPSTYLE);
     }
 }

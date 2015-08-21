@@ -349,41 +349,41 @@ public final class ShipFilterDialog extends Dialog {
             this.regexp.setSelection(this.filter.regexp);
 
             // 艦種.駆逐艦
-            this.destroyer.setSelection(this.filter.destroyer);
+            setTypeSelection(this.filter, this.destroyer);
             // 艦種.軽巡洋艦
-            this.lightCruiser.setSelection(this.filter.lightCruiser);
+            setTypeSelection(this.filter, this.lightCruiser);
             // 艦種.重雷装巡洋艦
-            this.torpedoCruiser.setSelection(this.filter.torpedoCruiser);
+            setTypeSelection(this.filter, this.torpedoCruiser);
             // 艦種.重巡洋艦
-            this.heavyCruiser.setSelection(this.filter.heavyCruiser);
+            setTypeSelection(this.filter, this.heavyCruiser);
             // 艦種.航空巡洋艦
-            this.flyingDeckCruiser.setSelection(this.filter.flyingDeckCruiser);
+            setTypeSelection(this.filter, this.flyingDeckCruiser);
             // 艦種.水上機母艦
-            this.seaplaneTender.setSelection(this.filter.seaplaneTender);
+            setTypeSelection(this.filter, this.seaplaneTender);
             // 艦種.軽空母
-            this.escortCarrier.setSelection(this.filter.escortCarrier);
+            setTypeSelection(this.filter, this.escortCarrier);
             // 艦種.正規空母
-            this.carrier.setSelection(this.filter.carrier);
+            setTypeSelection(this.filter, this.carrier);
             // 艦種.戦艦
-            this.battleship.setSelection(this.filter.battleship);
+            setTypeSelection(this.filter, this.battleship);
             // 艦種.航空戦艦
-            this.flyingDeckBattleship.setSelection(this.filter.flyingDeckBattleship);
+            setTypeSelection(this.filter, this.flyingDeckBattleship);
             // 艦種.潜水艦
-            this.submarine.setSelection(this.filter.submarine);
+            setTypeSelection(this.filter, this.submarine);
             // 艦種.潜水空母
-            this.carrierSubmarine.setSelection(this.filter.carrierSubmarine);
+            setTypeSelection(this.filter, this.carrierSubmarine);
             // 艦種.揚陸艦
-            this.landingship.setSelection(this.filter.landingship);
+            setTypeSelection(this.filter, this.landingship);
             // 艦種.装甲空母
-            this.armoredcarrier.setSelection(this.filter.armoredcarrier);
+            setTypeSelection(this.filter, this.armoredcarrier);
             // 艦種.工作艦
-            this.repairship.setSelection(this.filter.repairship);
+            setTypeSelection(this.filter, this.repairship);
             // 艦種.潜水母艦
-            this.submarineTender.setSelection(this.filter.submarineTender);
+            setTypeSelection(this.filter, this.submarineTender);
             // 艦種.練習巡洋艦
-            this.trainingShip.setSelection(this.filter.trainingShip);
+            setTypeSelection(this.filter, this.trainingShip);
             // 艦種.補給艦
-            this.supply.setSelection(this.filter.supply);
+            setTypeSelection(this.filter, this.supply);
 
             if (this.filter.group != null) {
                 // グループ
@@ -430,24 +430,42 @@ public final class ShipFilterDialog extends Dialog {
         ShipFilterDto filter = this.shipTable.getFilter();
         filter.nametext = this.nametext.getText();
         filter.regexp = this.regexp.getSelection();
-        filter.destroyer = this.destroyer.getSelection();
-        filter.lightCruiser = this.lightCruiser.getSelection();
-        filter.torpedoCruiser = this.torpedoCruiser.getSelection();
-        filter.heavyCruiser = this.heavyCruiser.getSelection();
-        filter.flyingDeckCruiser = this.flyingDeckCruiser.getSelection();
-        filter.seaplaneTender = this.seaplaneTender.getSelection();
-        filter.escortCarrier = this.escortCarrier.getSelection();
-        filter.carrier = this.carrier.getSelection();
-        filter.battleship = this.battleship.getSelection();
-        filter.flyingDeckBattleship = this.flyingDeckBattleship.getSelection();
-        filter.submarine = this.submarine.getSelection();
-        filter.carrierSubmarine = this.carrierSubmarine.getSelection();
-        filter.landingship = this.landingship.getSelection();
-        filter.armoredcarrier = this.armoredcarrier.getSelection();
-        filter.repairship = this.repairship.getSelection();
-        filter.submarineTender = this.submarineTender.getSelection();
-        filter.trainingShip = this.trainingShip.getSelection();
-        filter.supply = this.supply.getSelection();
+        // 艦種.駆逐艦
+        setTypeFilter(this.destroyer, filter);
+        // 艦種.軽巡洋艦
+        setTypeFilter(this.lightCruiser, filter);
+        // 艦種.重雷装巡洋艦
+        setTypeFilter(this.torpedoCruiser, filter);
+        // 艦種.重巡洋艦
+        setTypeFilter(this.heavyCruiser, filter);
+        // 艦種.重巡洋艦
+        setTypeFilter(this.flyingDeckCruiser, filter);
+        // 艦種.水上機母艦
+        setTypeFilter(this.seaplaneTender, filter);
+        // 艦種.軽空母
+        setTypeFilter(this.escortCarrier, filter);
+        // 艦種.正規空母
+        setTypeFilter(this.carrier, filter);
+        // 艦種.戦艦
+        setTypeFilter(this.battleship, filter);
+        // 艦種.航空戦艦
+        setTypeFilter(this.flyingDeckBattleship, filter);
+        // 艦種.潜水艦
+        setTypeFilter(this.submarine, filter);
+        // 艦種.潜水空母
+        setTypeFilter(this.carrierSubmarine, filter);
+        // 艦種.揚陸艦
+        setTypeFilter(this.landingship, filter);
+        // 艦種.装甲空母
+        setTypeFilter(this.armoredcarrier, filter);
+        // 艦種.工作艦
+        setTypeFilter(this.repairship, filter);
+        // 艦種.潜水母艦
+        setTypeFilter(this.submarineTender, filter);
+        // 艦種.練習巡洋艦
+        setTypeFilter(this.trainingShip, filter);
+        // 艦種.補給艦
+        setTypeFilter(this.supply, filter);
         filter.group = null;
         if (ShipFilterDialog.this.group.getSelection()) {
             int idx = ShipFilterDialog.this.groupcombo.getSelectionIndex();
@@ -538,6 +556,32 @@ public final class ShipFilterDialog extends Dialog {
         @Override
         public void widgetSelected(SelectionEvent e) {
             ShipFilterDialog.this.shipTable.updateFilter(ShipFilterDialog.this.createFilter());
+        }
+    }
+
+    /**
+     * フィルターから艦種のチェックボックスを設定する
+     *
+     * @param checkbox 艦種のチェックボックス
+     * @param dto フィルター
+     */
+    private static void setTypeSelection(ShipFilterDto dto, Button checkbox) {
+        String type = checkbox.getText();
+        checkbox.setSelection(dto.shipType.contains(type));
+    }
+
+    /**
+     * 艦種のチェックボックスからフィルターを設定する
+     *
+     * @param checkbox 艦種のチェックボックス
+     * @param dto フィルター
+     */
+    private static void setTypeFilter(Button checkbox, ShipFilterDto dto) {
+        String type = checkbox.getText();
+        if (checkbox.getSelection()) {
+            dto.shipType.add(type);
+        } else {
+            dto.shipType.remove(type);
         }
     }
 }
