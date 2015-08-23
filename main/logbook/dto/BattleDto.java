@@ -382,10 +382,12 @@ public final class BattleDto extends AbstractDto {
         endHp[i] -= dam;
         if ((endHp[i] <= 0) && (ship != null)) {
             for (ItemDto item : ship.getItem()) {
-                if (item.getName().equals("応急修理要員")) {
-                    endHp[i] = maxHp[i] / 5;
-                } else if (item.getName().equals("応急修理女神")) {
-                    endHp[i] = maxHp[i];
+                if (item != null) {
+                    if (item.getName().equals("応急修理要員")) {
+                        endHp[i] = maxHp[i] / 5;
+                    } else if (item.getName().equals("応急修理女神")) {
+                        endHp[i] = maxHp[i];
+                    }
                 }
             }
         }
