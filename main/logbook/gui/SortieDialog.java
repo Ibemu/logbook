@@ -352,6 +352,24 @@ public final class SortieDialog extends Dialog
         this.reload();
     }
 
+    private void layoutPack()
+    {
+        this.summaryMap.layout();
+        this.summaryMap.pack();
+        this.summaryBattle.layout();
+        this.summaryBattle.pack();
+        this.summary.layout();
+        this.summary.pack();
+        this.friend.layout();
+        this.friend.pack();
+        this.combined.layout();
+        this.combined.pack();
+        this.enemy.layout();
+        this.enemy.pack();
+        this.shell.layout();
+        this.shell.pack();
+    }
+
     private void reload()
     {
         //ヘッダ
@@ -371,10 +389,7 @@ public final class SortieDialog extends Dialog
         {
             if (GlobalContext.getBattleList().isEmpty())
             {
-                this.summary.layout();
-                this.summary.pack();
-                this.shell.layout();
-                this.shell.pack();
+                this.layoutPack();
                 return;
             }
             BattleDto battles[] = GlobalContext.getBattleList().toArray(new BattleDto[0]);
@@ -386,10 +401,7 @@ public final class SortieDialog extends Dialog
         {
             if (GlobalContext.getBattleResultList().isEmpty())
             {
-                this.summary.layout();
-                this.summary.pack();
-                this.shell.layout();
-                this.shell.pack();
+                this.layoutPack();
                 return;
             }
             BattleResultDto result = GlobalContext.getBattleResultList().get(
@@ -398,10 +410,7 @@ public final class SortieDialog extends Dialog
             enemyName = result.getEnemyName();
             if (result.getBattles().length == 0)
             {
-                this.summary.layout();
-                this.summary.pack();
-                this.shell.layout();
-                this.shell.pack();
+                this.layoutPack();
                 return;
             }
             battleFirst = result.getBattles()[0];
@@ -514,16 +523,7 @@ public final class SortieDialog extends Dialog
             resetText(this.enemy.getEndstats()[i]);
             resetText(this.enemy.getConds()[i]);
         }
-        this.summary.layout();
-        this.summary.pack();
-        this.friend.layout();
-        this.friend.pack();
-        this.combined.layout();
-        this.combined.pack();
-        this.enemy.layout();
-        this.enemy.pack();
-        this.shell.layout();
-        this.shell.pack();
+        this.layoutPack();
     }
 
     private static String getRank(BattleDto battleFirst, BattleDto battleLast)
