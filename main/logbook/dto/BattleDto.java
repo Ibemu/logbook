@@ -97,8 +97,6 @@ public final class BattleDto extends AbstractDto {
     public BattleDto(JsonObject object, boolean night, int combined) {
 
         this.night = night;
-        this.combined = combined;
-        this.combinedType = toCombined(this.combined);
 
         String dockId;
 
@@ -111,7 +109,12 @@ public final class BattleDto extends AbstractDto {
 
         if (object.containsKey("api_fParam_combined")) {
             this.friends.add(GlobalContext.getDock("2"));
+            this.combined = combined;
+        } else {
+            this.combined = 0;
         }
+
+        this.combinedType = toCombined(this.combined);
 
         if (object.containsKey("api_escape_idx")) {
             JsonArray escIdx = object.getJsonArray("api_escape_idx");
