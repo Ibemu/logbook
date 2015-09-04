@@ -5,6 +5,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import logbook.annotation.EventTarget;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
