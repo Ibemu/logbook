@@ -18,6 +18,7 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpProxy;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.proxy.ProxyServlet;
 import org.eclipse.jetty.util.Callback;
 
@@ -117,7 +118,10 @@ public final class ReverseProxyServlet extends ProxyServlet {
      */
     @Override
     protected void addProxyHeaders(HttpServletRequest clientRequest, Request proxyRequest) {
-        // 何もしない
+        if (AppConfig.get().isConnectionClose()) {
+            // 通信エラーを抑止する Connection: closeヘッダを追加
+            proxyRequest.header(HttpHeader.CONNECTION, "close");
+        }
     }
 
     /**
