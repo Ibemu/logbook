@@ -1,9 +1,9 @@
 package logbook.data.event;
 
+import logbook.annotation.EventTarget;
 import logbook.data.Data;
 import logbook.data.DataType;
 import logbook.data.EventListener;
-import logbook.data.EventTarget;
 import logbook.data.context.GlobalContext;
 import logbook.data.context.ShipContext;
 import logbook.dto.DockDto;

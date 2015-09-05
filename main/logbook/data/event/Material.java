@@ -8,12 +8,12 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
+import logbook.annotation.EventTarget;
 import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
 import logbook.data.Data;
 import logbook.data.DataType;
 import logbook.data.EventListener;
-import logbook.data.EventTarget;
 import logbook.data.context.ConsoleContext;
 import logbook.dto.MaterialDto;
 import logbook.gui.logic.CreateReportLogic;

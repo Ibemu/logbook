@@ -46,6 +46,8 @@ public final class SystemConfigComposite extends Composite {
     private final Button checkDoit;
     /** ローカルループバックアドレスからの接続のみ受け入れる */
     private final Button onlyFromLocalhost;
+    /** 通信エラーの抑止 */
+    private final Button connectionClose;
     /** サブウインドウの位置とサイズをリセット */
     private final Button resetWindowLocation;
 
@@ -157,6 +159,11 @@ public final class SystemConfigComposite extends Composite {
         this.onlyFromLocalhost.setText("ローカルループバックアドレスからの接続のみ受け入れる*");
         this.onlyFromLocalhost.setSelection(AppConfig.get().isAllowOnlyFromLocalhost());
 
+        this.connectionClose = new Button(this, SWT.CHECK);
+        this.connectionClose.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+        this.connectionClose.setText("通信エラーを抑止する*");
+        this.connectionClose.setSelection(AppConfig.get().isConnectionClose());
+
         this.resetWindowLocation = new Button(this, SWT.CHECK);
         this.resetWindowLocation.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
         this.resetWindowLocation.setText("サブウインドウの位置とサイズをリセット");
@@ -248,6 +255,14 @@ public final class SystemConfigComposite extends Composite {
     }
 
     /**
+     * 通信エラーの抑止を取得します。
+     * @return 通信エラーの抑止
+     */
+    public boolean getConnectionClose() {
+        return this.connectionClose.getSelection();
+    }
+
+    /**
      * サブウインドウの位置とサイズをリセットを取得します。
      * @return サブウインドウの位置とサイズをリセット
      */
@@ -274,6 +289,7 @@ public final class SystemConfigComposite extends Composite {
         config.setReportPath(this.getReportDir());
         config.setMaterialLogInterval(this.getMaterialinterval());
         config.setCheckUpdate(this.getCheckUpdate());
+        config.setConnectionClose(this.getConnectionClose());
         config.setAllowOnlyFromLocalhost(this.getOnlyFromLocalhost());
         if (this.getResetWindowLocation()) {
             Map<String, WindowLocationBean> map = config.getWindowLocationMap();

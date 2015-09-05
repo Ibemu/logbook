@@ -61,6 +61,9 @@ public final class AppConfigBean {
     /** アップデートチェック */
     private boolean checkUpdate = true;
 
+    /** 通信エラーの抑止 */
+    private boolean connectionClose = true;
+
     /** 終了時に確認する */
     private boolean checkDoit = true;
 
@@ -429,6 +432,22 @@ public final class AppConfigBean {
      */
     public void setCheckUpdate(boolean checkUpdate) {
         this.checkUpdate = checkUpdate;
+    }
+
+    /**
+     * 通信エラーの抑止を取得します。
+     * @return 通信エラーの抑止
+     */
+    public boolean isConnectionClose() {
+        return this.connectionClose;
+    }
+
+    /**
+     * 通信エラーの抑止を設定します。
+     * @param connectionClose 通信エラーの抑止
+     */
+    public void setConnectionClose(boolean connectionClose) {
+        this.connectionClose = connectionClose;
     }
 
     /**

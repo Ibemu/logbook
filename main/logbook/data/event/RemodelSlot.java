@@ -5,10 +5,10 @@ import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
+import logbook.annotation.EventTarget;
 import logbook.data.Data;
 import logbook.data.DataType;
 import logbook.data.EventListener;
-import logbook.data.EventTarget;
 import logbook.data.context.ConsoleContext;
 import logbook.data.context.ItemContext;
 import logbook.dto.ItemDto;
