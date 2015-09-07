@@ -49,7 +49,7 @@ public class BeanProperty<T> {
             if (anno != null) {
                 header = anno.value();
             } else {
-                header = field.getName();
+                continue;
             }
             this.names.add(header);
             this.getterMap.put(header, this.function(clazz, field));
@@ -87,6 +87,20 @@ public class BeanProperty<T> {
     }
 
     /**
+     * Beanが持つプロパティーの値をString配列として取得します
+     *
+     * @param bean Bean
+     * @return Beanが持つ全てのプロパティーの値
+     */
+    public String[] getStringValues(T bean) {
+        String[] values = new String[this.names.size()];
+        for (int i = 0; i < this.names.size(); i++) {
+            values[i] = String.valueOf(this.getValue(bean, this.names.get(i)));
+        }
+        return values;
+    }
+
+    /**
      * Beanが持つプロパティーの値をObject配列として取得します
      *
      * @param bean Bean
@@ -109,6 +123,21 @@ public class BeanProperty<T> {
      */
     public Object getValue(T bean, String name) {
         Function<T, Object> func = this.getterMap.get(name);
+        if (func != null) {
+            return func.apply(bean);
+        }
+        return null;
+    }
+
+    /**
+     * BeanからインデックスでObjectを取得します
+     *
+     * @param bean Bean
+     * @param name 名前
+     * @return Beanが持つプロパティーの値
+     */
+    public Object getValue(T bean, int index) {
+        Function<T, Object> func = this.getterMap.get(this.names.get(index));
         if (func != null) {
             return func.apply(bean);
         }
