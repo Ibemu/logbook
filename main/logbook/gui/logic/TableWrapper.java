@@ -55,6 +55,8 @@ public final class TableWrapper<T> {
     private Comparator<String> comparator = new TableComparator();
     /** フィルター */
     private Predicate<T> filter;
+    /** このテーブルを持つダイアログクラス */
+    private Class<?> dialogClass;
 
     /** テーブルの内容 */
     private List<T> content;
@@ -87,6 +89,17 @@ public final class TableWrapper<T> {
             col.addSelectionListener(listener);
             col.setText(name);
         }
+    }
+
+    /**
+     * このテーブルを持つダイアログクラスをセットします
+     *
+     * @param clazz
+     * @return
+     */
+    public TableWrapper<T> setDialogClass(Class<?> clazz) {
+        this.dialogClass = clazz;
+        return this;
     }
 
     /**
@@ -182,7 +195,10 @@ public final class TableWrapper<T> {
             items[i].dispose();
         }
         // Pack headers
-        boolean[] visibles = AppConfig.get().getVisibleColumnMap().get(this.getClass().getName());
+        boolean[] visibles = null;
+        if (this.dialogClass != null) {
+            visibles = AppConfig.get().getVisibleColumnMap().get(this.dialogClass.getName());
+        }
         TableColumn[] columns = this.table.getColumns();
         // 列の表示・非表示設定のサイズがカラム数と異なっている場合は破棄する
         if ((visibles != null) && (visibles.length != columns.length)) {
@@ -244,6 +260,15 @@ public final class TableWrapper<T> {
      */
     public List<T> getContent() {
         return Collections.unmodifiableList(this.content);
+    }
+
+    /**
+     * 基になるSWTのテーブルを取得します
+     *
+     * @return テーブル
+     */
+    public Table getTable() {
+        return this.table;
     }
 
     private void sort(TableColumn column) {

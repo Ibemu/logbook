@@ -1,6 +1,7 @@
 package logbook.gui;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import logbook.config.AppConfig;
 
@@ -11,6 +12,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -20,8 +22,14 @@ import org.eclipse.swt.widgets.TreeItem;
  */
 public final class SelectVisibleColumnDialog extends Dialog {
 
-    /** 親ダイアログ */
-    private final AbstractTableDialog dialog;
+    /** テーブル */
+    private final Table table;
+
+    /** ダイアログクラス */
+    private final Class<?> clazz;
+
+    /** 再読み込みタスク */
+    private Runnable reload;
 
     /** シェル */
     private Shell shell;
@@ -33,7 +41,21 @@ public final class SelectVisibleColumnDialog extends Dialog {
      */
     public SelectVisibleColumnDialog(Shell parent, AbstractTableDialog dialog) {
         super(parent, SWT.NONE);
-        this.dialog = dialog;
+        this.table = dialog.table;
+        this.clazz = dialog.getClass();
+        this.reload = () -> dialog.reloadTable();
+    }
+
+    /**
+     * Create the dialog.
+     * @param parent 親シェル
+     * @param table テーブル
+     * @param clazz ダイアログクラス
+     */
+    public SelectVisibleColumnDialog(Shell parent, Table table, Class<?> clazz) {
+        super(parent, SWT.NONE);
+        this.table = table;
+        this.clazz = clazz;
     }
 
     /**
@@ -61,13 +83,13 @@ public final class SelectVisibleColumnDialog extends Dialog {
         this.shell.setLayout(new FillLayout(SWT.HORIZONTAL));
 
         // ヘッダー
-        String[] header = this.dialog.getTableHeader();
+        String[] header = Stream.of(this.table.getColumns()).map(c -> c.getText()).toArray(String[]::new);
         // カラム設定を取得
-        boolean[] visibles = AppConfig.get().getVisibleColumnMap().get(this.dialog.getClass().getName());
+        boolean[] visibles = AppConfig.get().getVisibleColumnMap().get(this.clazz.getName());
         if ((visibles == null) || (visibles.length != header.length)) {
             visibles = new boolean[header.length];
             Arrays.fill(visibles, true);
-            AppConfig.get().getVisibleColumnMap().put(this.dialog.getClass().getName(), visibles);
+            AppConfig.get().getVisibleColumnMap().put(this.clazz.getName(), visibles);
         }
 
         Tree tree = new Tree(this.shell, SWT.BORDER | SWT.CHECK);
@@ -78,7 +100,7 @@ public final class SelectVisibleColumnDialog extends Dialog {
             column.setChecked(visibles[i]);
             column.setExpanded(true);
         }
-        this.shell.addShellListener(new TreeShellAdapter(tree, visibles, this.dialog));
+        this.shell.addShellListener(new TreeShellAdapter(tree, visibles, this.reload));
     }
 
     /**
@@ -89,12 +111,12 @@ public final class SelectVisibleColumnDialog extends Dialog {
 
         private final Tree tree;
         private final boolean[] visibles;
-        private final AbstractTableDialog dialog;
+        private final Runnable reload;
 
-        public TreeShellAdapter(Tree tree, boolean[] visibles, AbstractTableDialog dialog) {
+        public TreeShellAdapter(Tree tree, boolean[] visibles, Runnable reload) {
             this.tree = tree;
             this.visibles = visibles;
-            this.dialog = dialog;
+            this.reload = reload;
         }
 
         @Override
@@ -103,7 +125,8 @@ public final class SelectVisibleColumnDialog extends Dialog {
             for (int i = 0; i < items.length; i++) {
                 this.visibles[i + 1] = items[i].getChecked();
             }
-            this.dialog.reloadTable();
+            if (this.reload != null)
+                this.reload.run();
         }
     }
 }

@@ -1,5 +1,7 @@
 package logbook.gui.listener;
 
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -17,14 +19,14 @@ import org.eclipse.swt.widgets.TableItem;
 public final class TableToClipboardAdapter extends SelectionAdapter {
 
     /** テーブルヘッダー */
-    private final String[] header;
+    private String[] header;
 
     /** テーブル */
     private final Table table;
 
     /**
      * コンストラクター
-     * 
+     *
      * @param header ヘッダー
      * @param table テーブル
      */
@@ -33,14 +35,29 @@ public final class TableToClipboardAdapter extends SelectionAdapter {
         this.table = table;
     }
 
+    /**
+     * コンストラクター
+     *
+     * @param table テーブル
+     */
+    public TableToClipboardAdapter(Table table) {
+        this.table = table;
+    }
+
     @Override
     public void widgetSelected(SelectionEvent arg) {
-        copyTable(this.header, this.table);
+        String[] header = this.header;
+
+        if (this.header == null) {
+            header = Stream.of(this.table.getColumns()).map(c -> c.getText()).toArray(String[]::new);
+        }
+
+        copyTable(header, this.table);
     }
 
     /**
      * テーブルの選択されている部分をヘッダー付きでクリップボードにコピーします
-     * 
+     *
      * @param header ヘッダー
      * @param table テーブル
      */
