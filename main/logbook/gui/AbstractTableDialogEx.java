@@ -6,11 +6,13 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import logbook.config.AppConfig;
+import logbook.constants.AppConstants;
 import logbook.gui.listener.SaveWindowLocationAdapter;
 import logbook.gui.listener.TableKeyShortcutAdapter;
 import logbook.gui.listener.TableToClipboardAdapter;
 import logbook.gui.listener.TableToCsvSaveAdapter;
 import logbook.gui.logic.LayoutLogic;
+import logbook.gui.logic.TableItemDecorator;
 import logbook.gui.logic.TableWrapper;
 import logbook.thread.ThreadManager;
 
@@ -28,6 +30,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 /**
  * 1つ以上の複数のテーブルで構成されるダイアログの基底クラス
@@ -167,7 +171,9 @@ public abstract class AbstractTableDialogEx<T> extends Dialog {
         reloadtable.setText("再読み込み(&R)");
         reloadtable.addSelectionListener(new TableReloadAdapter());
 
-        TableWrapper<T> wrapper = new TableWrapper<T>(table, this.clazz);
+        TableWrapper<T> wrapper = new TableWrapper<T>(table, this.clazz)
+                .setDialogClass(this.getClass())
+                .setDecorator(new DefaultDecorator<T>());
         this.tables.add(wrapper);
         return wrapper;
     }
@@ -281,6 +287,23 @@ public abstract class AbstractTableDialogEx<T> extends Dialog {
                 if (AbstractTableDialogEx.this.future != null) {
                     AbstractTableDialogEx.this.future.cancel(false);
                 }
+            }
+        }
+    }
+
+    /**
+     * TableItemの装飾
+     *
+     * @param <T>
+     */
+    private static class DefaultDecorator<T> implements TableItemDecorator<T> {
+        @Override
+        public void update(TableItem item, T bean, int index) {
+            // 偶数行に背景色を付ける
+            if ((index % 2) != 0) {
+                item.setBackground(SWTResourceManager.getColor(AppConstants.ROW_BACKGROUND));
+            } else {
+                item.setBackground(null);
             }
         }
     }

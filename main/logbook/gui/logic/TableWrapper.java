@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,6 +48,8 @@ public final class TableWrapper<T> {
     private final Table table;
     /** Beanの情報 */
     private final BeanProperty<T> property;
+    /** 1列目にインデックス番号を付ける */
+    private final boolean visibleIndex;
     /** サプライヤー */
     private Supplier<Stream<T>> contentSupplier;
     /** TableItemの装飾 */
@@ -70,8 +73,20 @@ public final class TableWrapper<T> {
      * @param clazz Beanクラス
      */
     public TableWrapper(Table table, Class<T> clazz) {
+        this(table, true, clazz);
+    }
+
+    /**
+     * TableWrapperを構築します
+     *
+     * @param table テーブル
+     * @param visibleIndex 1列目にインデックス番号を付ける
+     * @param clazz Beanクラス
+     */
+    public TableWrapper(Table table, boolean visibleIndex, Class<T> clazz) {
         this.table = table;
         this.property = BeanProperty.getInstance(clazz);
+        this.visibleIndex = visibleIndex;
 
         // ヘッダーセット
         List<String> names = this.property.getNames();
@@ -84,6 +99,11 @@ public final class TableWrapper<T> {
                 }
             }
         };
+        if (visibleIndex) {
+            // インデックス列にはSelectionListenerを付けない
+            TableColumn col = new TableColumn(this.table, SWT.LEFT);
+            col.setText("");
+        }
         for (String name : names) {
             TableColumn col = new TableColumn(this.table, SWT.LEFT);
             col.addSelectionListener(listener);
@@ -175,7 +195,7 @@ public final class TableWrapper<T> {
         for (int i = 0; i < override; i++) {
             T bean = this.content.get(i);
             String[] text = this.property.getStringValues(bean);
-            items[i].setText(text);
+            this.setText(i, items[i], text);
             if (this.decorator != null) {
                 this.decorator.update(items[i], bean, i);
             }
@@ -185,7 +205,7 @@ public final class TableWrapper<T> {
             T bean = this.content.get(i);
             String[] text = this.property.getStringValues(bean);
             TableItem item = new TableItem(this.table, SWT.NONE);
-            item.setText(text);
+            this.setText(i, item, text);
             if (this.decorator != null) {
                 this.decorator.update(item, bean, i);
             }
@@ -271,6 +291,16 @@ public final class TableWrapper<T> {
         return this.table;
     }
 
+    private void setText(int index, TableItem item, String[] text) {
+        int shift = 0;
+        if (this.visibleIndex) {
+            item.setText(shift++, Integer.toString(index + 1));
+        }
+        for (int i = 0; i < text.length; i++) {
+            item.setText(i + shift, text[i]);
+        }
+    }
+
     private void sort(TableColumn column) {
         int index = this.property.getNameIndex(column.getText());
         int order;
@@ -320,6 +350,7 @@ public final class TableWrapper<T> {
      * テーブルソート
      */
     private static final class TableComparator implements Comparator<String> {
+        private final Pattern pattern = Pattern.compile("(?:\\d+日)?(?:\\d+時間)?(?:\\d+分)?(?:\\d+秒)?");
 
         @Override
         public int compare(String o1, String o2) {
@@ -336,7 +367,7 @@ public final class TableWrapper<T> {
                 Long o1l = Long.valueOf(o1);
                 Long o2l = Long.valueOf(o2);
                 return o1l.compareTo(o2l);
-            } else if (o1.matches("(?:\\d+日)?(?:\\d+時間)?(?:\\d+分)?(?:\\d+秒)?")) {
+            } else if (this.pattern.matcher(o1).matches()) {
                 try {
                     // 時刻文字列の場合
                     // SimpleDateFormatは24時間超えるような時刻でも正しく?パースしてくれる
