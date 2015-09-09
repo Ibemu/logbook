@@ -1,69 +1,37 @@
 package logbook.gui;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
 import logbook.data.context.ShipContext;
-import logbook.dto.DeckMissionDto;
-import logbook.dto.NdockDto;
 import logbook.dto.ShipDto;
-import logbook.gui.logic.TableItemCreator;
-import logbook.gui.logic.TimeLogic;
+import logbook.gui.bean.BathwaterBean;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 /**
  * お風呂に入りたい艦娘
  *
  */
-public final class BathwaterTableDialog extends AbstractTableDialog {
-
-    /** 遠征中の艦娘を外すフラグ */
-    private static boolean removeflg;
-    /** 遠征中の艦娘 */
-    private Set<Long> deckMissionShips;
-    /** 入渠中の艦娘 */
-    private Set<Long> nDockShips;
+public final class BathwaterTableDialog extends AbstractTableDialogEx<BathwaterBean> {
 
     /**
      * Create the dialog.
      * @param parent
-     * @param style
      */
     public BathwaterTableDialog(Shell parent) {
-        super(parent);
+        super(parent, BathwaterBean.class);
     }
 
     @Override
     protected void createContents() {
-        final MenuItem removecheck = new MenuItem(this.opemenu, SWT.CHECK);
-        removecheck.setText("遠征中の艦娘を外す");
-        removecheck.setSelection(removeflg);
-        removecheck.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                BathwaterTableDialog.removeflg = removecheck.getSelection();
-                BathwaterTableDialog.this.reloadTable();
-            }
-        });
+        this.addTable(this.shell)
+                .setContentSupplier(BathwaterTableDialog::getBathwaterContent)
+                .reload()
+                .update();
     }
 
     @Override
@@ -71,157 +39,25 @@ public final class BathwaterTableDialog extends AbstractTableDialog {
         return "お風呂に入りたい艦娘";
     }
 
-    @Override
-    protected Point getSize() {
-        // TODO 自動生成されたメソッド・スタブ
-        return new Point(600, 350);
-    }
-
-    @Override
-    protected String[] getTableHeader() {
-        return new String[] { "", "艦娘ID", "艦隊", "疲労", "名前", "Lv", "HP", "時間", "今から", "燃料", "鋼材", "状態", "HP1あたり" };
-    }
-
-    @Override
-    protected void updateTableBody() {
-        this.deckMissionShips = this.getDeckMissionShips();
-        this.nDockShips = this.getNDockShips();
-
-        List<ShipDto> ships = new ArrayList<ShipDto>();
-        for (ShipDto ship : ShipContext.get().values()) {
-            if (this.nDockShips.contains(ship.getId())) {
-                // 入渠中は外す
-                continue;
-            }
-            // 入渠時間が1秒以上を取得
-            if (ship.getDocktime() > 0) {
-                ships.add(ship);
-            }
-        }
-        // 入渠時間でソート
-        Collections.sort(ships, new Comparator<ShipDto>() {
-            @Override
-            public int compare(ShipDto o1, ShipDto o2) {
-                return Long.compare(o2.getDocktime(), o1.getDocktime());
-            }
-        });
-
-        SimpleDateFormat format = new SimpleDateFormat(AppConstants.DATE_SHORT_FORMAT);
-
-        List<String[]> body = new ArrayList<String[]>();
-        for (int i = 0; i < ships.size(); i++) {
-            ShipDto ship = ships.get(i);
-            // 状態
-            String status = "";
-
-            if (ship.isBadlyDamage()) {
-                status = "大破";
-            } else if (ship.isHalfDamage()) {
-                status = "中破";
-            } else if (ship.isSlightDamage()) {
-                status = "小破";
-            }
-            if (this.deckMissionShips.contains(ship.getId())) {
-                // 遠征中の艦娘を外すフラグが立っていたら遠征中の艦娘を外す
-                if (removeflg) {
-                    continue;
-                }
-                status = "遠征";
-            }
-            // HP1あたりの時間
-            String time = TimeLogic.toDateRestString((long) (ship.getDocktime()
-                    / (float) (ship.getMaxhp() - ship.getNowhp()) / 1000));
-            // 整形
-            body.add(new String[] {
-                    Integer.toString(i + 1),
-                    Long.toString(ship.getId()),
-                    ship.getFleetid(),
-                    Long.toString(ship.getCond()),
-                    ship.getName(),
-                    Long.toString(ship.getLv()),
-                    Long.toString(ship.getNowhp()) + "/" + Long.toString(ship.getMaxhp()),
-                    TimeLogic.toDateRestString(ship.getDocktime() / 1000),
-                    format.format(new Date(System.currentTimeMillis() + ship.getDocktime())),
-                    Long.toString(ship.getDockfuel()),
-                    Long.toString(ship.getDockmetal()),
-                    status,
-                    time
-            });
-        }
-        this.body = body;
-    }
-
-    @Override
-    protected TableItemCreator getTableItemCreator() {
-        return new TableItemCreator() {
-
-            @Override
-            public void init() {
-            }
-
-            @Override
-            public TableItem create(Table table, String[] text, int count) {
-                TableItem item = new TableItem(table, SWT.NONE);
-                item.setText(text);
-                this.update(item, text, count);
-                return item;
-            }
-
-            @Override
-            public TableItem update(TableItem item, String[] text, int count) {
-                // 偶数行に背景色を付ける
-                if ((count % 2) != 0) {
-                    item.setBackground(SWTResourceManager.getColor(AppConstants.ROW_BACKGROUND));
-                }
-                if (text[10].equals("遠征")) {
-                    item.setForeground(SWTResourceManager.getColor(AppConstants.MISSION_COLOR));
-                }
-                return item;
-            }
-        };
-    }
-
-    @Override
-    protected SelectionListener getHeaderSelectionListener() {
-        return new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                if (e.getSource() instanceof TableColumn) {
-                    BathwaterTableDialog.this.sortTableItems((TableColumn) e.getSource());
-                }
-            }
-        };
-    }
-
     /**
-     * 遠征中の艦娘を取得します
+     * お風呂に入りたい艦娘の内容
      *
-     * @return
+     * @return 内容
      */
-    private Set<Long> getDeckMissionShips() {
-        // 遠征
-        Set<Long> deckmissions = new HashSet<Long>();
-        for (DeckMissionDto deckMission : GlobalContext.getDeckMissions()) {
-            if ((deckMission.getMission() != null) && (deckMission.getShips() != null)) {
-                deckmissions.addAll(deckMission.getShips());
-            }
-        }
-        return deckmissions;
-    }
+    private static Stream<BathwaterBean> getBathwaterContent() {
+        // 入渠中
+        Set<Long> docks = Stream.of(GlobalContext.getNdocks())
+                .filter(e -> e.getNdockid() != 0)
+                .map(e -> e.getNdockid())
+                .collect(Collectors.toSet());
+        // 時間でソート
+        Comparator<ShipDto> comparator = (o1, o2) -> Long.compare(o1.getDocktime(), o2.getDocktime());
 
-    /**
-     * 入渠中の艦娘を取得します
-     *
-     * @return
-     */
-    private Set<Long> getNDockShips() {
-        // 入渠
-        Set<Long> docks = new HashSet<Long>();
-        for (NdockDto ndock : GlobalContext.getNdocks()) {
-            if (ndock.getNdockid() != 0) {
-                docks.add(ndock.getNdockid());
-            }
-        }
-        return docks;
+        return ShipContext.get().values()
+                .stream()
+                .filter(e -> e.getDocktime() > 0)
+                .filter(e -> !docks.contains(e.getId()))
+                .sorted(comparator.reversed())
+                .map(BathwaterBean::toBean);
     }
 }

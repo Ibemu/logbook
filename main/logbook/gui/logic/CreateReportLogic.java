@@ -6,12 +6,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
@@ -29,6 +31,13 @@ import logbook.dto.QuestDto;
 import logbook.dto.ShipDto;
 import logbook.dto.ShipFilterDto;
 import logbook.dto.ShipInfoDto;
+import logbook.gui.bean.CreateItemReportBean;
+import logbook.gui.bean.CreateShipReportBean;
+import logbook.gui.bean.DropReportBean;
+import logbook.gui.bean.ItemBean;
+import logbook.gui.bean.MissionResultBean;
+import logbook.gui.bean.QuestBean;
+import logbook.util.BeanProperty;
 import logbook.util.FileUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -47,44 +56,13 @@ public final class CreateReportLogic {
     }
 
     /**
-     * ドロップ報告書のヘッダー
-     *
-     * @return ヘッダー
-     */
-    public static String[] getBattleResultHeader() {
-        return new String[] { "", "日付", "海域", "マス", "ボス", "ランク",
-                "艦隊行動", "味方陣形", "敵陣形", "敵艦隊", "ドロップ艦種", "ドロップ艦娘" };
-    }
-
-    /**
      * ドロップ報告書の内容
      * @return 内容
      */
-    public static List<String[]> getBattleResultBody() {
-        List<BattleResultDto> results = GlobalContext.getBattleResultList();
-        List<Object[]> body = new ArrayList<Object[]>();
-
-        SimpleDateFormat format = new SimpleDateFormat(AppConstants.DATE_FORMAT);
-
-        for (int i = 0; i < results.size(); i++) {
-            BattleResultDto item = results.get(i);
-            BattleDto battle = item.getBattle();
-
-            body.add(new Object[] {
-                    Integer.toString(i + 1),
-                    format.format(item.getBattleDate()),
-                    item.getQuestName(),
-                    item.getMapCellNo(),
-                    item.getBossText(),
-                    item.getRank(),
-                    battle.getIntercept(),
-                    battle.getFriendFormation(),
-                    battle.getEnemyFormation(),
-                    item.getEnemyName(),
-                    item.getDropType(),
-                    item.getDropName() });
-        }
-        return toListStringArray(body);
+    public static Stream<DropReportBean> getBattleResultContent() {
+        return GlobalContext.getBattleResultList()
+                .stream()
+                .map(DropReportBean::toBean);
     }
 
     /**
@@ -193,38 +171,14 @@ public final class CreateReportLogic {
     }
 
     /**
-     * 建造報告書のヘッダー
-     *
-     * @return ヘッダー
-     */
-    public static String[] getCreateShipHeader() {
-        return new String[] { "", "日付", "種類", "名前", "艦種", "燃料", "弾薬", "鋼材", "ボーキ", "開発資材", "空きドック", "秘書艦", "司令部Lv" };
-    }
-
-    /**
      * 建造報告書の内容
      *
      * @return 内容
      */
-    public static List<String[]> getCreateShipBody(List<GetShipDto> ships) {
-        List<Object[]> body = new ArrayList<Object[]>();
-        for (int i = 0; i < ships.size(); i++) {
-            GetShipDto ship = ships.get(i);
-            body.add(new Object[] { Integer.toString(i + 1),
-                    new SimpleDateFormat(AppConstants.DATE_FORMAT).format(ship.getGetDate()), ship.getBuildType(),
-                    ship.getName(), ship.getType(), ship.getFuel(), ship.getAmmo(), ship.getMetal(), ship.getBauxite(),
-                    ship.getResearchMaterials(), ship.getFreeDock(), ship.getSecretary(), ship.getHqLevel() });
-        }
-        return toListStringArray(body);
-    }
-
-    /**
-     * 開発報告書のヘッダー
-     *
-     * @return ヘッダー
-     */
-    public static String[] getCreateItemHeader() {
-        return new String[] { "", "日付", "開発装備", "種別", "燃料", "弾薬", "鋼材", "ボーキ", "秘書艦", "司令部Lv" };
+    public static Stream<CreateShipReportBean> getCreateShipContent() {
+        return GlobalContext.getGetshipList()
+                .stream()
+                .map(CreateShipReportBean::toBean);
     }
 
     /**
@@ -232,32 +186,10 @@ public final class CreateReportLogic {
      *
      * @return 内容
      */
-    public static List<String[]> getCreateItemBody(List<CreateItemDto> items) {
-        List<Object[]> body = new ArrayList<Object[]>();
-
-        for (int i = 0; i < items.size(); i++) {
-            CreateItemDto item = items.get(i);
-            String name = "失敗";
-            String type = "";
-            if (item.isCreateFlag()) {
-                name = item.getName();
-                type = item.getType();
-            }
-            body.add(new Object[] { Integer.toString(i + 1),
-                    new SimpleDateFormat(AppConstants.DATE_FORMAT).format(item.getCreateDate()), name, type,
-                    item.getFuel(), item.getAmmo(), item.getMetal(), item.getBauxite(), item.getSecretary(),
-                    item.getHqLevel() });
-        }
-        return toListStringArray(body);
-    }
-
-    /**
-     * 所有装備一覧のヘッダー
-     *
-     * @return ヘッダー
-     */
-    public static String[] getItemListHeader() {
-        return new String[] { "", "名称", "種別", "個数", "火力", "命中", "射程", "運", "回避", "爆装", "雷装", "索敵", "対潜", "対空", "装甲" };
+    public static Stream<CreateItemReportBean> getCreateItemContent() {
+        return GlobalContext.getCreateItemList()
+                .stream()
+                .map(CreateItemReportBean::toBean);
     }
 
     /**
@@ -265,41 +197,44 @@ public final class CreateReportLogic {
      *
      * @return 内容
      */
-    public static List<String[]> getItemListBody() {
-        Set<Entry<Long, ItemDto>> items = ItemContext.get().entrySet();
-        Map<ItemDto, Integer> itemCountMap = new HashMap<ItemDto, Integer>();
+    public static Stream<ItemBean> getItemTablecontent() {
+        // 集計関数
+        BiConsumer<HashMap<ItemDto, Integer>, ItemDto> accumulator = (m, b) ->
+                m.put(b, m.getOrDefault(b, 0) + 1);
+        // マージ関数
+        BiConsumer<HashMap<ItemDto, Integer>, HashMap<ItemDto, Integer>> combiner = (t, u) ->
+                u.forEach((b, i) -> t.put(b, t.getOrDefault(b, 0) + i));
+        // ItemDto -> ItemBean 変換
+        Function<Entry<ItemDto, Integer>, ItemBean> mapper = (e) -> {
+            ItemDto d = e.getKey();
+            ItemBean b = new ItemBean();
+            b.setBaku(d.getBaku());
+            b.setCount(e.getValue());
+            b.setHoug(d.getHoug());
+            b.setHouk(d.getHouk());
+            b.setHoum(d.getHoum());
+            b.setLeng(d.getLeng());
+            b.setLuck(d.getLuck());
+            b.setName(StringUtils.defaultString(d.getName()));
+            b.setRaig(d.getRaig());
+            b.setSaku(d.getSaku());
+            b.setSouk(d.getSouk());
+            b.setTais(d.getTais());
+            b.setTyku(d.getTyku());
+            b.setType(StringUtils.defaultString(d.getType()));
+            return b;
+        };
 
-        for (Entry<Long, ItemDto> entry : items) {
-            ItemDto item = entry.getValue();
-            Integer count = itemCountMap.get(item);
-            if (count == null) {
-                count = 1;
-            } else {
-                count = count + 1;
-            }
-            itemCountMap.put(item, count);
-        }
-
-        List<Entry<ItemDto, Integer>> countitems = new ArrayList<Entry<ItemDto, Integer>>(itemCountMap.entrySet());
-        Collections.sort(countitems, new Comparator<Entry<ItemDto, Integer>>() {
-            @Override
-            public int compare(Entry<ItemDto, Integer> o1, Entry<ItemDto, Integer> o2) {
-                return o1.getValue().compareTo(o2.getValue());
-            }
-        });
-
-        List<Object[]> body = new ArrayList<Object[]>();
-
-        int count = 0;
-        for (Entry<ItemDto, Integer> entry : countitems) {
-            ItemDto item = entry.getKey();
-            count++;
-            body.add(new Object[] { count, item.getName(), item.getType(), entry.getValue(), item.getHoug(),
-                    item.getHoum(), item.getLeng(), item.getLuck(), item.getHouk(), item.getBaku(), item.getRaig(),
-                    item.getSaku(), item.getTais(), item.getTyku(), item.getSouk()
-            });
-        }
-        return toListStringArray(body);
+        Map<ItemDto, Integer> map = ItemContext.get()
+                .values()
+                .stream()
+                .parallel()
+                .collect(HashMap<ItemDto, Integer>::new, accumulator, combiner);
+        return map.entrySet()
+                .stream()
+                .map(mapper)
+                .sorted((o1, o2) -> o1.getName().compareTo(o2.getName()))
+                .sorted((o1, o2) -> o1.getType().compareTo(o2.getType()));
     }
 
     /**
@@ -438,46 +373,14 @@ public final class CreateReportLogic {
     }
 
     /**
-     * 遠征結果のヘッダー
-     *
-     * @return ヘッダー
-     */
-    public static String[] getCreateMissionResultHeader() {
-        return new String[] { "", "日付", "結果", "遠征", "燃料", "弾薬", "鋼材", "ボーキ" };
-    }
-
-    /**
      * 遠征結果一覧の内容
      *
      * @return 遠征結果
      */
-    public static List<String[]> getMissionResultBody(List<MissionResultDto> resultlist) {
-        List<Object[]> body = new ArrayList<Object[]>();
-
-        for (int i = 0; i < resultlist.size(); i++) {
-            MissionResultDto result = resultlist.get(i);
-
-            body.add(new Object[] {
-                    Integer.toString(i + 1),
-                    new SimpleDateFormat(AppConstants.DATE_FORMAT).format(result.getDate()),
-                    result.getClearResult(),
-                    result.getQuestName(),
-                    result.getFuel(),
-                    result.getAmmo(),
-                    result.getMetal(),
-                    result.getBauxite()
-            });
-        }
-        return toListStringArray(body);
-    }
-
-    /**
-     * 任務一覧のヘッダー
-     *
-     * @return
-     */
-    public static String[] getCreateQuestHeader() {
-        return new String[] { "", "状態", "タイトル", "内容", "燃料", "弾薬", "鋼材", "ボーキ" };
+    public static Stream<MissionResultBean> getMissionResultContent() {
+        return GlobalContext.getMissionResultList()
+                .stream()
+                .map(MissionResultBean::toBean);
     }
 
     /**
@@ -485,36 +388,22 @@ public final class CreateReportLogic {
      *
      * @return
      */
-    public static List<String[]> getQuestBody() {
-        List<Object[]> body = new ArrayList<Object[]>();
-
-        for (Entry<Integer, QuestDto> entry : GlobalContext.getQuest().entrySet()) {
-            QuestDto quest = entry.getValue();
-
-            String state = "";
-            switch (quest.getState()) {
-            case 2:
-                state = "遂行中";
-                break;
-            case 3:
-                state = "達成";
-                break;
-            default:
-                continue;
-            }
-
-            body.add(new Object[] {
-                    quest.getNo(),
-                    state,
-                    quest.getTitle(),
-                    quest.getDetail(),
-                    quest.getFuel(),
-                    quest.getAmmo(),
-                    quest.getMetal(),
-                    quest.getBauxite()
-            });
-        }
-        return toListStringArray(body);
+    public static Stream<QuestBean> getQuestContent() {
+        String[] states = { "", "", "遂行中", "達成", "" };
+        Function<QuestDto, QuestBean> mapper = e -> {
+            QuestBean b = new QuestBean();
+            b.setState(states[e.getState()]);
+            b.setTitle(e.getTitle());
+            b.setDetail(e.getDetail());
+            b.setFuel(e.getFuel());
+            b.setAmmo(e.getAmmo());
+            b.setMetal(e.getMetal());
+            b.setBauxite(e.getBauxite());
+            return b;
+        };
+        return GlobalContext.getQuest().values()
+                .stream()
+                .map(mapper);
     }
 
     /**
@@ -601,13 +490,17 @@ public final class CreateReportLogic {
      */
     public static void storeCreateShipReport(GetShipDto dto) {
         try {
-            List<GetShipDto> dtoList = Collections.singletonList(dto);
-
             Path report = FileUtils.getStoreFile(AppConstants.LOG_CREATE_SHIP, AppConstants.LOG_CREATE_SHIP_ALT);
 
-            FileUtils.writeCsvStripFirstColumn(report,
-                    CreateReportLogic.getCreateShipHeader(),
-                    CreateReportLogic.getCreateShipBody(dtoList), true);
+            BeanProperty<CreateShipReportBean> property = BeanProperty.getInstance(CreateShipReportBean.class);
+            // header
+            List<String> names = property.getNames();
+            String[] header = names.toArray(new String[names.size()]);
+            // content
+            CreateShipReportBean bean = CreateShipReportBean.toBean(dto);
+            List<String[]> list = Collections.singletonList(property.getStringValues(bean));
+
+            FileUtils.writeCsv(report, header, list, true);
         } catch (IOException e) {
             LoggerHolder.LOG.warn("報告書の保存に失敗しました", e);
         }
@@ -620,13 +513,17 @@ public final class CreateReportLogic {
      */
     public static void storeCreateItemReport(CreateItemDto dto) {
         try {
-            List<CreateItemDto> dtoList = Collections.singletonList(dto);
-
             Path report = FileUtils.getStoreFile(AppConstants.LOG_CREATE_ITEM, AppConstants.LOG_CREATE_ITEM_ALT);
 
-            FileUtils.writeCsvStripFirstColumn(report,
-                    CreateReportLogic.getCreateItemHeader(),
-                    CreateReportLogic.getCreateItemBody(dtoList), true);
+            BeanProperty<CreateItemReportBean> property = BeanProperty.getInstance(CreateItemReportBean.class);
+            // header
+            List<String> names = property.getNames();
+            String[] header = names.toArray(new String[names.size()]);
+            // content
+            CreateItemReportBean bean = CreateItemReportBean.toBean(dto);
+            List<String[]> list = Collections.singletonList(property.getStringValues(bean));
+
+            FileUtils.writeCsv(report, header, list, true);
         } catch (IOException e) {
             LoggerHolder.LOG.warn("報告書の保存に失敗しました", e);
         }
@@ -639,13 +536,17 @@ public final class CreateReportLogic {
      */
     public static void storeCreateMissionReport(MissionResultDto dto) {
         try {
-            List<MissionResultDto> dtoList = Collections.singletonList(dto);
-
             Path report = FileUtils.getStoreFile(AppConstants.LOG_MISSION, AppConstants.LOG_MISSION_ALT);
 
-            FileUtils.writeCsvStripFirstColumn(report,
-                    CreateReportLogic.getCreateMissionResultHeader(),
-                    CreateReportLogic.getMissionResultBody(dtoList), true);
+            BeanProperty<MissionResultBean> property = BeanProperty.getInstance(MissionResultBean.class);
+            // header
+            List<String> names = property.getNames();
+            String[] header = names.toArray(new String[names.size()]);
+            // content
+            MissionResultBean bean = MissionResultBean.toBean(dto);
+            List<String[]> list = Collections.singletonList(property.getStringValues(bean));
+
+            FileUtils.writeCsv(report, header, list, true);
         } catch (IOException e) {
             LoggerHolder.LOG.warn("報告書の保存に失敗しました", e);
         }
