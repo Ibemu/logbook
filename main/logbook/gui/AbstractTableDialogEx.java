@@ -195,16 +195,18 @@ public abstract class AbstractTableDialogEx<T> extends Dialog {
     }
 
     /**
+     * ウインドウサイズを返します
+     * @return Point
+     */
+    protected Point getSize() {
+        return new Point(600, 350);
+    }
+
+    /**
      * タイトルを返します
      * @return String
      */
     protected abstract String getTitle();
-
-    /**
-     * ウインドウサイズを返します
-     * @return Point
-     */
-    protected abstract Point getSize();
 
     /**
      * Create contents of the dialog.<br>
