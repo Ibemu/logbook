@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import logbook.annotation.Name;
@@ -93,9 +94,10 @@ public class BeanProperty<T> {
      * @return Beanが持つ全てのプロパティーの値
      */
     public String[] getStringValues(T bean) {
-        String[] values = new String[this.names.size()];
-        for (int i = 0; i < this.names.size(); i++) {
-            values[i] = String.valueOf(this.getValue(bean, this.names.get(i)));
+        int size = this.names.size();
+        String[] values = new String[size];
+        for (int i = 0; i < size; i++) {
+            values[i] = this.getValue(bean, this.names.get(i)).map(String::valueOf).orElse("");
         }
         return values;
     }
@@ -106,9 +108,10 @@ public class BeanProperty<T> {
      * @param bean Bean
      * @return Beanが持つ全てのプロパティーの値
      */
-    public Object[] getValues(T bean) {
-        Object[] values = new Object[this.names.size()];
-        for (int i = 0; i < this.names.size(); i++) {
+    public Optional<?>[] getValues(T bean) {
+        int size = this.names.size();
+        Optional<?>[] values = new Optional<?>[size];
+        for (int i = 0; i < size; i++) {
             values[i] = this.getValue(bean, this.names.get(i));
         }
         return values;
@@ -121,12 +124,12 @@ public class BeanProperty<T> {
      * @param name 名前
      * @return Beanが持つプロパティーの値
      */
-    public Object getValue(T bean, String name) {
+    public Optional<?> getValue(T bean, String name) {
         Function<T, Object> func = this.getterMap.get(name);
         if (func != null) {
-            return func.apply(bean);
+            return Optional.ofNullable(func.apply(bean));
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -136,12 +139,12 @@ public class BeanProperty<T> {
      * @param name 名前
      * @return Beanが持つプロパティーの値
      */
-    public Object getValue(T bean, int index) {
+    public Optional<?> getValue(T bean, int index) {
         Function<T, Object> func = this.getterMap.get(this.names.get(index));
         if (func != null) {
-            return func.apply(bean);
+            return Optional.ofNullable(func.apply(bean));
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
