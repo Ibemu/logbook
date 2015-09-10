@@ -2,6 +2,7 @@ package logbook.gui.logic;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -55,7 +56,7 @@ public final class TableWrapper<T> {
     /** TableItemの装飾 */
     private TableItemDecorator<T> decorator;
     /** テーブルソート */
-    private Comparator<String> comparator = new TableComparator();
+    private Comparator<String> comparator = new EmptyLast(new TableComparator());
     /** フィルター */
     private Predicate<T> filter;
     /** このテーブルを持つダイアログクラス */
@@ -267,9 +268,7 @@ public final class TableWrapper<T> {
     public T[] getSelection(IntFunction<T[]> factory) {
         int[] indices = this.table.getSelectionIndices();
         T[] objs = factory.apply(indices.length);
-        for (int i = 0; i < indices.length; i++) {
-            objs[i] = this.content.get(indices[i]);
-        }
+        Arrays.setAll(objs, i -> this.content.get(indices[i]));
         return objs;
     }
 
@@ -321,11 +320,9 @@ public final class TableWrapper<T> {
             Comparator<String> comparator = p.order == SWT.UP
                     ? this.comparator : this.comparator.reversed();
             stream = stream.sorted((o1, o2) -> {
-                Object v1 = this.property.getValue(o1, p.index);
-                Object v2 = this.property.getValue(o2, p.index);
-                String s1 = v1 != null ? v1.toString() : "";
-                String s2 = v2 != null ? v2.toString() : "";
-                return comparator.compare(s1, s2);
+                String v1 = this.property.getValue(o1, p.index).map(String::valueOf).orElse(null);
+                String v2 = this.property.getValue(o2, p.index).map(String::valueOf).orElse(null);
+                return comparator.compare(v1, v2);
             });
         }
         return stream;
@@ -354,12 +351,6 @@ public final class TableWrapper<T> {
 
         @Override
         public int compare(String o1, String o2) {
-            if (StringUtils.isEmpty(o1) && StringUtils.isEmpty(o2))
-                return 0;
-            if (StringUtils.isEmpty(o1))
-                return 1;
-            if (StringUtils.isEmpty(o2))
-                return -1;
             if (o1.equals(o2))
                 return 0;
             if (StringUtils.isNumeric(o1) && StringUtils.isNumeric(o2)) {
@@ -380,6 +371,26 @@ public final class TableWrapper<T> {
             }
             // 文字列の場合
             return o1.compareTo(o2);
+        }
+    }
+
+    /**
+     * nullまたは空文字をnullまたは空文字以外より大きいとみなすコンパレータ
+     */
+    private static final class EmptyLast implements Comparator<String> {
+        private final Comparator<String> comparator;
+
+        public EmptyLast(Comparator<String> comparator) {
+            this.comparator = comparator;
+        }
+
+        @Override
+        public int compare(String o1, String o2) {
+            if ((o1 == null) || o1.isEmpty())
+                return ((o2 == null) || o2.isEmpty()) ? 0 : 1;
+            if ((o2 == null) || o2.isEmpty())
+                return -1;
+            return this.comparator.compare(o1, o2);
         }
     }
 }
