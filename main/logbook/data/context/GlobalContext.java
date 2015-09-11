@@ -437,11 +437,17 @@ public final class GlobalContext {
                     Long shipid = shipobj.getJsonNumber("api_id").longValue();
                     int fuel = shipobj.getJsonNumber("api_fuel").intValue();
                     int bull = shipobj.getJsonNumber("api_bull").intValue();
-
+                    JsonArray onslot = shipobj.getJsonArray("api_onslot");
                     ShipDto ship = ShipContext.get().get(shipid);
                     if (ship != null) {
                         ship.setFuel(fuel);
                         ship.setBull(bull);
+                        List<Integer> onslotList = ship.getOnslot();
+                        onslotList.clear();
+                        for (JsonValue jsonValue : onslot) {
+                            JsonNumber value = (JsonNumber) jsonValue;
+                            onslotList.add(Integer.valueOf(value.intValue()));
+                        }
 
                         String fleetid = ship.getFleetid();
                         if (fleetid != null) {

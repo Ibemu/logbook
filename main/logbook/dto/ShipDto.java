@@ -468,6 +468,13 @@ public final class ShipDto extends AbstractDto {
     }
 
     /**
+     * @return 装備の搭載数
+     */
+    public List<Integer> getOnslot() {
+        return this.onslot;
+    }
+
+    /**
      * @return 制空値
      */
     public int getSeiku() {
