@@ -814,6 +814,8 @@ public final class GlobalContext {
                     ItemContext.level().put(id, level);
                     if (alv > 0) {
                         ItemContext.alv().put(id, alv);
+                    } else {
+                        ItemContext.alv().remove(id);
                     }
                 }
             }
