@@ -36,7 +36,6 @@ import logbook.constants.AppConstants;
 import logbook.gui.listener.SaveWindowLocationAdapter;
 import logbook.gui.logic.CreateReportLogic;
 import logbook.gui.logic.LayoutLogic;
-import logbook.gui.logic.TableItemCreator;
 import logbook.util.ImageWriter;
 
 import org.apache.commons.lang3.time.DateUtils;
@@ -63,6 +62,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 /**
  * 資材チャートのダイアログ
@@ -508,11 +509,16 @@ public final class ResourceChartDialogEx extends Dialog {
      * テーブルボディーをセットする
      */
     private void setTableBody() {
-        TableItemCreator creator = TableItemCreator.DEFAULT_TABLE_ITEM_CREATOR;
-        creator.init();
         for (int i = 0; i < this.body.size(); i++) {
             String[] line = this.body.get(i);
-            creator.create(this.table, line, i);
+            TableItem item = new TableItem(this.table, SWT.NONE);
+            item.setText(line);
+            // 偶数行に背景色を付ける
+            if ((i % 2) != 0) {
+                item.setBackground(SWTResourceManager.getColor(AppConstants.ROW_BACKGROUND));
+            } else {
+                item.setBackground(null);
+            }
         }
     }
 

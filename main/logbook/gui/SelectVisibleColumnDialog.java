@@ -28,23 +28,8 @@ public final class SelectVisibleColumnDialog extends Dialog {
     /** ダイアログクラス */
     private final Class<?> clazz;
 
-    /** 再読み込みタスク */
-    private Runnable reload;
-
     /** シェル */
     private Shell shell;
-
-    /**
-     * Create the dialog.
-     * @param parent 親シェル
-     * @param dialog 親ダイアログ
-     */
-    public SelectVisibleColumnDialog(Shell parent, AbstractTableDialog dialog) {
-        super(parent, SWT.NONE);
-        this.table = dialog.table;
-        this.clazz = dialog.getClass();
-        this.reload = () -> dialog.reloadTable();
-    }
 
     /**
      * Create the dialog.
@@ -100,7 +85,7 @@ public final class SelectVisibleColumnDialog extends Dialog {
             column.setChecked(visibles[i]);
             column.setExpanded(true);
         }
-        this.shell.addShellListener(new TreeShellAdapter(tree, visibles, this.reload));
+        this.shell.addShellListener(new TreeShellAdapter(tree, visibles));
     }
 
     /**
@@ -111,12 +96,10 @@ public final class SelectVisibleColumnDialog extends Dialog {
 
         private final Tree tree;
         private final boolean[] visibles;
-        private final Runnable reload;
 
-        public TreeShellAdapter(Tree tree, boolean[] visibles, Runnable reload) {
+        public TreeShellAdapter(Tree tree, boolean[] visibles) {
             this.tree = tree;
             this.visibles = visibles;
-            this.reload = reload;
         }
 
         @Override
@@ -125,8 +108,6 @@ public final class SelectVisibleColumnDialog extends Dialog {
             for (int i = 0; i < items.length; i++) {
                 this.visibles[i + 1] = items[i].getChecked();
             }
-            if (this.reload != null)
-                this.reload.run();
         }
     }
 }
