@@ -1,12 +1,14 @@
 package logbook.gui.logic;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import logbook.dto.ItemDto;
 import logbook.dto.ShipDto;
 import logbook.dto.ShipFilterDto;
+import logbook.gui.bean.ShipBean;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,7 +16,21 @@ import org.apache.commons.lang3.StringUtils;
  * 艦娘フィルタロジック
  *
  */
-public class ShipFilterLogic {
+public final class ShipFilterLogic implements Predicate<ShipBean> {
+
+    private final ShipFilterDto filter;
+
+    /**
+     * 艦娘フィルタ
+     */
+    public ShipFilterLogic(ShipFilterDto filter) {
+        this.filter = filter;
+    }
+
+    @Override
+    public boolean test(ShipBean t) {
+        return this.shipFilter(t.getShip());
+    }
 
     /**
      * 艦娘をフィルタします
@@ -23,49 +39,49 @@ public class ShipFilterLogic {
      * @param filter フィルターオブジェクト
      * @return フィルタ結果
      */
-    public static boolean shipFilter(ShipDto ship, ShipFilterDto filter) {
+    private boolean shipFilter(ShipDto ship) {
         // テキストでフィルタ
-        if (!StringUtils.isEmpty(filter.nametext)) {
-            if (!textFilter(ship, filter)) {
+        if (!StringUtils.isEmpty(this.filter.nametext)) {
+            if (!textFilter(ship, this.filter)) {
                 return false;
             }
         }
         // 艦種でフィルタ
-        if (!typeFilter(ship, filter)) {
+        if (!typeFilter(ship, this.filter)) {
             return false;
         }
         // グループでフィルタ
-        if (filter.group != null) {
-            if (!filter.group.getShips().contains(ship.getId())) {
+        if (this.filter.group != null) {
+            if (!this.filter.group.getShips().contains(ship.getId())) {
                 return false;
             }
         }
         // 装備でフィルタ
-        if (!StringUtils.isEmpty(filter.itemname)) {
-            if (!itemFilter(ship, filter)) {
+        if (!StringUtils.isEmpty(this.filter.itemname)) {
+            if (!itemFilter(ship, this.filter)) {
                 return false;
             }
         }
         // 艦隊に所属
-        if (!filter.onfleet) {
+        if (!this.filter.onfleet) {
             if (!StringUtils.isEmpty(ship.getFleetid())) {
                 return false;
             }
         }
         // 艦隊に非所属
-        if (!filter.notonfleet) {
+        if (!this.filter.notonfleet) {
             if (StringUtils.isEmpty(ship.getFleetid())) {
                 return false;
             }
         }
         // 鍵付き
-        if (!filter.locked) {
+        if (!this.filter.locked) {
             if (ship.getLocked()) {
                 return false;
             }
         }
         // 鍵付きではない
-        if (!filter.notlocked) {
+        if (!this.filter.notlocked) {
             if (!ship.getLocked()) {
                 return false;
             }

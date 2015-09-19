@@ -1,6 +1,7 @@
 package logbook.gui.bean;
 
 import logbook.annotation.Name;
+import logbook.dto.ShipDto;
 
 /**
  * 所有艦娘一覧のBean
@@ -38,7 +39,7 @@ public class ShipBean {
 
     /** Next */
     @Name("Next")
-    private Long next;
+    private String next;
 
     /** 経験値 */
     @Name("経験値")
@@ -114,19 +115,22 @@ public class ShipBean {
 
     /** 砲撃戦火力 */
     @Name("砲撃戦火力")
-    private String hougekiPower;
+    private Long hougekiPower;
 
     /** 雷撃戦火力 */
     @Name("雷撃戦火力")
-    private String raigekiPower;
+    private Long raigekiPower;
 
     /** 対潜火力 */
     @Name("対潜火力")
-    private String taisenPower;
+    private Long taisenPower;
 
     /** 夜戦火力 */
     @Name("夜戦火力")
-    private String yasenPower;
+    private Long yasenPower;
+
+    /** 艦娘 */
+    private ShipDto ship;
 
     /**
      * IDを取得します。
@@ -244,7 +248,7 @@ public class ShipBean {
      * Nextを取得します。
      * @return Next
      */
-    public Long getNext() {
+    public String getNext() {
         return this.next;
     }
 
@@ -252,7 +256,7 @@ public class ShipBean {
      * Nextを設定します。
      * @param next Next
      */
-    public void setNext(Long next) {
+    public void setNext(String next) {
         this.next = next;
     }
 
@@ -548,7 +552,7 @@ public class ShipBean {
      * 砲撃戦火力を取得します。
      * @return 砲撃戦火力
      */
-    public String getHougekiPower() {
+    public Long getHougekiPower() {
         return this.hougekiPower;
     }
 
@@ -556,7 +560,7 @@ public class ShipBean {
      * 砲撃戦火力を設定します。
      * @param hougekiPower 砲撃戦火力
      */
-    public void setHougekiPower(String hougekiPower) {
+    public void setHougekiPower(Long hougekiPower) {
         this.hougekiPower = hougekiPower;
     }
 
@@ -564,7 +568,7 @@ public class ShipBean {
      * 雷撃戦火力を取得します。
      * @return 雷撃戦火力
      */
-    public String getRaigekiPower() {
+    public Long getRaigekiPower() {
         return this.raigekiPower;
     }
 
@@ -572,7 +576,7 @@ public class ShipBean {
      * 雷撃戦火力を設定します。
      * @param raigekiPower 雷撃戦火力
      */
-    public void setRaigekiPower(String raigekiPower) {
+    public void setRaigekiPower(Long raigekiPower) {
         this.raigekiPower = raigekiPower;
     }
 
@@ -580,7 +584,7 @@ public class ShipBean {
      * 対潜火力を取得します。
      * @return 対潜火力
      */
-    public String getTaisenPower() {
+    public Long getTaisenPower() {
         return this.taisenPower;
     }
 
@@ -588,7 +592,7 @@ public class ShipBean {
      * 対潜火力を設定します。
      * @param taisenPower 対潜火力
      */
-    public void setTaisenPower(String taisenPower) {
+    public void setTaisenPower(Long taisenPower) {
         this.taisenPower = taisenPower;
     }
 
@@ -596,7 +600,7 @@ public class ShipBean {
      * 夜戦火力を取得します。
      * @return 夜戦火力
      */
-    public String getYasenPower() {
+    public Long getYasenPower() {
         return this.yasenPower;
     }
 
@@ -604,8 +608,24 @@ public class ShipBean {
      * 夜戦火力を設定します。
      * @param yasenPower 夜戦火力
      */
-    public void setYasenPower(String yasenPower) {
+    public void setYasenPower(Long yasenPower) {
         this.yasenPower = yasenPower;
+    }
+
+    /**
+     * 艦娘を取得します。
+     * @return 艦娘
+     */
+    public ShipDto getShip() {
+        return ship;
+    }
+
+    /**
+     * 艦娘を設定します。
+     * @param ship 艦娘
+     */
+    public void setShip(ShipDto ship) {
+        this.ship = ship;
     }
 
 }

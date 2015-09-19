@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -19,7 +18,6 @@ import java.util.stream.Stream;
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
 import logbook.data.context.ItemContext;
-import logbook.data.context.ShipContext;
 import logbook.dto.BattleDto;
 import logbook.dto.BattleResultDto;
 import logbook.dto.CreateItemDto;
@@ -30,7 +28,6 @@ import logbook.dto.MaterialDto;
 import logbook.dto.MissionResultDto;
 import logbook.dto.QuestDto;
 import logbook.dto.ShipDto;
-import logbook.dto.ShipFilterDto;
 import logbook.dto.ShipInfoDto;
 import logbook.gui.bean.CreateItemReportBean;
 import logbook.gui.bean.CreateShipReportBean;
@@ -234,143 +231,8 @@ public final class CreateReportLogic {
         return map.entrySet()
                 .stream()
                 .map(mapper)
-                .sorted((o1, o2) -> o1.getName().compareTo(o2.getName()))
-                .sorted((o1, o2) -> o1.getType().compareTo(o2.getType()));
-    }
-
-    /**
-     * 所有艦娘一覧のヘッダー
-     *
-     * @return ヘッダー
-     */
-    public static String[] getShipListHeader() {
-        return new String[] { "", "ID", "艦隊", "名前", "艦種", "疲労", "回復", "Lv", "Next", "経験値", "出撃海域", "制空", "装備1", "装備2",
-                "装備3", "装備4", "補強増設", "HP", "火力", "雷装", "対空", "装甲", "回避", "対潜", "索敵", "運",
-                "装備命中", "砲撃戦火力", "雷撃戦火力", "対潜火力", "夜戦火力" };
-    }
-
-    /**
-     * 所有艦娘一覧の内容
-     *
-     * @param specdiff 成長余地
-     * @param filter 鍵付きのみ
-     * @return 内容
-     */
-    public static List<String[]> getShipListBody(boolean specdiff, ShipFilterDto filter) {
-        Set<Entry<Long, ShipDto>> ships = ShipContext.get().entrySet();
-        List<Object[]> body = new ArrayList<Object[]>();
-        int count = 0;
-        for (Entry<Long, ShipDto> entry : ships) {
-            ShipDto ship = entry.getValue();
-
-            if ((filter != null) && !ShipFilterLogic.shipFilter(ship, filter)) {
-                continue;
-            }
-
-            count++;
-
-            if (!specdiff) {
-                // 通常
-                body.add(new Object[] {
-                        count,
-                        ship.getId(),
-                        ship.getFleetid(),
-                        ship.getName(),
-                        ship.getType(),
-                        ship.getCond(),
-                        ship.getCondClearDateString(),
-                        ship.getLv(),
-                        ship.getNext(),
-                        ship.getExp(),
-                        ship.getSallyArea().getName(),
-                        ship.getSeiku(),
-                        ship.getSlot().get(0),
-                        ship.getSlot().get(1),
-                        ship.getSlot().get(2),
-                        ship.getSlot().get(3),
-                        ship.getSlot().get(5),
-                        ship.getMaxhp(),
-                        ship.getKaryoku(),
-                        ship.getRaisou(),
-                        ship.getTaiku(),
-                        ship.getSoukou(),
-                        ship.getKaihi(),
-                        ship.getTaisen(),
-                        ship.getSakuteki(),
-                        ship.getLucky(),
-                        ship.getAccuracy(),
-                        ship.getHougekiPower(),
-                        ship.getRaigekiPower(),
-                        ship.getTaisenPower(),
-                        ship.getYasenPower()
-                });
-            } else {
-                // 成長の余地
-                // 火力
-                long karyoku = ship.getKaryokuMax() - ship.getKaryoku();
-                // 雷装
-                long raisou = ship.getRaisouMax() - ship.getRaisou();
-                // 対空
-                long taiku = ship.getTaikuMax() - ship.getTaiku();
-                // 装甲
-                long soukou = ship.getSoukouMax() - ship.getSoukou();
-                // 回避
-                long kaihi = ship.getKaihiMax() - ship.getKaihi();
-                // 対潜
-                long taisen = ship.getTaisenMax() - ship.getTaisen();
-                // 索敵
-                long sakuteki = ship.getSakutekiMax() - ship.getSakuteki();
-                // 運
-                long lucky = ship.getLuckyMax() - ship.getLucky();
-
-                for (ItemDto item : ship.getItem()) {
-                    if (item != null) {
-                        karyoku += item.getHoug();
-                        raisou += item.getRaig();
-                        taiku += item.getTyku();
-                        soukou += item.getSouk();
-                        kaihi += item.getHouk();
-                        taisen += item.getTais();
-                        sakuteki += item.getSaku();
-                        lucky += item.getLuck();
-                    }
-                }
-                body.add(new Object[] {
-                        count,
-                        ship.getId(),
-                        ship.getFleetid(),
-                        ship.getName(),
-                        ship.getType(),
-                        ship.getCond(),
-                        ship.getCondClearDateString(),
-                        ship.getLv(),
-                        ship.getNext(),
-                        ship.getExp(),
-                        ship.getSallyArea().getName(),
-                        ship.getSeiku(),
-                        ship.getSlot().get(0),
-                        ship.getSlot().get(1),
-                        ship.getSlot().get(2),
-                        ship.getSlot().get(3),
-                        ship.getSlot().get(5),
-                        ship.getMaxhp(),
-                        karyoku,
-                        raisou,
-                        taiku,
-                        soukou,
-                        kaihi,
-                        taisen,
-                        sakuteki,
-                        lucky,
-                        ship.getAccuracy(),
-                        ship.getHougekiPower(),
-                        ship.getRaigekiPower(),
-                        ship.getTaisenPower(),
-                        ship.getYasenPower()
-                });
-            }
-        }
-        return toListStringArray(body);
+                .sorted(Comparator.comparing(ItemBean::getName))
+                .sorted(Comparator.comparing(ItemBean::getType));
     }
 
     /**

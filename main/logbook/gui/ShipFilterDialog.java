@@ -3,6 +3,8 @@ package logbook.gui;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import logbook.config.ShipGroupConfig;
 import logbook.config.bean.ShipGroupBean;
@@ -39,9 +41,9 @@ public final class ShipFilterDialog extends Dialog {
 
     private Shell shell;
 
-    private final ShipTable shipTable;
+    private final Consumer<ShipFilterDto> update;
 
-    private final ShipFilterDto filter;
+    private final Supplier<ShipFilterDto> supplier;
 
     /** グループ一覧 */
     private final List<ShipGroupBean> groups = ShipGroupConfig.get().getGroup();
@@ -110,13 +112,13 @@ public final class ShipFilterDialog extends Dialog {
      * Create the dialog.
      *
      * @param parent シェル
-     * @param shipTable 呼び出し元
-     * @param filter 初期値
+     * @param updateFunction フィルター適用関数
+     * @param supplier フィルター供給関数
      */
-    public ShipFilterDialog(Shell parent, ShipTable shipTable, ShipFilterDto filter) {
+    public ShipFilterDialog(Shell parent, Consumer<ShipFilterDto> updateFunction, Supplier<ShipFilterDto> supplier) {
         super(parent, SWT.CLOSE | SWT.TITLE | SWT.MIN | SWT.RESIZE);
-        this.shipTable = shipTable;
-        this.filter = filter;
+        this.update = updateFunction;
+        this.supplier = supplier;
     }
 
     /**
@@ -340,67 +342,68 @@ public final class ShipFilterDialog extends Dialog {
         this.notlocked.addSelectionListener(listener);
 
         // 初期値を復元する
-        if (this.filter != null) {
+        ShipFilterDto filter = this.supplier.get();
+        if (filter != null) {
             // 名前
-            if (!StringUtils.isEmpty(this.filter.nametext)) {
-                this.nametext.setText(this.filter.nametext);
+            if (!StringUtils.isEmpty(filter.nametext)) {
+                this.nametext.setText(filter.nametext);
             }
             // 名前.正規表現を使用する
-            this.regexp.setSelection(this.filter.regexp);
+            this.regexp.setSelection(filter.regexp);
 
             // 艦種.駆逐艦
-            setTypeSelection(this.filter, this.destroyer);
+            setTypeSelection(filter, this.destroyer);
             // 艦種.軽巡洋艦
-            setTypeSelection(this.filter, this.lightCruiser);
+            setTypeSelection(filter, this.lightCruiser);
             // 艦種.重雷装巡洋艦
-            setTypeSelection(this.filter, this.torpedoCruiser);
+            setTypeSelection(filter, this.torpedoCruiser);
             // 艦種.重巡洋艦
-            setTypeSelection(this.filter, this.heavyCruiser);
+            setTypeSelection(filter, this.heavyCruiser);
             // 艦種.航空巡洋艦
-            setTypeSelection(this.filter, this.flyingDeckCruiser);
+            setTypeSelection(filter, this.flyingDeckCruiser);
             // 艦種.水上機母艦
-            setTypeSelection(this.filter, this.seaplaneTender);
+            setTypeSelection(filter, this.seaplaneTender);
             // 艦種.軽空母
-            setTypeSelection(this.filter, this.escortCarrier);
+            setTypeSelection(filter, this.escortCarrier);
             // 艦種.正規空母
-            setTypeSelection(this.filter, this.carrier);
+            setTypeSelection(filter, this.carrier);
             // 艦種.戦艦
-            setTypeSelection(this.filter, this.battleship);
+            setTypeSelection(filter, this.battleship);
             // 艦種.航空戦艦
-            setTypeSelection(this.filter, this.flyingDeckBattleship);
+            setTypeSelection(filter, this.flyingDeckBattleship);
             // 艦種.潜水艦
-            setTypeSelection(this.filter, this.submarine);
+            setTypeSelection(filter, this.submarine);
             // 艦種.潜水空母
-            setTypeSelection(this.filter, this.carrierSubmarine);
+            setTypeSelection(filter, this.carrierSubmarine);
             // 艦種.揚陸艦
-            setTypeSelection(this.filter, this.landingship);
+            setTypeSelection(filter, this.landingship);
             // 艦種.装甲空母
-            setTypeSelection(this.filter, this.armoredcarrier);
+            setTypeSelection(filter, this.armoredcarrier);
             // 艦種.工作艦
-            setTypeSelection(this.filter, this.repairship);
+            setTypeSelection(filter, this.repairship);
             // 艦種.潜水母艦
-            setTypeSelection(this.filter, this.submarineTender);
+            setTypeSelection(filter, this.submarineTender);
             // 艦種.練習巡洋艦
-            setTypeSelection(this.filter, this.trainingShip);
+            setTypeSelection(filter, this.trainingShip);
             // 艦種.補給艦
-            setTypeSelection(this.filter, this.supply);
+            setTypeSelection(filter, this.supply);
 
-            if (this.filter.group != null) {
+            if (filter.group != null) {
                 // グループ
-                int idx = this.groups.indexOf(this.filter.group);
+                int idx = this.groups.indexOf(filter.group);
                 if (idx != -1) {
                     this.group.setSelection(true);
                     this.groupcombo.setEnabled(true);
                     this.groupcombo.select(idx);
                 }
             }
-            if (!StringUtils.isEmpty(this.filter.itemname)) {
+            if (!StringUtils.isEmpty(filter.itemname)) {
                 // 装備
                 this.item.setSelection(true);
                 this.itemcombo.setEnabled(true);
                 int index = 0;
                 for (String name : items) {
-                    if (this.filter.itemname.equals(name)) {
+                    if (filter.itemname.equals(name)) {
                         this.itemcombo.select(index);
                         break;
                     }
@@ -408,13 +411,13 @@ public final class ShipFilterDialog extends Dialog {
                 }
             }
             // 艦隊に所属
-            this.onfleet.setSelection(this.filter.onfleet);
+            this.onfleet.setSelection(filter.onfleet);
             // 艦隊に非所属
-            this.notonfleet.setSelection(this.filter.notonfleet);
+            this.notonfleet.setSelection(filter.notonfleet);
             // 鍵付き
-            this.locked.setSelection(this.filter.locked);
+            this.locked.setSelection(filter.locked);
             // 鍵付きではない
-            this.notlocked.setSelection(this.filter.notlocked);
+            this.notlocked.setSelection(filter.notlocked);
         }
         this.nametext.addModifyListener(new ApplyFilterModifyAdapter());
 
@@ -427,7 +430,7 @@ public final class ShipFilterDialog extends Dialog {
      * @return フィルター
      */
     private ShipFilterDto createFilter() {
-        ShipFilterDto filter = this.shipTable.getFilter();
+        ShipFilterDto filter = this.supplier.get();
         filter.nametext = this.nametext.getText();
         filter.regexp = this.regexp.getSelection();
         // 艦種.駆逐艦
@@ -535,7 +538,7 @@ public final class ShipFilterDialog extends Dialog {
             ShipFilterDialog.this.trainingShip.setSelection(select);
             ShipFilterDialog.this.supply.setSelection(select);
 
-            ShipFilterDialog.this.shipTable.updateFilter(ShipFilterDialog.this.createFilter());
+            ShipFilterDialog.this.update.accept(ShipFilterDialog.this.createFilter());
         }
     }
 
@@ -545,7 +548,7 @@ public final class ShipFilterDialog extends Dialog {
     private final class ApplyFilterModifyAdapter implements ModifyListener {
         @Override
         public void modifyText(ModifyEvent e) {
-            ShipFilterDialog.this.shipTable.updateFilter(ShipFilterDialog.this.createFilter());
+            ShipFilterDialog.this.update.accept(ShipFilterDialog.this.createFilter());
         }
     }
 
@@ -555,7 +558,7 @@ public final class ShipFilterDialog extends Dialog {
     private final class ApplyFilterSelectionAdapter extends SelectionAdapter {
         @Override
         public void widgetSelected(SelectionEvent e) {
-            ShipFilterDialog.this.shipTable.updateFilter(ShipFilterDialog.this.createFilter());
+            ShipFilterDialog.this.update.accept(ShipFilterDialog.this.createFilter());
         }
     }
 

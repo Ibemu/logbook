@@ -290,6 +290,16 @@ public final class TableWrapper<T> {
         return this.table;
     }
 
+    /**
+     * カラム名のインデックス位置を取得します
+     *
+     * @param name カラム名
+     * @return インデックス位置
+     */
+    public int getColumnIndex(String name) {
+        return this.property.getNameIndex(name);
+    }
+
     private void setText(int index, TableItem item, String[] text) {
         int shift = 0;
         if (this.visibleIndex) {
@@ -301,7 +311,7 @@ public final class TableWrapper<T> {
     }
 
     private void sort(TableColumn column) {
-        int index = this.property.getNameIndex(column.getText());
+        int index = this.getColumnIndex(column.getText());
         int order;
         if ((this.table.getSortColumn() == column)
                 && (this.table.getSortDirection() == SWT.UP)) {

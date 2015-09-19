@@ -1,11 +1,17 @@
 package logbook.gui;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import logbook.config.ShipGroupConfig;
 import logbook.config.bean.ShipGroupBean;
@@ -16,27 +22,27 @@ import logbook.dto.DeckMissionDto;
 import logbook.dto.NdockDto;
 import logbook.dto.ShipDto;
 import logbook.dto.ShipFilterDto;
-import logbook.gui.logic.CreateReportLogic;
-import logbook.gui.logic.TableItemCreator;
+import logbook.gui.bean.ShipBean;
+import logbook.gui.listener.SelectedListener;
+import logbook.gui.logic.ShipFilterLogic;
+import logbook.gui.logic.TableItemDecorator;
+import logbook.gui.logic.TableWrapper;
 import logbook.internal.ExpTable;
 import logbook.util.SwtUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
@@ -44,257 +50,201 @@ import org.eclipse.wb.swt.SWTResourceManager;
  * 所有艦娘一覧テーブル
  *
  */
-public final class ShipTable extends AbstractTableDialog {
+public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
 
     private static final int GAUGE_WIDTH = 20;
 
     private static final int GAUGE_HEIGHT = 12;
 
-    /** 成長余地 */
-    private boolean specdiff = false;
+    private CTabFolder tabFolder;
 
     /** フィルター */
-    private ShipFilterDto filter = new ShipFilterDto();
+    private final Map<Integer, ShipFilterDto> filters = new HashMap<>();
 
-    /** テーブルの行を作成する */
-    private final TableItemCreator creator = new ShipTableItemCreator();
+    /** グループ */
+    private final List<ShipGroupBean> groups = ShipGroupConfig.get().getGroup();
 
     /** HPゲージのキャッシュ */
-    private final Map<Integer, Image> cacheHpGauge = new HashMap<>();
-
-    /** 経験値ゲージのキャッシュ */
-    private final Map<Integer, Image> cacheExpGauge = new HashMap<>();
-
-    /** 経験値ゲージのキャッシュ */
-    private final Map<Integer, Image> cacheTotalExpGauge = new HashMap<>();
-
-    /**
-     * @param parent
-     */
-    public ShipTable(Shell parent) {
-        super(parent);
-    }
+    private final Map<Integer, Image> cache = new HashMap<>();
 
     /**
      * @param parent
      * @param filter
      */
     public ShipTable(Shell parent, ShipFilterDto filter) {
-        super(parent);
-        this.filter = filter;
+        super(parent, ShipBean.class);
+        this.filters.put(0, filter);
     }
 
     /**
-     * フィルターを設定する
-     * @param filter フィルター
+     * @param parent
      */
-    public void updateFilter(ShipFilterDto filter) {
-        this.filter = filter;
-        this.reloadTable();
-        this.shell.setText(this.getTitle());
+    public ShipTable(Shell parent) {
+        this(parent, new ShipFilterDto());
+    }
+
+    @Override
+    protected String getTitle() {
+        return "所有艦娘一覧";
     }
 
     @Override
     protected void createContents() {
-        // キャッシュの削除
-        this.shell.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                for (Map.Entry<?, Image> entry : ShipTable.this.cacheHpGauge.entrySet()) {
-                    entry.getValue().dispose();
-                }
-                for (Map.Entry<?, Image> entry : ShipTable.this.cacheExpGauge.entrySet()) {
-                    entry.getValue().dispose();
-                }
-                for (Map.Entry<?, Image> entry : ShipTable.this.cacheTotalExpGauge.entrySet()) {
-                    entry.getValue().dispose();
-                }
-            }
-        });
+        // メニューバーのセット
+        this.setMenuBar();
+
+        // イメージ破棄のリスナー
+        this.shell.addDisposeListener(e -> this.cache.forEach((k, v) -> v.dispose()));
+
+        // タブ
+        this.tabFolder = new CTabFolder(this.shell, SWT.BORDER);
+        this.tabFolder.setTabHeight(26);
+        this.tabFolder.setSelectionBackground(Display.getCurrent().getSystemColor(
+                SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+
+        // 全ての艦娘
+        CTabItem tabItem = new CTabItem(this.tabFolder, SWT.NONE);
+        tabItem.setFont(SWTResourceManager.getBoldFont(this.shell.getFont()));
+        tabItem.setText("全ての艦娘");
+
+        Composite composite = new Composite(this.tabFolder, SWT.NONE);
+        tabItem.setControl(composite);
+        composite.setLayout(new FillLayout(SWT.HORIZONTAL));
+
+        TableWrapper<ShipBean> table = this.addTable(composite);
+        table.setContentSupplier(ShipTable::getShipContent)
+                .setFilter(new ShipFilterLogic(this.filters.get(0)))
+                .setDecorator(new ShipTableItemCreator(table, this.cache))
+                .reload()
+                .update();
+        // 右クリックメニューのセット
+        this.setRightClickMenu(table, 0);
+
+        // グループ毎のタブ
+        for (int i = 0; i < this.groups.size(); i++) {
+            ShipGroupBean group = this.groups.get(i);
+
+            ShipFilterDto filter = new ShipFilterDto();
+            filter.group = group;
+            this.filters.put(i + 1, filter);
+
+            CTabItem tabItemSub = new CTabItem(this.tabFolder, SWT.NONE);
+            tabItemSub.setText(group.getName());
+
+            Composite compositeSub = new Composite(this.tabFolder, SWT.NONE);
+            tabItemSub.setControl(compositeSub);
+            compositeSub.setLayout(new FillLayout(SWT.HORIZONTAL));
+
+            table = this.addTable(compositeSub);
+            table.setContentSupplier(ShipTable::getShipContent)
+                    .setFilter(new ShipFilterLogic(filter))
+                    .setDecorator(new ShipTableItemCreator(table, this.cache))
+                    .reload()
+                    .update();
+            // 右クリックメニューのセット
+            this.setRightClickMenu(table, i + 1);
+        }
+    }
+
+    @Override
+    protected TableWrapper<ShipBean> getSelectionTable() {
+        return this.tables.get(this.tabFolder.getSelectionIndex());
+    }
+
+    Supplier<ShipFilterDto> getFilter(int index) {
+        return () -> this.filters.get(index);
+    }
+
+    Consumer<ShipFilterDto> updateFilter(int index) {
+        return filter -> {
+            this.filters.put(index, filter);
+            this.tables.get(index)
+                    .setFilter(new ShipFilterLogic(filter))
+                    .reload()
+                    .update();
+        };
+    }
+
+    /**
+     * メニューバーにメニューを追加する
+     */
+    private void setMenuBar() {
         // メニューバーに追加する
         // フィルターメニュー
         final MenuItem filter = new MenuItem(this.opemenu, SWT.PUSH);
         filter.setText("フィルター(&F)\tCtrl+F");
         filter.setAccelerator(SWT.CTRL + 'F');
-        filter.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                new ShipFilterDialog(ShipTable.this.shell, ShipTable.this, ShipTable.this.filter).open();
-            }
+        filter.addSelectionListener((SelectedListener) (e) -> {
+            int index = ShipTable.this.tabFolder.getSelectionIndex();
+            new ShipFilterDialog(this.shell, this.updateFilter(index), this.getFilter(index)).open();
         });
-        // セパレータ
-        new MenuItem(this.opemenu, SWT.SEPARATOR);
-        // 成長の余地を表示メニュー
-        final MenuItem switchdiff = new MenuItem(this.opemenu, SWT.CHECK);
-        switchdiff.setText("成長の余地を表示");
-        switchdiff.setSelection(this.specdiff);
-        switchdiff.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ShipTable.this.specdiff = switchdiff.getSelection();
-                ShipTable.this.reloadTable();
-            }
-        });
-        // セパレータ
-        new MenuItem(this.tablemenu, SWT.SEPARATOR);
-        // 右クリックメニューに追加する
-        final MenuItem filtertable = new MenuItem(this.tablemenu, SWT.NONE);
-        filtertable.setText("フィルター(&F)");
-        filtertable.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                new ShipFilterDialog(ShipTable.this.shell, ShipTable.this, ShipTable.this.filter).open();
-            }
-        });
-
-        List<ShipGroupBean> groups = ShipGroupConfig.get().getGroup();
-
-        MenuItem groupFilterCascade = new MenuItem(this.tablemenu, SWT.CASCADE);
-        groupFilterCascade.setText("グループフィルター(&G)");
-        Menu groupFilterMenu = new Menu(groupFilterCascade);
-        groupFilterCascade.setMenu(groupFilterMenu);
-        for (ShipGroupBean groupBean : groups) {
-            final MenuItem groupItem = new MenuItem(groupFilterMenu, SWT.NONE);
-            groupItem.setText(groupBean.getName());
-            groupItem.setData(groupBean);
-            groupItem.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    ShipGroupBean bean = (ShipGroupBean) e.widget.getData();
-                    ShipFilterDto filter = ShipTable.this.getFilter();
-                    filter.group = bean;
-                    ShipTable.this.updateFilter(filter);
-                }
-            });
-        }
-        // セパレータ
-        new MenuItem(this.tablemenu, SWT.SEPARATOR);
-
-        MenuItem addGroupCascade = new MenuItem(this.tablemenu, SWT.CASCADE);
-        addGroupCascade.setText("選択した艦娘をグループに追加(&A)");
-        Menu addGroupMenu = new Menu(addGroupCascade);
-        addGroupCascade.setMenu(addGroupMenu);
-        for (ShipGroupBean groupBean : groups) {
-            final MenuItem groupItem = new MenuItem(addGroupMenu, SWT.NONE);
-            groupItem.setText(groupBean.getName());
-            groupItem.setData(groupBean);
-            groupItem.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    TableItem[] tableItems = ShipTable.this.table.getSelection();
-                    if (tableItems.length > 0) {
-                        List<ShipDto> ships = new ArrayList<>();
-                        List<String> name = new ArrayList<>();
-                        for (int i = 0; i < tableItems.length; i++) {
-                            long id = Long.parseLong(tableItems[i].getText(1));
-                            ShipDto ship = ShipContext.get().get(id);
-                            if (ship != null) {
-                                ships.add(ship);
-                                name.add(ship.getName());
-                            }
-                        }
-                        MessageBox box = new MessageBox(ShipTable.this.shell, SWT.YES | SWT.NO
-                                | SWT.ICON_QUESTION);
-                        box.setText("選択した艦娘をグループに追加");
-                        box.setMessage("「" + StringUtils.join(name, ",") + "」をグループに追加しますか？");
-
-                        if (box.open() == SWT.YES) {
-                            ShipGroupBean bean = (ShipGroupBean) e.widget.getData();
-                            for (ShipDto ship : ships) {
-                                bean.getShips().add(ship.getId());
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        MenuItem removeGroupCascade = new MenuItem(this.tablemenu, SWT.CASCADE);
-        removeGroupCascade.setText("選択した艦娘をグループから除去(&D)");
-        Menu removeGroupMenu = new Menu(removeGroupCascade);
-        removeGroupCascade.setMenu(removeGroupMenu);
-        for (ShipGroupBean groupBean : groups) {
-            final MenuItem groupItem = new MenuItem(removeGroupMenu, SWT.NONE);
-            groupItem.setText(groupBean.getName());
-            groupItem.setData(groupBean);
-            groupItem.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    TableItem[] tableItems = ShipTable.this.table.getSelection();
-                    if (tableItems.length > 0) {
-                        List<ShipDto> ships = new ArrayList<>();
-                        List<String> name = new ArrayList<>();
-                        for (int i = 0; i < tableItems.length; i++) {
-                            long id = Long.parseLong(tableItems[i].getText(1));
-                            ShipDto ship = ShipContext.get().get(id);
-                            if (ship != null) {
-                                ships.add(ship);
-                                name.add(ship.getName());
-                            }
-                        }
-                        MessageBox box = new MessageBox(ShipTable.this.shell, SWT.YES | SWT.NO
-                                | SWT.ICON_QUESTION);
-                        box.setText("選択した艦娘をグループから除去");
-                        box.setMessage("「" + StringUtils.join(name, ",") + "」をグループから除去しますか？");
-
-                        if (box.open() == SWT.YES) {
-                            ShipGroupBean bean = (ShipGroupBean) e.widget.getData();
-                            for (ShipDto ship : ships) {
-                                bean.getShips().remove(ship.getId());
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    @Override
-    protected String getTitle() {
-        if ((this.filter != null) && (this.filter.group != null)) {
-            return "所有艦娘一覧 (" + this.filter.group.getName() + ")";
-        }
-        return "所有艦娘一覧";
-    }
-
-    @Override
-    protected Point getSize() {
-        return new Point(600, 350);
-    }
-
-    @Override
-    protected String[] getTableHeader() {
-        return CreateReportLogic.getShipListHeader();
-    }
-
-    @Override
-    protected void updateTableBody() {
-        this.body = CreateReportLogic.getShipListBody(this.specdiff, this.filter);
-    }
-
-    @Override
-    protected TableItemCreator getTableItemCreator() {
-        return this.creator;
-    }
-
-    @Override
-    protected SelectionListener getHeaderSelectionListener() {
-        return new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                if (e.getSource() instanceof TableColumn) {
-                    ShipTable.this.sortTableItems((TableColumn) e.getSource());
-                }
-            }
-        };
     }
 
     /**
-     * フィルターを取得します。
-     * @return フィルター
+     * 右クリックメニューにメニューを追加する
+     *
+     * @param table テーブル
+     * @param index テーブルのインデックス
      */
-    public ShipFilterDto getFilter() {
-        return this.filter;
+    private void setRightClickMenu(TableWrapper<ShipBean> table, int index) {
+        // テーブルメニュー
+        Menu menu = table.getTable().getMenu();
+
+        // セパレータ
+        new MenuItem(menu, SWT.SEPARATOR);
+        // 右クリックメニューに追加する
+        final MenuItem filtertable = new MenuItem(menu, SWT.NONE);
+        filtertable.setText("フィルター(&F)");
+        filtertable.addSelectionListener((SelectedListener) (e) -> {
+            new ShipFilterDialog(this.shell, this.updateFilter(index), this.getFilter(index)).open();
+        });
+        // セパレータ
+        new MenuItem(menu, SWT.SEPARATOR);
+
+        MenuItem addGroupCascade = new MenuItem(menu, SWT.CASCADE);
+        addGroupCascade.setText("選択した艦娘をグループに追加(&A)");
+        Menu addGroupMenu = new Menu(addGroupCascade);
+        addGroupCascade.setMenu(addGroupMenu);
+        for (ShipGroupBean group : this.groups) {
+            MenuItem groupItem = new MenuItem(addGroupMenu, SWT.NONE);
+            groupItem.setText(group.getName());
+            groupItem.addSelectionListener((SelectedListener) (e) -> {
+                ShipBean[] ships = table.getSelection(ShipBean[]::new);
+                if (ships.length > 0) {
+                    List<String> name = Arrays.stream(ships).map(ShipBean::getName).collect(Collectors.toList());
+                    MessageBox box = new MessageBox(this.shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+                    box.setText("選択した艦娘をグループに追加");
+                    box.setMessage("「" + StringUtils.join(name, ",") + "」をグループ「" + group.getName() + "」に追加しますか？");
+                    if (box.open() == SWT.YES) {
+                        for (ShipBean ship : ships) {
+                            group.getShips().add(ship.getId());
+                        }
+                    }
+                }
+            });
+        }
+        MenuItem removeGroupCascade = new MenuItem(menu, SWT.CASCADE);
+        removeGroupCascade.setText("選択した艦娘をグループから除去(&D)");
+        Menu removeGroupMenu = new Menu(removeGroupCascade);
+        removeGroupCascade.setMenu(removeGroupMenu);
+        for (ShipGroupBean group : this.groups) {
+            MenuItem groupItem = new MenuItem(removeGroupMenu, SWT.NONE);
+            groupItem.setText(group.getName());
+            groupItem.addSelectionListener((SelectedListener) (e) -> {
+                ShipBean[] ships = table.getSelection(ShipBean[]::new);
+                if (ships.length > 0) {
+                    List<String> name = Arrays.stream(ships).map(ShipBean::getName).collect(Collectors.toList());
+                    MessageBox box = new MessageBox(this.shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+                    box.setText("選択した艦娘をグループから除去");
+                    box.setMessage("「" + StringUtils.join(name, ",") + "」をグループ「" + group.getName() + "」から除去しますか？");
+                    if (box.open() == SWT.YES) {
+                        for (ShipBean ship : ships) {
+                            group.getShips().remove(ship.getId());
+                        }
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -303,19 +253,18 @@ public final class ShipTable extends AbstractTableDialog {
      * @param ship 艦娘
      * @return ゲージイメージ
      */
-    private Image hpGauge(ShipDto ship) {
+    private static Image hpGauge(ShipDto ship, Map<Integer, Image> cache) {
         // 割合
         float ratio = (float) ship.getNowhp() / (float) ship.getMaxhp();
         // キャッシュのキー (実線の幅)
-        Integer key = (int) (ratio * GAUGE_WIDTH);
-        Image gauge = this.cacheHpGauge.get(key);
+        Integer key = cacheKey(0, (int) (ratio * GAUGE_WIDTH));
+        Image gauge = cache.get(key);
         if (gauge == null) {
-            RGB background = this.table.getBackground().getRGB();
+            RGB background = new RGB(255, 255, 255);
             gauge = SwtUtils.gaugeImage(ratio, GAUGE_WIDTH, GAUGE_HEIGHT,
                     background,
                     AppConstants.HP_EMPTY_COLOR, AppConstants.HP_HALF_COLOR, AppConstants.HP_FULL_COLOR);
-
-            this.cacheHpGauge.put(key, gauge);
+            cache.put(key, gauge);
         }
         return gauge;
     }
@@ -326,18 +275,18 @@ public final class ShipTable extends AbstractTableDialog {
      * @param ship 艦娘
      * @return ゲージイメージ
      */
-    private Image expGauge(ShipDto ship) {
+    private static Image expGauge(ShipDto ship, Map<Integer, Image> cache) {
         // 割合
         float ratio = ship.getExpraito();
-        // キャッシュのキー (実線の幅)
-        Integer key = (int) (ratio * GAUGE_WIDTH);
-        Image gauge = this.cacheExpGauge.get(key);
+        // キャッシュのキー
+        Integer key = cacheKey(1, (int) (ratio * GAUGE_WIDTH));
+        Image gauge = cache.get(key);
         if (gauge == null) {
-            RGB background = this.table.getBackground().getRGB();
+            RGB background = new RGB(255, 255, 255);
             gauge = SwtUtils.gaugeImage(ratio, GAUGE_WIDTH, GAUGE_HEIGHT,
                     background,
                     AppConstants.EXP_COLOR);
-            ShipTable.this.cacheExpGauge.put(key, gauge);
+            cache.put(key, gauge);
         }
         return gauge;
     }
@@ -348,116 +297,156 @@ public final class ShipTable extends AbstractTableDialog {
      * @param ship 艦娘
      * @return ゲージイメージ
      */
-    private Image totalExpGauge(ShipDto ship) {
+    private static Image totalExpGauge(ShipDto ship, Map<Integer, Image> cache) {
         // Max経験値の基準Lv
         int targetLv = ship.getLv() > 100 ? 150 : 100;
         long maxExp = ExpTable.get().get(targetLv);
         // 割合
         float ratio = (float) ship.getExp() / (float) maxExp;
-        // キャッシュのキー (実線の幅) + Max経験値の基準Lv
-        Integer key = (int) (ratio * GAUGE_WIDTH) + targetLv;
-        Image gauge = this.cacheTotalExpGauge.get(key);
+        // キャッシュのキー
+        Integer key = cacheKey(2, (int) (ratio * GAUGE_WIDTH), targetLv);
+        Image gauge = cache.get(key);
         if (gauge == null) {
             // ゲージの色を100以上なら緑、99以下なら青にする
             RGB color = ship.getLv() > 100 ? AppConstants.HP_FULL_COLOR : AppConstants.EXP_COLOR;
-            RGB background = this.table.getBackground().getRGB();
+            RGB background = new RGB(255, 255, 255);
             gauge = SwtUtils.gaugeImage(ratio, GAUGE_WIDTH, GAUGE_HEIGHT,
                     background,
                     color);
-            ShipTable.this.cacheTotalExpGauge.put(key, gauge);
+            cache.put(key, gauge);
         }
         return gauge;
     }
 
     /**
-     * テーブルの行を作成する
+     * キャッシュのキー
      *
+     * @param keys
+     * @return
      */
-    private final class ShipTableItemCreator implements TableItemCreator {
+    private static int cacheKey(int... keys) {
+        return Arrays.hashCode(keys);
+    }
 
-        private Set<Long> deckmissions;
+    /**
+     * 艦娘一覧の内容
+     * @return 内容
+     */
+    private static Stream<ShipBean> getShipContent() {
+        Function<ShipDto, ShipBean> mapper = d -> {
+            ShipBean b = new ShipBean();
+            b.setId(d.getId());
+            b.setFleetid(d.getFleetid());
+            b.setName(d.getName());
+            b.setType(d.getType());
+            b.setCond(d.getCond());
+            b.setCondClearDate(d.getCondClearDateString());
+            b.setLv(d.getLv());
+            b.setNext(d.getNext());
+            b.setExp(d.getExp());
+            b.setSallyArea(d.getSallyArea().getName());
+            b.setSeiku(d.getSeiku());
+            b.setSlot1(d.getSlot().get(0));
+            b.setSlot2(d.getSlot().get(1));
+            b.setSlot3(d.getSlot().get(2));
+            b.setSlot4(d.getSlot().get(3));
+            b.setSlot6(d.getSlot().get(5));
+            b.setHp(d.getMaxhp());
+            b.setKaryoku(d.getKaryoku());
+            b.setRaisou(d.getRaisou());
+            b.setTaiku(d.getTaiku());
+            b.setSoukou(d.getSoukou());
+            b.setKaihi(d.getKaihi());
+            b.setTaisen(d.getTaisen());
+            b.setSakuteki(d.getSakuteki());
+            b.setLucky(d.getLucky());
+            b.setAccuracy(d.getAccuracy());
+            b.setHougekiPower(d.getHougekiPower());
+            b.setRaigekiPower(d.getRaigekiPower());
+            b.setTaisenPower(d.getTaisenPower());
+            b.setYasenPower(d.getYasenPower());
+            b.setShip(d);
+            return b;
+        };
+        return ShipContext.get().values()
+                .stream()
+                .map(mapper)
+                .sorted(Comparator.comparing(ShipBean::getExp).reversed());
+    }
 
-        private Set<Long> docks;
+    /**
+     * テーブルの行を装飾する
+     */
+    private final class ShipTableItemCreator implements TableItemDecorator<ShipBean> {
 
-        @Override
-        public void init() {
-            // 遠征
-            this.deckmissions = new HashSet<Long>();
-            for (DeckMissionDto deckMission : GlobalContext.getDeckMissions()) {
-                if ((deckMission.getMission() != null) && (deckMission.getShips() != null)) {
-                    this.deckmissions.addAll(deckMission.getShips());
-                }
-            }
-            // 入渠
-            this.docks = new HashSet<Long>();
-            for (NdockDto ndock : GlobalContext.getNdocks()) {
-                if (ndock.getNdockid() != 0) {
-                    this.docks.add(ndock.getNdockid());
-                }
-            }
+        private final Set<Long> deckmissions;
+
+        private final Set<Long> ndocks;
+
+        private final Map<Integer, Image> cache;
+
+        private final int indexHp;
+        private final int indexNext;
+        private final int indexExp;
+
+        public ShipTableItemCreator(TableWrapper<ShipBean> table, Map<Integer, Image> cache) {
+            // 遠征中の艦娘たち
+            this.deckmissions = Stream.of(GlobalContext.getDeckMissions())
+                    .filter(e -> (e.getMission() != null) && (e.getShips() != null))
+                    .map(DeckMissionDto::getShips)
+                    .collect(HashSet<Long>::new, Set<Long>::addAll, Set<Long>::addAll);
+            // 入渠中の艦娘たち
+            this.ndocks = Stream.of(GlobalContext.getNdocks())
+                    .filter(e -> e.getNdockid() != 0)
+                    .map(NdockDto::getNdockid)
+                    .collect(Collectors.toSet());
+            this.cache = cache;
+            this.indexHp = table.getColumnIndex("HP") + 1;
+            this.indexNext = table.getColumnIndex("Next") + 1;
+            this.indexExp = table.getColumnIndex("経験値") + 1;
         }
 
         @Override
-        public TableItem create(Table table, String[] text, int count) {
-            TableItem item = new TableItem(table, SWT.NONE);
-            item.setText(text);
-            this.update(item, text, count);
-            return item;
-        }
-
-        /* (非 Javadoc)
-         * @see logbook.gui.logic.TableItemCreator#update(org.eclipse.swt.widgets.TableItem, java.lang.String[], int)
-         */
-        @Override
-        public TableItem update(TableItem item, String[] text, int count) {
-
-            // 艦娘
-            Long id = Long.valueOf(text[1]);
-            ShipDto ship = ShipContext.get().get(id);
-
+        public void update(TableItem item, ShipBean bean, int index) {
             // 偶数行に背景色を付ける
-            if ((count % 2) != 0) {
+            if ((index % 2) != 0) {
                 item.setBackground(SWTResourceManager.getColor(AppConstants.ROW_BACKGROUND));
             } else {
                 item.setBackground(null);
             }
-            if (ship != null) {
+            ShipDto ship = bean.getShip();
+            long cond = ship.getCond();
+
+            if (!ship.getLocked()) {
+                // 鍵付きでは無い艦娘をグレー色にする
+                item.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GRAY));
+            } else if (this.ndocks.contains(ship.getId())) {
+                // 入渠
+                item.setForeground(SWTResourceManager.getColor(AppConstants.NDOCK_COLOR));
+            } else if (this.deckmissions.contains(ship.getId())) {
+                // 遠征
+                item.setForeground(SWTResourceManager.getColor(AppConstants.MISSION_COLOR));
+            } else if (cond <= AppConstants.COND_RED) {
+                // 赤疲労
+                item.setForeground(SWTResourceManager.getColor(AppConstants.COND_RED_COLOR));
+            } else if (cond <= AppConstants.COND_ORANGE) {
                 // 疲労
-                int cond = (int) ship.getCond();
-
-                if (!ship.getLocked()) {
-                    // 鍵付きでは無い艦娘をグレー色にする
-                    item.setForeground(SWTResourceManager.getColor(SWT.COLOR_DARK_GRAY));
-                } else if (this.docks.contains(id)) {
-                    // 入渠
-                    item.setForeground(SWTResourceManager.getColor(AppConstants.NDOCK_COLOR));
-                } else if (this.deckmissions.contains(id)) {
-                    // 遠征
-                    item.setForeground(SWTResourceManager.getColor(AppConstants.MISSION_COLOR));
-                } else if (cond <= AppConstants.COND_RED) {
-                    // 赤疲労
-                    item.setForeground(SWTResourceManager.getColor(AppConstants.COND_RED_COLOR));
-                } else if (cond <= AppConstants.COND_ORANGE) {
-                    // 疲労
-                    item.setForeground(SWTResourceManager.getColor(AppConstants.COND_ORANGE_COLOR));
-                } else if ((cond >= AppConstants.COND_DARK_GREEN) && (cond < AppConstants.COND_GREEN)) {
-                    // cond.50-52
-                    item.setForeground(SWTResourceManager.getColor(AppConstants.COND_DARK_GREEN_COLOR));
-                } else if (cond >= AppConstants.COND_GREEN) {
-                    // cond.53-
-                    item.setForeground(SWTResourceManager.getColor(AppConstants.COND_GREEN_COLOR));
-                } else {
-                    item.setForeground(null);
-                }
-
-                // HPのゲージイメージ
-                item.setImage(17, ShipTable.this.hpGauge(ship));
-                // 次のLvまでの経験値のゲージ
-                item.setImage(8, ShipTable.this.expGauge(ship));
-                // 経験値のゲージイメージ
-                item.setImage(9, ShipTable.this.totalExpGauge(ship));
+                item.setForeground(SWTResourceManager.getColor(AppConstants.COND_ORANGE_COLOR));
+            } else if ((cond >= AppConstants.COND_DARK_GREEN) && (cond < AppConstants.COND_GREEN)) {
+                // cond.50-52
+                item.setForeground(SWTResourceManager.getColor(AppConstants.COND_DARK_GREEN_COLOR));
+            } else if (cond >= AppConstants.COND_GREEN) {
+                // cond.53-
+                item.setForeground(SWTResourceManager.getColor(AppConstants.COND_GREEN_COLOR));
+            } else {
+                item.setForeground(null);
             }
-            return item;
+            // HPのゲージイメージ
+            item.setImage(this.indexHp, ShipTable.hpGauge(ship, this.cache));
+            // 次のLvまでの経験値のゲージ
+            item.setImage(this.indexNext, ShipTable.expGauge(ship, this.cache));
+            // 経験値のゲージイメージ
+            item.setImage(this.indexExp, ShipTable.totalExpGauge(ship, this.cache));
         }
     }
 }

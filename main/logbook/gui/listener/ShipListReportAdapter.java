@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /**
  * 所有艦娘一覧ボタンのリスナー
- * 
+ *
  */
 public final class ShipListReportAdapter extends AbstractReportAdapter {
 
