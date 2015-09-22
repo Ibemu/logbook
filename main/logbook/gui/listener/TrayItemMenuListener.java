@@ -12,14 +12,20 @@ import logbook.dto.DeckMissionDto;
 import logbook.dto.NdockDto;
 import logbook.dto.ShipDto;
 import logbook.gui.BattleAggDialog;
+import logbook.gui.CalcExpDialog;
+import logbook.gui.ConfigDialog;
+import logbook.gui.CreateItemReportTable;
+import logbook.gui.CreateShipReportTable;
+import logbook.gui.DropReportTable;
+import logbook.gui.ItemTable;
+import logbook.gui.MissionResultTable;
 import logbook.gui.ResourceChartDialogEx;
+import logbook.gui.ShipTable;
 import logbook.gui.logic.TimeLogic;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuDetectEvent;
 import org.eclipse.swt.events.MenuDetectListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -42,7 +48,7 @@ public final class TrayItemMenuListener implements MenuDetectListener {
     }
 
     @Override
-    public void menuDetected(MenuDetectEvent e) {
+    public void menuDetected(MenuDetectEvent ev) {
         // メニュー
         if (this.menu != null) {
             this.menu.dispose();
@@ -60,11 +66,11 @@ public final class TrayItemMenuListener implements MenuDetectListener {
         // 所有装備一覧
         MenuItem itemlist = new MenuItem(this.menu, SWT.NONE);
         itemlist.setText("所有装備一覧(&I) (" + itemCount + "/" + itemMax + ")");
-        itemlist.addSelectionListener(new ItemListReportAdapter(this.shell));
+        itemlist.addSelectionListener((SelectedListener) e -> new ItemTable(this.shell).open());
         // 所有艦娘一覧
         MenuItem shiplist = new MenuItem(this.menu, SWT.NONE);
         shiplist.setText("所有艦娘一覧(&S) (" + shipCount + "/" + shipMax + ")");
-        shiplist.addSelectionListener(new ShipListReportAdapter(this.shell));
+        shiplist.addSelectionListener((SelectedListener) e -> new ShipTable(this.shell).open());
         new MenuItem(this.menu, SWT.SEPARATOR);
 
         // 報告書
@@ -75,19 +81,19 @@ public final class TrayItemMenuListener implements MenuDetectListener {
         // 報告書-ドロップ報告書
         MenuItem drop = new MenuItem(reportMenu, SWT.NONE);
         drop.setText("ドロップ報告書(&D)");
-        drop.addSelectionListener(new DropReportAdapter(this.shell));
+        drop.addSelectionListener((SelectedListener) e -> new DropReportTable(this.shell).open());
         // 報告書-建造報告書
         MenuItem createship = new MenuItem(reportMenu, SWT.NONE);
         createship.setText("建造報告書(&B)");
-        createship.addSelectionListener(new CreateShipReportAdapter(this.shell));
+        createship.addSelectionListener((SelectedListener) e -> new CreateShipReportTable(this.shell).open());
         // 報告書-開発報告書
         MenuItem createitem = new MenuItem(reportMenu, SWT.NONE);
         createitem.setText("開発報告書(&E)");
-        createitem.addSelectionListener(new CreateItemReportAdapter(this.shell));
+        createitem.addSelectionListener((SelectedListener) e -> new CreateItemReportTable(this.shell).open());
         // 報告書-遠征報告書
         MenuItem missionresult = new MenuItem(reportMenu, SWT.NONE);
         missionresult.setText("遠征報告書(&T)");
-        missionresult.addSelectionListener(new MissionResultReportAdapter(this.shell));
+        missionresult.addSelectionListener((SelectedListener) e -> new MissionResultTable(this.shell).open());
 
         // 統計
         MenuItem calcItem = new MenuItem(this.menu, SWT.CASCADE);
@@ -97,7 +103,7 @@ public final class TrayItemMenuListener implements MenuDetectListener {
         // 経験値計算
         MenuItem calcexp = new MenuItem(calcMenu, SWT.NONE);
         calcexp.setText("経験値計算機(&C)");
-        calcexp.addSelectionListener(new CalcExpAdapter(this.shell));
+        calcexp.addSelectionListener((SelectedListener) e -> new CalcExpDialog(this.shell).open());
 
         // 統計
         MenuItem statItem = new MenuItem(this.menu, SWT.CASCADE);
@@ -107,21 +113,11 @@ public final class TrayItemMenuListener implements MenuDetectListener {
         // 資材チャート
         MenuItem resourceChart = new MenuItem(statMenu, SWT.NONE);
         resourceChart.setText("資材チャート(&R)");
-        resourceChart.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                new ResourceChartDialogEx(TrayItemMenuListener.this.shell).open();
-            }
-        });
+        resourceChart.addSelectionListener((SelectedListener) e -> new ResourceChartDialogEx(this.shell).open());
         // 出撃統計
         MenuItem battleCounter = new MenuItem(statMenu, SWT.NONE);
         battleCounter.setText("出撃統計(&A)");
-        battleCounter.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                new BattleAggDialog(TrayItemMenuListener.this.shell).open();
-            }
-        });
+        battleCounter.addSelectionListener((SelectedListener) e -> new BattleAggDialog(this.shell).open());
         new MenuItem(this.menu, SWT.SEPARATOR);
         // 遠征
         MenuItem missionItem = new MenuItem(this.menu, SWT.CASCADE);
@@ -166,16 +162,11 @@ public final class TrayItemMenuListener implements MenuDetectListener {
         // 設定
         MenuItem config = new MenuItem(this.menu, SWT.NONE);
         config.setText("設定(&P)");
-        config.addSelectionListener(new ConfigDialogAdapter(this.shell));
+        config.addSelectionListener((SelectedListener) e -> new ConfigDialog(this.shell).open());
         // 終了
         final MenuItem dispose = new MenuItem(this.menu, SWT.NONE);
         dispose.setText("終了(&X)");
-        dispose.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                TrayItemMenuListener.this.shell.close();
-            }
-        });
+        dispose.addSelectionListener((SelectedListener) e -> this.shell.close());
         this.menu.setVisible(true);
     }
 
