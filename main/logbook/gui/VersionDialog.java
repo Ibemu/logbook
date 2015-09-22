@@ -3,13 +3,12 @@ package logbook.gui;
 import java.awt.Desktop;
 
 import logbook.constants.AppConstants;
+import logbook.gui.listener.SelectedListener;
 import logbook.server.proxy.Filter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -71,13 +70,10 @@ public final class VersionDialog extends Dialog {
         Link gowebsite = new Link(versionGroup, SWT.NONE);
         gowebsite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL, SWT.CENTER, false, false, 2, 1));
         gowebsite.setText("<a>クリックするとウェブサイトに移動します</a>");
-        gowebsite.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                try {
-                    Desktop.getDesktop().browse(AppConstants.HOME_PAGE_URI);
-                } catch (Exception e) {
-                }
+        gowebsite.addSelectionListener((SelectedListener) e -> {
+            try {
+                Desktop.getDesktop().browse(AppConstants.HOME_PAGE_URI);
+            } catch (Exception ex) {
             }
         });
 

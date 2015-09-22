@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import logbook.config.AppConfig;
 import logbook.config.ChartStylesheet;
+import logbook.gui.listener.SelectedListener;
 import logbook.gui.logic.LayoutLogic;
 import logbook.gui.widgets.CaptureConfigComposite;
 import logbook.gui.widgets.ChartConfigComposite;
@@ -186,44 +187,36 @@ public final class ConfigDialog extends Dialog {
         Button applyBtn = new Button(commandRight, SWT.NONE);
         applyBtn.setLayoutData(new RowData(100, SWT.DEFAULT));
         applyBtn.setText("OK");
-        applyBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                // 設定の保存アクション
+        applyBtn.addSelectionListener((SelectedListener) e -> {
+            // 設定の保存アクション
 
-                // system
-                compositeSystem.setConfig(AppConfig.get());
-                // fleettab
-                compositeFleetTab.setConfig(AppConfig.get());
-                // notify
-                compositeNotify.setConfig(AppConfig.get());
-                // capture
-                compositeCapture.setConfig(AppConfig.get());
-                // チャート
-                compositeChart.setConfig(AppConfig.get());
-                // proxy
-                compositeProxy.setConfig(AppConfig.get());
-                // ユーザースクリプト
-                userScriptComposite.setConfig(AppConfig.get());
-                try {
-                    AppConfig.store();
-                    ChartStylesheet.store();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-                ConfigDialog.this.shell.close();
+            // system
+            compositeSystem.setConfig(AppConfig.get());
+            // fleettab
+            compositeFleetTab.setConfig(AppConfig.get());
+            // notify
+            compositeNotify.setConfig(AppConfig.get());
+            // capture
+            compositeCapture.setConfig(AppConfig.get());
+            // チャート
+            compositeChart.setConfig(AppConfig.get());
+            // proxy
+            compositeProxy.setConfig(AppConfig.get());
+            // ユーザースクリプト
+            userScriptComposite.setConfig(AppConfig.get());
+            try {
+                AppConfig.store();
+                ChartStylesheet.store();
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
+            this.shell.close();
         });
 
         Button cancelBtn = new Button(commandRight, SWT.NONE);
         cancelBtn.setLayoutData(new RowData(100, SWT.DEFAULT));
         cancelBtn.setText("キャンセル");
-        cancelBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ConfigDialog.this.shell.close();
-            }
-        });
+        cancelBtn.addSelectionListener((SelectedListener) e -> this.shell.close());
 
         for (Entry<String, Composite> entry : this.compositeMap.entrySet()) {
             LayoutLogic.hide(entry.getValue(), true);

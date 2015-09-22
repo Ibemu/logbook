@@ -2,11 +2,10 @@ package logbook.gui;
 
 import logbook.data.context.GlobalContext;
 import logbook.gui.bean.QuestBean;
+import logbook.gui.listener.SelectedListener;
 import logbook.gui.logic.CreateReportLogic;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
@@ -33,12 +32,9 @@ public final class QuestTable extends AbstractTableDialogEx<QuestBean> {
         // 任務をリセット
         final MenuItem reset = new MenuItem(this.opemenu, SWT.NONE);
         reset.setText("任務をリセット");
-        reset.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                GlobalContext.getQuest().clear();
-                QuestTable.this.getSelectionTable().reload().update();
-            }
+        reset.addSelectionListener((SelectedListener) e -> {
+            GlobalContext.getQuest().clear();
+            this.getSelectionTable().reload().update();
         });
     }
 

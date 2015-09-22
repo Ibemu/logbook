@@ -34,6 +34,7 @@ import javafx.util.StringConverter;
 import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
 import logbook.gui.listener.SaveWindowLocationAdapter;
+import logbook.gui.listener.SelectedListener;
 import logbook.gui.logic.CreateReportLogic;
 import logbook.gui.logic.LayoutLogic;
 import logbook.util.ImageWriter;
@@ -43,8 +44,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
@@ -172,32 +171,19 @@ public final class ResourceChartDialogEx extends Dialog {
                         .toArray(String[]::new)
                 );
         this.combo.select(2);
-        this.combo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.setRange();
-                ResourceChartDialogEx.this.reload();
-            }
+        this.combo.addSelectionListener((SelectedListener) e -> {
+            this.setRange();
+            this.reload();
         });
 
         Label label2 = new Label(rangeComposite, SWT.NONE);
         label2.setText("開始");
         this.dateTimeFrom = new DateTime(rangeComposite, SWT.BORDER | SWT.DROP_DOWN);
-        this.dateTimeFrom.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.reload();
-            }
-        });
+        this.dateTimeFrom.addSelectionListener((SelectedListener) e -> this.reload());
         Label label3 = new Label(rangeComposite, SWT.NONE);
         label3.setText("終了");
         this.dateTimeTo = new DateTime(rangeComposite, SWT.BORDER | SWT.DROP_DOWN);
-        this.dateTimeTo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.reload();
-            }
-        });
+        this.dateTimeTo.addSelectionListener((SelectedListener) e -> this.reload());
 
         Composite checkComposite = new Composite(mainComposite, SWT.NONE);
         checkComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -206,72 +192,33 @@ public final class ResourceChartDialogEx extends Dialog {
         this.fuelBtn = new Button(checkComposite, SWT.CHECK);
         this.fuelBtn.setText("燃料");
         this.fuelBtn.setSelection(true);
-        this.fuelBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.reload();
-            }
-        });
+        this.fuelBtn.addSelectionListener((SelectedListener) e -> this.reload());
         this.ammoBtn = new Button(checkComposite, SWT.CHECK);
         this.ammoBtn.setText("弾薬");
         this.ammoBtn.setSelection(true);
-        this.ammoBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.reload();
-            }
-        });
+        this.ammoBtn.addSelectionListener((SelectedListener) e -> this.reload());
         this.metalBtn = new Button(checkComposite, SWT.CHECK);
         this.metalBtn.setText("鋼材");
         this.metalBtn.setSelection(true);
-        this.metalBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.reload();
-            }
-        });
+        this.metalBtn.addSelectionListener((SelectedListener) e -> this.reload());
         this.bauxiteBtn = new Button(checkComposite, SWT.CHECK);
         this.bauxiteBtn.setText("ボーキ");
         this.bauxiteBtn.setSelection(true);
-        this.bauxiteBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.reload();
-            }
-        });
+        this.bauxiteBtn.addSelectionListener((SelectedListener) e -> this.reload());
         this.bucketBtn = new Button(checkComposite, SWT.CHECK);
         this.bucketBtn.setText("高速修復材");
-        this.bucketBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.reload();
-            }
-        });
+        this.bucketBtn.addSelectionListener((SelectedListener) e -> this.reload());
         this.burnerBtn = new Button(checkComposite, SWT.CHECK);
         this.burnerBtn.setText("高速建造材");
-        this.burnerBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.reload();
-            }
-        });
+        this.burnerBtn.addSelectionListener((SelectedListener) e -> this.reload());
         this.researchBtn = new Button(checkComposite, SWT.CHECK);
         this.researchBtn.setText("開発資材");
-        this.researchBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.reload();
-            }
-        });
+        this.researchBtn.addSelectionListener((SelectedListener) e -> this.reload());
         this.forceZeroBtn = new Button(checkComposite, SWT.CHECK);
         this.forceZeroBtn.setText("ゼロを基準");
-        this.forceZeroBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                ResourceChartDialogEx.this.yaxis.setForceZeroInRange(ResourceChartDialogEx.this.forceZeroBtn
-                        .getSelection());
-                ResourceChartDialogEx.this.reload();
-            }
+        this.forceZeroBtn.addSelectionListener((SelectedListener) e -> {
+            this.yaxis.setForceZeroInRange(this.forceZeroBtn.getSelection());
+            this.reload();
         });
 
         try {
@@ -304,32 +251,29 @@ public final class ResourceChartDialogEx extends Dialog {
             Menu menu = new Menu(this.fxCanvas);
             this.fxCanvas.setMenu(menu);
             MenuItem saveimage = new MenuItem(menu, SWT.NONE);
-            saveimage.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent paramSelectionEvent) {
-                    try {
-                        FileDialog dialog = new FileDialog(ResourceChartDialogEx.this.shell, SWT.SAVE);
-                        dialog.setFileName("資材チャート.png");
-                        dialog.setFilterExtensions(new String[] { "*.png" });
-                        String filename = dialog.open();
-                        if (filename != null) {
-                            Path path = Paths.get(filename);
-                            if (Files.exists(path)) {
-                                MessageBox messageBox = new MessageBox(ResourceChartDialogEx.this.shell, SWT.YES
-                                        | SWT.NO);
-                                messageBox.setText("確認");
-                                messageBox.setMessage("指定されたファイルは存在します。\n上書きしますか？");
-                                if (messageBox.open() == SWT.NO) {
-                                    return;
-                                }
+            saveimage.addSelectionListener((SelectedListener) e -> {
+                try {
+                    FileDialog dialog = new FileDialog(this.shell, SWT.SAVE);
+                    dialog.setFileName("資材チャート.png");
+                    dialog.setFilterExtensions(new String[] { "*.png" });
+                    String filename = dialog.open();
+                    if (filename != null) {
+                        Path path = Paths.get(filename);
+                        if (Files.exists(path)) {
+                            MessageBox messageBox = new MessageBox(this.shell, SWT.YES
+                                    | SWT.NO);
+                            messageBox.setText("確認");
+                            messageBox.setMessage("指定されたファイルは存在します。\n上書きしますか？");
+                            if (messageBox.open() == SWT.NO) {
+                                return;
                             }
-                            new ImageWriter(path)
-                                    .format(SWT.IMAGE_PNG)
-                                    .write(ResourceChartDialogEx.this.fxCanvas);
                         }
-                    } catch (IOException ex) {
-                        LoggerHolder.LOG.warn("資材チャートのイメージを作成中に例外が発生しました", ex);
+                        new ImageWriter(path)
+                                .format(SWT.IMAGE_PNG)
+                                .write(this.fxCanvas);
                     }
+                } catch (IOException ex) {
+                    LoggerHolder.LOG.warn("資材チャートのイメージを作成中に例外が発生しました", ex);
                 }
             });
             saveimage.setText("画像ファイルとして保存");

@@ -16,6 +16,7 @@ import logbook.constants.AppConstants;
 import logbook.dto.BattleAggDetailsDto;
 import logbook.dto.BattleAggUnitDto;
 import logbook.gui.listener.SaveWindowLocationAdapter;
+import logbook.gui.listener.SelectedListener;
 import logbook.gui.listener.TreeKeyShortcutAdapter;
 import logbook.gui.listener.TreeToClipboardAdapter;
 import logbook.gui.logic.LayoutLogic;
@@ -25,8 +26,6 @@ import logbook.internal.BattleAggUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Dialog;
@@ -117,7 +116,7 @@ public class BattleAggDialog extends Dialog {
         MenuItem reload = new MenuItem(this.opemenu, SWT.NONE);
         reload.setText("再読み込み(&R)\tF5");
         reload.setAccelerator(SWT.F5);
-        reload.addSelectionListener(new TableReloadAdapter());
+        reload.addSelectionListener((SelectedListener) e -> this.reloadTable());
         // テーブル右クリックメニュー
         this.tablemenu = new Menu(this.tree);
         this.tree.setMenu(this.tablemenu);
@@ -126,7 +125,7 @@ public class BattleAggDialog extends Dialog {
         sendclipbord.setText("クリップボードにコピー(&C)");
         MenuItem reloadtable = new MenuItem(this.tablemenu, SWT.NONE);
         reloadtable.setText("再読み込み(&R)");
-        reloadtable.addSelectionListener(new TableReloadAdapter());
+        reloadtable.addSelectionListener((SelectedListener) e -> this.reloadTable());
 
         this.setTableHeader();
         this.reloadTable();
@@ -286,16 +285,6 @@ public class BattleAggDialog extends Dialog {
                 to.put(unit, aggUnit);
             }
             aggUnit.add(result.area, result.rank, result.isStart, result.isBoss);
-        }
-    }
-
-    /**
-     * テーブルを再読み込みするリスナーです
-     */
-    protected class TableReloadAdapter extends SelectionAdapter {
-        @Override
-        public void widgetSelected(SelectionEvent e) {
-            BattleAggDialog.this.reloadTable();
         }
     }
 

@@ -19,6 +19,7 @@ import javax.imageio.stream.ImageOutputStream;
 
 import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
+import logbook.gui.listener.SelectedListener;
 import logbook.gui.logic.LayoutLogic;
 import logbook.util.AwtUtils;
 
@@ -147,12 +148,8 @@ public final class CaptureDialog extends Dialog {
 
         // 周期設定
         this.interval = new Button(this.composite, SWT.CHECK);
-        this.interval.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                CaptureDialog.this.capture.setText(getCaptureButtonText(false,
-                        CaptureDialog.this.interval.getSelection()));
-            }
+        this.interval.addSelectionListener((SelectedListener) e -> {
+            this.capture.setText(getCaptureButtonText(false, this.interval.getSelection()));
         });
         this.interval.setText("周期");
 

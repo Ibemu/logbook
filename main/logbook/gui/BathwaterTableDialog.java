@@ -50,14 +50,13 @@ public final class BathwaterTableDialog extends AbstractTableDialogEx<BathwaterB
                 .filter(e -> e.getNdockid() != 0)
                 .map(e -> e.getNdockid())
                 .collect(Collectors.toSet());
-        // 時間でソート
-        Comparator<ShipDto> comparator = (o1, o2) -> Long.compare(o1.getDocktime(), o2.getDocktime());
 
         return ShipContext.get().values()
                 .stream()
                 .filter(e -> e.getDocktime() > 0)
                 .filter(e -> !docks.contains(e.getId()))
-                .sorted(comparator.reversed())
+                // 時間でソート
+                .sorted(Comparator.comparing(ShipDto::getDocktime).reversed())
                 .map(BathwaterBean::toBean);
     }
 }
