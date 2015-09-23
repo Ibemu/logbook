@@ -270,28 +270,6 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
     }
 
     /**
-     * 次のLvまでの経験値のゲージイメージを作成します
-     *
-     * @param ship 艦娘
-     * @return ゲージイメージ
-     */
-    private static Image expGauge(ShipDto ship, Map<Integer, Image> cache) {
-        // 割合
-        float ratio = ship.getExpraito();
-        // キャッシュのキー
-        Integer key = cacheKey(1, (int) (ratio * GAUGE_WIDTH));
-        Image gauge = cache.get(key);
-        if (gauge == null) {
-            RGB background = new RGB(255, 255, 255);
-            gauge = SwtUtils.gaugeImage(ratio, GAUGE_WIDTH, GAUGE_HEIGHT,
-                    background,
-                    AppConstants.EXP_COLOR);
-            cache.put(key, gauge);
-        }
-        return gauge;
-    }
-
-    /**
      * 経験値のゲージイメージを作成します
      *
      * @param ship 艦娘
@@ -386,7 +364,6 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
         private final Map<Integer, Image> cache;
 
         private final int indexHp;
-        private final int indexNext;
         private final int indexExp;
 
         public ShipTableItemCreator(TableWrapper<ShipBean> table, Map<Integer, Image> cache) {
@@ -402,7 +379,6 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
                     .collect(Collectors.toSet());
             this.cache = cache;
             this.indexHp = table.getColumnIndex("HP") + 1;
-            this.indexNext = table.getColumnIndex("Next") + 1;
             this.indexExp = table.getColumnIndex("経験値") + 1;
         }
 
@@ -443,8 +419,6 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
             }
             // HPのゲージイメージ
             item.setImage(this.indexHp, ShipTable.hpGauge(ship, this.cache));
-            // 次のLvまでの経験値のゲージ
-            item.setImage(this.indexNext, ShipTable.expGauge(ship, this.cache));
             // 経験値のゲージイメージ
             item.setImage(this.indexExp, ShipTable.totalExpGauge(ship, this.cache));
         }
