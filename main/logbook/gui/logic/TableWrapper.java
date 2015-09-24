@@ -223,7 +223,7 @@ public final class TableWrapper<T> {
         TableColumn[] columns = this.table.getColumns();
         // 列の表示・非表示設定のサイズがカラム数と異なっている場合は破棄する
         if ((visibles != null) && (visibles.length != columns.length)) {
-            AppConfig.get().getVisibleColumnMap().remove(this.getClass().getName());
+            AppConfig.get().getVisibleColumnMap().remove(this.dialogClass.getName());
             visibles = null;
         }
         for (int i = 0; i < columns.length; i++) {
