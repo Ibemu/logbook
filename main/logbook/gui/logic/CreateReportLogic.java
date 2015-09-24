@@ -15,6 +15,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import logbook.config.QuestConfig;
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
 import logbook.data.context.ItemContext;
@@ -262,6 +263,39 @@ public final class CreateReportLogic {
             b.setAmmo(e.getAmmo());
             b.setMetal(e.getMetal());
             b.setBauxite(e.getBauxite());
+            logbook.config.bean.QuestBean bean = QuestConfig.get(e.getNo());
+            if (bean == null)
+                bean = new logbook.config.bean.QuestBean();
+            String due = "";
+            if (bean.getDue() != null)
+                due = new SimpleDateFormat(AppConstants.DATE_FORMAT).format(bean.getDue());
+            b.setDue(due);
+            b.setSortie(bean.getSortie().size());
+            b.setBattleWin(bean.getBattleWin().size());
+            b.setBattleWinS(bean.getBattleWinS().size());
+            b.setBossArrive(bean.getBossArrive().size());
+            b.setBossWin(bean.getBossWin().size());
+            b.setBoss1_4WinS(bean.getBoss1_4WinS().size());
+            b.setBoss1_5WinA(bean.getBoss1_5WinA().size());
+            b.setBoss2Win(bean.getBoss2Win().size());
+            b.setBoss3_3pWin(bean.getBoss3_3pWin().size());
+            b.setBoss4Win(bean.getBoss4Win().size());
+            b.setBoss4_4Win(bean.getBoss4_4Win().size());
+            b.setBoss5_2WinS(bean.getBoss5_2WinS().size());
+            b.setBoss6_1WinS(bean.getBoss6_1WinS().size());
+            b.setDefeatAP(bean.getDefeatAP().size());
+            b.setDefeatCV(bean.getDefeatCV().size());
+            b.setDefeatSS(bean.getDefeatSS().size());
+            b.setPractice(bean.getPractice().size());
+            b.setPracticeWin(bean.getPracticeWin().size());
+            b.setMissionSuccess(bean.getMissionSuccess().size());
+            b.setCreateShip(bean.getCreateShip().size());
+            b.setCreateItem(bean.getCreateItem().size());
+            b.setDestroyShip(bean.getDestroyShip().size());
+            b.setDestroyItem(bean.getDestroyItem().size());
+            b.setCharge(bean.getCharge().size());
+            b.setRepair(bean.getRepair().size());
+            b.setPowerUp(bean.getPowerUp().size());
             return b;
         };
         return GlobalContext.getQuest().values()

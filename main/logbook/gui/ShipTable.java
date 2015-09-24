@@ -329,7 +329,17 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
             b.setSlot3(d.getSlot().get(2));
             b.setSlot4(d.getSlot().get(3));
             b.setSlot6(d.getSlot().get(5));
-            b.setHp(d.getMaxhp());
+            b.setNowHp(d.getNowhp());
+            b.setMaxHp(d.getMaxhp());
+            if (d.isBadlyDamage()) {
+                b.setState("大破");
+            } else if (d.isHalfDamage()) {
+                b.setState("中破");
+            } else if (d.isSlightDamage()) {
+                b.setState("小破");
+            } else {
+                b.setState("");
+            }
             b.setKaryoku(d.getKaryoku());
             b.setRaisou(d.getRaisou());
             b.setTaiku(d.getTaiku());

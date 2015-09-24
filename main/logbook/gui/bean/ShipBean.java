@@ -73,9 +73,17 @@ public class ShipBean {
     @Name("補強増設")
     private String slot6;
 
-    /** HP */
-    @Name("HP")
-    private Long hp;
+    /** 現在HP */
+    @Name("現在HP")
+    private Long nowHp;
+
+    /** 最大HP */
+    @Name("最大HP")
+    private Long maxHp;
+
+    /** 状態 */
+    @Name("状態")
+    private String state;
 
     /** 火力 */
     @Name("火力")
@@ -389,19 +397,51 @@ public class ShipBean {
     }
 
     /**
-     * HPを取得します。
-     * @return HP
+     * 現在HPを取得します。
+     * @return 現在HP
      */
-    public Long getHp() {
-        return this.hp;
+    public Long getNowHp() {
+        return this.nowHp;
     }
 
     /**
-     * HPを設定します。
-     * @param hp HP
+     * 現在HPを設定します。
+     * @param nowHp 現在HP
      */
-    public void setHp(Long hp) {
-        this.hp = hp;
+    public void setNowHp(Long nowHp) {
+        this.nowHp = nowHp;
+    }
+
+    /**
+     * 最大HPを取得します。
+     * @return 最大HP
+     */
+    public Long getMaxHp() {
+        return this.maxHp;
+    }
+
+    /**
+     * 最大HPを設定します。
+     * @param maxHp 最大HP
+     */
+    public void setMaxHp(Long maxHp) {
+        this.maxHp = maxHp;
+    }
+
+    /**
+     * 状態を取得します。
+     * @return 状態
+     */
+    public String getState() {
+        return this.state;
+    }
+
+    /**
+     * 状態を設定します。
+     * @param state 状態
+     */
+    public void setState(String state) {
+        this.state = state;
     }
 
     /**
@@ -617,7 +657,7 @@ public class ShipBean {
      * @return 艦娘
      */
     public ShipDto getShip() {
-        return ship;
+        return this.ship;
     }
 
     /**
