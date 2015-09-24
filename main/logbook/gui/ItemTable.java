@@ -1,42 +1,41 @@
 package logbook.gui;
 
 import logbook.dto.ShipFilterDto;
+import logbook.gui.bean.ItemBean;
 import logbook.gui.logic.CreateReportLogic;
-import logbook.gui.logic.TableItemCreator;
+import logbook.gui.logic.TableWrapper;
 
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 
 /**
  * 所有装備一覧
  *
  */
-public final class ItemTable extends AbstractTableDialog {
+public final class ItemTable extends AbstractTableDialogEx<ItemBean> {
 
     /**
      * @param parent
      */
     public ItemTable(Shell parent) {
-        super(parent);
+        super(parent, ItemBean.class);
     }
 
     @Override
     protected void createContents() {
-        this.table.addMouseListener(new MouseAdapter() {
+        TableWrapper<ItemBean> table = this.addTable(this.shell)
+                .setContentSupplier(CreateReportLogic::getItemTablecontent)
+                .reload()
+                .update();
+
+        table.getTable().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDoubleClick(MouseEvent e) {
-                TableItem[] items = ItemTable.this.table.getSelection();
-                for (TableItem tableItem : items) {
-                    String itemName = tableItem.getText(1);
+                ItemBean[] selection = table.getSelection(ItemBean[]::new);
+                for (ItemBean item : selection) {
                     ShipFilterDto filter = new ShipFilterDto();
-                    filter.itemname = itemName;
+                    filter.itemname = item.getName();
                     new ShipTable(ItemTable.this.getParent(), filter).open();
                 }
             }
@@ -46,37 +45,5 @@ public final class ItemTable extends AbstractTableDialog {
     @Override
     protected String getTitle() {
         return "所有装備一覧";
-    }
-
-    @Override
-    protected Point getSize() {
-        return new Point(600, 350);
-    }
-
-    @Override
-    protected String[] getTableHeader() {
-        return CreateReportLogic.getItemListHeader();
-    }
-
-    @Override
-    protected void updateTableBody() {
-        this.body = CreateReportLogic.getItemListBody();
-    }
-
-    @Override
-    protected TableItemCreator getTableItemCreator() {
-        return TableItemCreator.DEFAULT_TABLE_ITEM_CREATOR;
-    }
-
-    @Override
-    protected SelectionListener getHeaderSelectionListener() {
-        return new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                if (e.getSource() instanceof TableColumn) {
-                    ItemTable.this.sortTableItems((TableColumn) e.getSource());
-                }
-            }
-        };
     }
 }

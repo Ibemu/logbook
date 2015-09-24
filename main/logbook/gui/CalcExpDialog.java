@@ -323,12 +323,7 @@ public final class CalcExpDialog extends Dialog {
         }
         // 艦娘を経験値順でソート
         List<ShipDto> ships = new ArrayList<ShipDto>(this.shipmap.values());
-        Collections.sort(ships, new Comparator<ShipDto>() {
-            @Override
-            public int compare(ShipDto o1, ShipDto o2) {
-                return Long.compare(o2.getExp(), o1.getExp());
-            }
-        });
+        Collections.sort(ships, Comparator.comparing(ShipDto::getExp).reversed());
         // コンボボックスに追加
         for (int i = 0; i < ships.size(); i++) {
             String key = this.getShipLabel(ships.get(i), padlength);

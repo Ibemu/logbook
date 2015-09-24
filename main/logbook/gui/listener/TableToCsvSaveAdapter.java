@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import logbook.util.FileUtils;
 
@@ -31,16 +33,20 @@ public final class TableToCsvSaveAdapter extends SelectionAdapter {
     private final String name;
 
     /** ヘッダー */
-    private final String[] header;
+    private String[] header;
 
     /** テーブル */
-    private final Table table;
+    private Table table;
+
+    /** テーブル */
+    private Supplier<Table> tableSupplier;
 
     /**
      * コンストラクター
      *
      * @param shell シェル
      * @param name ファイル名
+     * @param header ヘッダー
      * @param table テーブル
      */
     public TableToCsvSaveAdapter(Shell shell, String name, String[] header, Table table) {
@@ -50,8 +56,29 @@ public final class TableToCsvSaveAdapter extends SelectionAdapter {
         this.table = table;
     }
 
+    /**
+     * コンストラクター
+     *
+     * @param shell シェル
+     * @param name ファイル名
+     * @param tableSupplier テーブル
+     */
+    public TableToCsvSaveAdapter(Shell shell, String name, Supplier<Table> tableSupplier) {
+        this.shell = shell;
+        this.name = name;
+        this.tableSupplier = tableSupplier;
+    }
+
     @Override
     public void widgetSelected(SelectionEvent arg) {
+        Table table = this.table;
+        String[] header = this.header;
+
+        if (this.tableSupplier != null) {
+            table = this.tableSupplier.get();
+            header = Stream.of(table.getColumns()).map(c -> c.getText()).toArray(String[]::new);
+        }
+
         FileDialog dialog = new FileDialog(this.shell, SWT.SAVE);
         dialog.setFileName(this.name + ".csv");
         dialog.setFilterExtensions(new String[] { "*.csv" });
@@ -68,16 +95,16 @@ public final class TableToCsvSaveAdapter extends SelectionAdapter {
             }
             try {
                 List<String[]> body = new ArrayList<String[]>();
-                TableItem[] items = this.table.getItems();
+                TableItem[] items = table.getItems();
                 for (TableItem item : items) {
-                    String[] colums = new String[this.header.length];
+                    String[] colums = new String[header.length];
                     for (int i = 0; i < colums.length; i++) {
                         colums[i] = item.getText(i);
                     }
                     body.add(colums);
                 }
 
-                FileUtils.writeCsv(path, this.header, body, false);
+                FileUtils.writeCsv(path, header, body, false);
             } catch (IOException e) {
                 MessageBox messageBox = new MessageBox(this.shell, SWT.ICON_ERROR);
                 messageBox.setText("書き込めませんでした");

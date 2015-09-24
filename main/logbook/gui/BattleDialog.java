@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import logbook.constants.AppConstants;
-import logbook.data.context.GlobalContext;
 import logbook.dto.BattleDto;
 import logbook.dto.BattleResultDto;
 import logbook.dto.DockDto;
@@ -40,16 +39,16 @@ public final class BattleDialog extends Dialog {
 
     private Shell shell;
 
-    private final int id;
+    private final BattleResultDto result;
 
     /**
      * Create the dialog.
      * @param parent
-     * @param id
+     * @param result
      */
-    public BattleDialog(Shell parent, int id) {
+    public BattleDialog(Shell parent, BattleResultDto result) {
         super(parent, SWT.CLOSE | SWT.TITLE | SWT.MIN | SWT.RESIZE);
-        this.id = id;
+        this.result = result;
     }
 
     /**
@@ -80,13 +79,12 @@ public final class BattleDialog extends Dialog {
         String fontName = fontData.getName();
         int size = fontData.getHeight();
 
-        BattleResultDto result = GlobalContext.getBattleResultList().get(this.id);
-        BattleDto battle = result.getBattleDto();
+        BattleDto battle = this.result.getBattleDto();
 
         // タイトル
         Label lblTitle = new Label(this.shell, SWT.NONE);
         lblTitle.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
-        lblTitle.setText("「" + result.getQuestName() + "」で作戦行動中に「" + result.getEnemyName() + "」と対峙しました ("
+        lblTitle.setText("「" + this.result.getQuestName() + "」で作戦行動中に「" + this.result.getEnemyName() + "」と対峙しました ("
                 + battle.getIntercept() + ")");
 
         Label lblsp1 = new Label(this.shell, SWT.SEPARATOR | SWT.HORIZONTAL);
@@ -203,7 +201,7 @@ public final class BattleDialog extends Dialog {
         Label lbleName = new Label(eComposite, SWT.NONE);
         lbleName.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 7, 1));
         lbleName.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
-        lbleName.setText(result.getEnemyName() + "(" + battle.getEnemyFormation() + ")");
+        lbleName.setText(this.result.getEnemyName() + "(" + battle.getEnemyFormation() + ")");
 
         new Label(eComposite, SWT.NONE);
 
@@ -286,10 +284,9 @@ public final class BattleDialog extends Dialog {
         // 文書を用意する
         // freemarker使いたい
 
-        BattleResultDto result = GlobalContext.getBattleResultList().get(this.id);
-        BattleDto battle = result.getBattleDto();
+        BattleDto battle = this.result.getBattleDto();
 
-        String time = new SimpleDateFormat(AppConstants.DATE_FORMAT).format(result.getBattleDate());
+        String time = new SimpleDateFormat(AppConstants.DATE_FORMAT).format(this.result.getBattleDate());
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html>").append("\r\n");
         sb.append("<html>").append("\r\n");
@@ -305,7 +302,7 @@ public final class BattleDialog extends Dialog {
         sb.append("</style>").append("\r\n");
         sb.append("</head>").append("\r\n");
         sb.append("<body>").append("\r\n");
-        sb.append(" <strong>「" + result.getQuestName() + "」で作戦行動中に「" + result.getEnemyName() + "」と対峙しました ("
+        sb.append(" <strong>「" + this.result.getQuestName() + "」で作戦行動中に「" + this.result.getEnemyName() + "」と対峙しました ("
                 + battle.getIntercept() + ")(" + time + ")</strong>").append("\r\n");
         sb.append(" <hr>").append("\r\n");
 
@@ -359,7 +356,7 @@ public final class BattleDialog extends Dialog {
 
         sb.append(" <hr>").append("\r\n");
         sb.append(" <table>").append("\r\n");
-        sb.append("     <caption>" + result.getEnemyName() + "(" + battle.getEnemyFormation() + ")" + "</caption>")
+        sb.append("     <caption>" + this.result.getEnemyName() + "(" + battle.getEnemyFormation() + ")" + "</caption>")
                 .append("\r\n");
         sb.append("     <thead>").append("\r\n");
         sb.append("         <tr>").append("\r\n");

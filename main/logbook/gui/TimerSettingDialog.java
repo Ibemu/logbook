@@ -4,11 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import logbook.gui.listener.SelectedListener;
 import logbook.thread.ThreadManager;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -95,33 +94,23 @@ public final class TimerSettingDialog extends Dialog {
 
         Button okButton = new Button(compositeButton, SWT.NONE);
         okButton.setText("OK(&O)");
-        okButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                // Task
-                Runnable task = new AlertTask(TimerSettingDialog.this.getParent(),
-                        TimerSettingDialog.this.messageText.getText());
-                // Delay
-                long delay = TimerSettingDialog.this.time.getTime() - System.currentTimeMillis();
-                ThreadManager.getExecutorService()
-                        .schedule(task, delay, TimeUnit.MILLISECONDS);
+        okButton.addSelectionListener((SelectedListener) e -> {
+            // Task
+            Runnable task = new AlertTask(this.getParent(), this.messageText.getText());
+            // Delay
+            long delay = this.time.getTime() - System.currentTimeMillis();
+            ThreadManager.getExecutorService().schedule(task, delay, TimeUnit.MILLISECONDS);
 
-                MessageBox box = new MessageBox(TimerSettingDialog.this.shell, SWT.YES | SWT.ICON_QUESTION);
-                box.setText("成功");
-                box.setMessage("タイマー設定を予約しました");
-                box.open();
+            MessageBox box = new MessageBox(this.shell, SWT.YES | SWT.ICON_QUESTION);
+            box.setText("成功");
+            box.setMessage("タイマー設定を予約しました");
+            box.open();
 
-                TimerSettingDialog.this.shell.close();
-            }
+            this.shell.close();
         });
         Button chancelButton = new Button(compositeButton, SWT.NONE);
         chancelButton.setText("キャンセル(&C)");
-        chancelButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                TimerSettingDialog.this.shell.close();
-            }
-        });
+        chancelButton.addSelectionListener((SelectedListener) e -> this.shell.close());
 
         this.shell.pack();
     }
