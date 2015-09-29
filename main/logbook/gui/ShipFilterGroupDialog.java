@@ -1,7 +1,5 @@
 package logbook.gui;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +20,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -42,6 +41,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialogEx<ShipFilte
 
     private Text text;
     private Combo shipcombo;
+    private Combo typecombo;
     private Tree tree;
     private Button btnAddShip;
     private Button btnRemoveShip;
@@ -135,7 +135,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialogEx<ShipFilte
         treeItem.setExpanded(true);
 
         Composite mainComposite = new Composite(sashForm, SWT.NONE);
-        GridLayout mainLayout = new GridLayout(3, false);
+        GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.verticalSpacing = 1;
         mainLayout.marginWidth = 1;
         mainLayout.marginHeight = 1;
@@ -152,7 +152,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialogEx<ShipFilte
                 group.setName(text);
             }
         });
-        this.text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
+        this.text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         this.text.setEnabled(false);
 
         Table table = this.addTable(mainComposite)
@@ -161,12 +161,26 @@ public final class ShipFilterGroupDialog extends AbstractTableDialogEx<ShipFilte
                 .update()
                 .getTable();
 
-        table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
-        this.shipcombo = new Combo(mainComposite, SWT.READ_ONLY);
+        table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+
+        Composite subComposite = new Composite(mainComposite, SWT.NONE);
+        subComposite.setLayout(new RowLayout(SWT.HORIZONTAL));
+
+        this.typecombo = new Combo(subComposite, SWT.READ_ONLY);
+        this.typecombo.add("");
+        ShipContext.get().values().stream()
+                .map(ShipDto::getType)
+                .distinct()
+                .sorted()
+                .forEach(e -> this.typecombo.add(e));
+        this.typecombo.addSelectionListener((SelectedListener) e -> this.setShipComboData());
+        this.typecombo.setEnabled(false);
+
+        this.shipcombo = new Combo(subComposite, SWT.READ_ONLY);
         this.setShipComboData();
         this.shipcombo.setEnabled(false);
 
-        this.btnAddShip = new Button(mainComposite, SWT.NONE);
+        this.btnAddShip = new Button(subComposite, SWT.NONE);
         this.btnAddShip.setText("追加");
         this.btnAddShip.addSelectionListener((SelectedListener) e -> {
             if (this.getProperty() != null) {
@@ -180,7 +194,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialogEx<ShipFilte
         });
         this.btnAddShip.setEnabled(false);
 
-        this.btnRemoveShip = new Button(mainComposite, SWT.NONE);
+        this.btnRemoveShip = new Button(subComposite, SWT.NONE);
         this.btnRemoveShip.setText("除去");
         this.btnRemoveShip.addSelectionListener((SelectedListener) e -> {
             if (this.getProperty() != null) {
@@ -226,6 +240,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialogEx<ShipFilte
             this.text.setText(group.getName());
             this.text.setEnabled(true);
             this.shipcombo.setEnabled(true);
+            this.typecombo.setEnabled(true);
             this.btnAddShip.setEnabled(true);
             this.btnRemoveShip.setEnabled(true);
 
@@ -234,6 +249,7 @@ public final class ShipFilterGroupDialog extends AbstractTableDialogEx<ShipFilte
             this.text.setText("");
             this.text.setEnabled(false);
             this.shipcombo.setEnabled(false);
+            this.typecombo.setEnabled(false);
             this.btnAddShip.setEnabled(false);
             this.btnRemoveShip.setEnabled(false);
 
@@ -252,6 +268,9 @@ public final class ShipFilterGroupDialog extends AbstractTableDialogEx<ShipFilte
      * @param combo
      */
     private void setShipComboData() {
+        // 艦種
+        String type = this.typecombo.getItem(Math.max(this.typecombo.getSelectionIndex(), 0));
+
         // コンボボックスから全ての艦娘を削除
         this.shipcombo.removeAll();
         // 表示用文字列と艦娘の紐付けを削除
@@ -262,21 +281,18 @@ public final class ShipFilterGroupDialog extends AbstractTableDialogEx<ShipFilte
             maxshipid = Math.max(ship.getId(), maxshipid);
         }
         int padlength = Long.toString(maxshipid).length();
-        // 表示用文字列と艦娘の紐付けを追加
-        for (ShipDto ship : ShipContext.get().values()) {
-            this.shipmap.put(this.getShipLabel(ship, padlength), ship);
-        }
-        // 艦娘を経験値順でソート
-        List<ShipDto> ships = new ArrayList<ShipDto>(this.shipmap.values());
-        Collections.sort(ships, Comparator.comparing(ShipDto::getExp).reversed());
-        // コンボボックスに追加
-        for (int i = 0; i < ships.size(); i++) {
-            String key = this.getShipLabel(ships.get(i), padlength);
-            this.shipcombo.add(key);
-        }
-        // コントロールを再配置
-        this.shipcombo.pack();
-        this.shipcombo.getParent().pack();
+
+        ShipContext.get().values().stream()
+                .filter(ship -> type.isEmpty() || type.equals(ship.getType()))
+                .sorted(Comparator.comparing(ShipDto::getExp).reversed())
+                .forEach(ship -> {
+                    // 表示用文字列と艦娘の紐付けを追加
+                        this.shipmap.put(this.getShipLabel(ship, padlength), ship);
+
+                        // コンボボックスに追加
+                        String key = this.getShipLabel(ship, padlength);
+                        this.shipcombo.add(key);
+                    });
     }
 
     /**
