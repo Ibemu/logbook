@@ -57,9 +57,8 @@ public class FileUtils {
     /**
      * ファイルがロックされているかを確認します
      *
-     * @param file ファイル
-     * @return
-     * @throws IOException
+     * @param path ファイル
+     * @return ロックされている場合true
      */
     public static boolean isLocked(Path path) {
         if (!Files.isRegularFile(path)) {
@@ -82,7 +81,7 @@ public class FileUtils {
     /**
      * 報告書をCSVファイルに書き込む(最初の列を取り除く)
      *
-     * @param file ファイル
+     * @param path ファイル
      * @param header ヘッダー
      * @param body 内容
      * @param applend 追記フラグ
@@ -102,7 +101,7 @@ public class FileUtils {
     /**
      * 報告書をCSVファイルに書き込む
      *
-     * @param file ファイル
+     * @param path ファイル
      * @param header ヘッダー
      * @param body 内容
      * @param applend 追記フラグ

@@ -36,9 +36,6 @@ public class ItemConfig {
 
     /**
      * 装備の復元
-     *
-     * @param properties
-     * @return
      */
     public static void load() {
         loadItem();

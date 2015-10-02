@@ -28,6 +28,12 @@ public final class DeckMissionDto extends AbstractDto {
 
     /**
      * コンストラクター
+     *
+     * @param name 艦隊名
+     * @param mission 遠征名
+     * @param time 帰投時間
+     * @param fleetid 艦隊
+     * @param ships 艦娘
      */
     public DeckMissionDto(String name, String mission, Date time, long fleetid, Set<Long> ships) {
         this.name = name;

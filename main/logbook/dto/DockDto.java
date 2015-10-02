@@ -27,6 +27,9 @@ public final class DockDto extends AbstractDto {
 
     /**
      * コンストラクター
+     *
+     * @param id ドックID
+     * @param name 艦隊名
      */
     public DockDto(String id, String name) {
         this.id = id;
@@ -43,8 +46,8 @@ public final class DockDto extends AbstractDto {
 
     /**
      * 艦娘を艦隊に追加します
-     * 
-     * @param ship
+     *
+     * @param ship 艦娘
      */
     public void addShip(ShipDto ship) {
         if (this.ships.size() < DOCK_MAX_SIZE) {

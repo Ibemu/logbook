@@ -37,9 +37,6 @@ public class ItemMasterConfig {
 
     /**
      * 装備マスターを設定ファイルから読み込みます
-     *
-     * @param properties
-     * @return
      */
     public static void load() {
         try {

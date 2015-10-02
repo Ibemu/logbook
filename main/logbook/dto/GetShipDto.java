@@ -20,8 +20,8 @@ public final class GetShipDto extends AbstractDto {
 
     /**
      * コンストラクター
-     * 
-     * @param object 艦娘情報
+     *
+     * @param ship 艦娘情報
      * @param resources 投入資源
      */
     public GetShipDto(ShipDto ship, ResourceDto resources) {

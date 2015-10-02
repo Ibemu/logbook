@@ -31,6 +31,7 @@ public class UndefinedData implements Data {
      * 未加工データのコンストラクター
      *
      * @param url URL
+     * @param request リクエストのバイト配列
      * @param response レスポンスのバイト配列
      */
     public UndefinedData(String url, byte[] request, byte[] response) {
@@ -66,8 +67,7 @@ public class UndefinedData implements Data {
      * 同定出来ない場合の型はUndefeatedDataです
      * </p>
      *
-     * @param plaindata
-     * @return
+     * @return Data
      */
     public final Data toDefinedData() {
         if (this.response.length != 0) {

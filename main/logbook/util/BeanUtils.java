@@ -76,7 +76,6 @@ public final class BeanUtils {
      * @param path ファイル
      * @param clazz 期待する型
      * @return オブジェクト
-     * @throws IOException
      */
     @SuppressWarnings("unchecked")
     @CheckForNull

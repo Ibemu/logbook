@@ -234,7 +234,8 @@ public final class GlobalContext {
     /**
      * 艦隊が遠征中かを調べます
      *
-     * @param
+     * @param idstr 艦隊
+     * @return 遠征中ならtrue
      */
     public static boolean isMission(String idstr) {
         int id = Integer.parseInt(idstr);

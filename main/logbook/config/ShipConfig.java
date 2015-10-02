@@ -40,9 +40,6 @@ public class ShipConfig {
 
     /**
      * 艦娘のIDと名前の紐付けを設定ファイルから読み込みます
-     *
-     * @param properties
-     * @return
      */
     public static void load() {
         try {

@@ -252,7 +252,7 @@ public class DropReportBean {
     }
 
     /**
-     * BattleResultDto -> DropReportBean 変換
+     * BattleResultDto -&gt; DropReportBean 変換
      *
      * @param e BattleResultDto
      * @return DropReportBean

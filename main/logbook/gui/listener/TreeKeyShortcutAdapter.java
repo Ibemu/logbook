@@ -19,6 +19,9 @@ public final class TreeKeyShortcutAdapter extends KeyAdapter {
 
     /**
      * コンストラクター
+     *
+     * @param header ツリーヘッダー
+     * @param tree ツリー
      */
     public TreeKeyShortcutAdapter(String[] header, Tree tree) {
         this.header = header;
