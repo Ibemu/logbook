@@ -25,7 +25,9 @@ import logbook.data.EventSender;
 import logbook.data.event.CallScript;
 import logbook.data.event.Material;
 import logbook.data.event.Nyukyo;
+import logbook.data.event.PresetSelect;
 import logbook.data.event.RemodelSlot;
+import logbook.data.event.SlotExchangeIndex;
 import logbook.dto.BattleDto;
 import logbook.dto.BattleResultDto;
 import logbook.dto.CreateItemDto;
@@ -72,6 +74,8 @@ public final class GlobalContext {
             SENDER.addEventListener(new RemodelSlot());
             SENDER.addEventListener(new Material());
             SENDER.addEventListener(new Nyukyo());
+            SENDER.addEventListener(new PresetSelect());
+            SENDER.addEventListener(new SlotExchangeIndex());
         }
     }
 

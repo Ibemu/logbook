@@ -395,6 +395,14 @@ public final class ShipDto extends AbstractDto {
         return this.maxhp;
     }
 
+    public void setSlot(List<Long> newSlot) {
+        for (int i = 0; i < newSlot.size(); i++) {
+            this.slot.set(i, newSlot.get(i));
+        }
+        this.itemNames = null;
+        this.items = null;
+    }
+
     /**
      * @return 装備
      */

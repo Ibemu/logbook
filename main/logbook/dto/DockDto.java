@@ -17,7 +17,7 @@ public final class DockDto extends AbstractDto {
     private final String id;
 
     /** 艦隊名 */
-    private final String name;
+    private String name;
 
     /** 艦娘達 */
     private final List<ShipDto> ships = new ArrayList<ShipDto>(DOCK_MAX_SIZE);
@@ -77,6 +77,16 @@ public final class DockDto extends AbstractDto {
 
         this.setUpdate(true);
         return oship;
+    }
+
+    public void replaceShips(String name, List<ShipDto> newShips) {
+        this.name = name;
+        this.ships.forEach(ship -> ship.setFleetid(EMPTY_FLEET_ID));
+        this.ships.clear();
+        this.ships.addAll(newShips);
+        this.ships.forEach(ship -> ship.setFleetid(this.id));
+
+        this.setUpdate(true);
     }
 
     public void removeShip(int fleet_position) {

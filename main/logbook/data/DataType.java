@@ -13,12 +13,18 @@ public enum DataType {
     CHARGE("/kcsapi/api_req_hokyu/charge"),
     /** 編成 */
     CHANGE("/kcsapi/api_req_hensei/change"),
+    /** 編成記録 */
+    PRESET_DECK("/kcsapi/api_get_member/preset_deck"),
+    /** 編成展開 */
+    PRESET_SELECT("/kcsapi/api_req_hensei/preset_select"),
     /** 母港 */
     PORT("/kcsapi/api_port/port"),
     /** 保有艦 */
     SHIP2("/kcsapi/api_get_member/ship2"),
     /** 保有艦 */
     SHIP3("/kcsapi/api_get_member/ship3"),
+    /** 装備入れ替え */
+    SLOT_EXCHANGE_INDEX("/kcsapi/api_req_kaisou/slot_exchange_index"),
     /** 保有艦 */
     SHIP_DECK("/kcsapi/api_get_member/ship_deck"),
     /** 遠征(帰還) */
