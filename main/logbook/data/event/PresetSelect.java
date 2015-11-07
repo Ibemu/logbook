@@ -16,7 +16,7 @@ import logbook.data.context.ShipContext;
 import logbook.dto.ShipDto;
 
 /**
- * 入渠
+ * 編成展開
  *
  */
 @EventTarget({ DataType.PRESET_SELECT })
