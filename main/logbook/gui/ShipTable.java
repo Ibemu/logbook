@@ -349,7 +349,7 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
         return ShipContext.get().values()
                 .stream()
                 .map(mapper)
-                .sorted(Comparator.comparing(ShipBean::getExp).reversed());
+                .sorted(Comparator.comparing(ShipBean::getExp).thenComparing(ShipBean::getLv).reversed());
     }
 
     /**
