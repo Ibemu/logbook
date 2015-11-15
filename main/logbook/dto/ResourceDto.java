@@ -35,7 +35,7 @@ public final class ResourceDto extends AbstractDto {
 
     /**
      * コンストラクター(建造)
-     * 
+     *
      * @param type 建造種類
      * @param fuel 燃料
      * @param ammo 弾薬
@@ -43,6 +43,7 @@ public final class ResourceDto extends AbstractDto {
      * @param bauxite ボーキサイト
      * @param researchMaterials 開発資材
      * @param ship 秘書艦
+     * @param hqLevel 指令部Lv
      */
     public ResourceDto(String type, String fuel, String ammo, String metal, String bauxite, String researchMaterials,
             ShipDto ship, int hqLevel) {
@@ -59,12 +60,13 @@ public final class ResourceDto extends AbstractDto {
 
     /**
      * コンストラクター(開発)
-     * 
+     *
      * @param fuel 燃料
      * @param ammo 弾薬
      * @param metal 鋼材
      * @param bauxite ボーキサイト
      * @param ship 秘書艦
+     * @param hqLevel 指令部Lv
      */
     public ResourceDto(String fuel, String ammo, String metal, String bauxite, ShipDto ship, int hqLevel) {
 
@@ -142,7 +144,8 @@ public final class ResourceDto extends AbstractDto {
     }
 
     /**
-     * @return 空きドックをセットする
+     * 空きドックをセットする
+     * @param freeDock 空きドック
      */
     public void setFreeDock(String freeDock) {
         if (this.freeDock == null) {

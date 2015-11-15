@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -19,6 +20,7 @@ import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
 import logbook.data.context.ShipContext;
 import logbook.dto.DeckMissionDto;
+import logbook.dto.ItemDto;
 import logbook.dto.NdockDto;
 import logbook.dto.ShipDto;
 import logbook.dto.ShipFilterDto;
@@ -67,6 +69,9 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
     /** HPゲージのキャッシュ */
     private final Map<Integer, Image> cache = new HashMap<>();
 
+    /** 表示する内容 */
+    private DisplayType displayType = DisplayType.NORMAL;
+
     /**
      * @param parent
      * @param filter
@@ -112,7 +117,7 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
         composite.setLayout(new FillLayout(SWT.HORIZONTAL));
 
         TableWrapper<ShipBean> table = this.addTable(composite);
-        table.setContentSupplier(ShipTable::getShipContent)
+        table.setContentSupplier(this::getShipContent)
                 .setFilter(new ShipFilterLogic(this.filters.get(0)))
                 .setDecorator(new ShipTableItemCreator(table, this.cache))
                 .reload()
@@ -136,7 +141,7 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
             compositeSub.setLayout(new FillLayout(SWT.HORIZONTAL));
 
             table = this.addTable(compositeSub);
-            table.setContentSupplier(ShipTable::getShipContent)
+            table.setContentSupplier(this::getShipContent)
                     .setFilter(new ShipFilterLogic(filter))
                     .setDecorator(new ShipTableItemCreator(table, this.cache))
                     .reload()
@@ -144,6 +149,18 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
             // 右クリックメニューのセット
             this.setRightClickMenu(table, i + 1);
         }
+
+        // 成長の余地
+        final MenuItem reset = new MenuItem(this.opemenu, SWT.CHECK);
+        reset.setText("成長の余地を表示");
+        reset.addSelectionListener((SelectedListener) e -> {
+            if (reset.getSelection()) {
+                this.displayType = DisplayType.ROOM;
+            } else {
+                this.displayType = DisplayType.NORMAL;
+            }
+            this.tables.forEach(t -> t.reload().update());
+        });
     }
 
     @Override
@@ -248,6 +265,124 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
     }
 
     /**
+     * 艦娘一覧の内容
+     * @return 内容
+     */
+    private Stream<ShipBean> getShipContent() {
+        Function<ShipDto, ShipBean> mapper = null;
+        if (this.displayType == DisplayType.NORMAL) {
+            mapper = d -> {
+                ShipBean b = new ShipBean();
+                b.setId(d.getId());
+                b.setFleetid(d.getFleetid());
+                b.setName(d.getName());
+                b.setType(d.getType());
+                b.setCond(d.getCond());
+                b.setCondClearDate(d.getCondClearDateString());
+                b.setLv(d.getLv());
+                b.setNext(d.getNext());
+                b.setExp(d.getExp());
+                b.setSallyArea(d.getSallyArea().getName());
+                b.setSeiku(d.getSeiku());
+                b.setSlot1(d.getSlot().get(0));
+                b.setSlot2(d.getSlot().get(1));
+                b.setSlot3(d.getSlot().get(2));
+                b.setSlot4(d.getSlot().get(3));
+                b.setSlot6(d.getSlot().get(5));
+                b.setNowHp(d.getNowhp());
+                b.setMaxHp(d.getMaxhp());
+                if (d.isBadlyDamage()) {
+                    b.setState("大破");
+                } else if (d.isHalfDamage()) {
+                    b.setState("中破");
+                } else if (d.isSlightDamage()) {
+                    b.setState("小破");
+                } else {
+                    b.setState("");
+                }
+                b.setKaryoku(d.getKaryoku());
+                b.setRaisou(d.getRaisou());
+                b.setTaiku(d.getTaiku());
+                b.setSoukou(d.getSoukou());
+                b.setKaihi(d.getKaihi());
+                b.setTaisen(d.getTaisen());
+                b.setSakuteki(d.getSakuteki());
+                b.setLucky(d.getLucky());
+                b.setAccuracy(d.getAccuracy());
+                b.setHougekiPower(d.getHougekiPower());
+                b.setRaigekiPower(d.getRaigekiPower());
+                b.setTaisenPower(d.getTaisenPower());
+                b.setYasenPower(d.getYasenPower());
+                b.setShip(d);
+                return b;
+            };
+        }
+        if (this.displayType == DisplayType.ROOM) {
+            mapper = d -> {
+                List<ItemDto> items = d.getItem();
+                int karyoku = items.stream().filter(Objects::nonNull).mapToInt(ItemDto::getHoug).sum();
+                int raisou = items.stream().filter(Objects::nonNull).mapToInt(ItemDto::getRaig).sum();
+                int taiku = items.stream().filter(Objects::nonNull).mapToInt(ItemDto::getTyku).sum();
+                int soukou = items.stream().filter(Objects::nonNull).mapToInt(ItemDto::getSouk).sum();
+                int kaihi = items.stream().filter(Objects::nonNull).mapToInt(ItemDto::getHouk).sum();
+                int taisen = items.stream().filter(Objects::nonNull).mapToInt(ItemDto::getTais).sum();
+                int sakuteki = items.stream().filter(Objects::nonNull).mapToInt(ItemDto::getSaku).sum();
+                int lucky = items.stream().filter(Objects::nonNull).mapToInt(ItemDto::getLuck).sum();
+
+                ShipBean b = new ShipBean();
+                b.setId(d.getId());
+                b.setFleetid(d.getFleetid());
+                b.setName(d.getName());
+                b.setType(d.getType());
+                b.setCond(d.getCond());
+                b.setCondClearDate(d.getCondClearDateString());
+                b.setLv(d.getLv());
+                b.setNext(d.getNext());
+                b.setExp(d.getExp());
+                b.setSallyArea(d.getSallyArea().getName());
+                b.setSeiku(d.getSeiku());
+                b.setSlot1(d.getSlot().get(0));
+                b.setSlot2(d.getSlot().get(1));
+                b.setSlot3(d.getSlot().get(2));
+                b.setSlot4(d.getSlot().get(3));
+                b.setSlot6(d.getSlot().get(5));
+                b.setNowHp(d.getNowhp());
+                b.setMaxHp(d.getMaxhp());
+                if (d.isBadlyDamage()) {
+                    b.setState("大破");
+                } else if (d.isHalfDamage()) {
+                    b.setState("中破");
+                } else if (d.isSlightDamage()) {
+                    b.setState("小破");
+                } else {
+                    b.setState("");
+                }
+                b.setKaryoku((d.getKaryokuMax() - d.getKaryoku()) + karyoku);
+                b.setRaisou((d.getRaisouMax() - d.getRaisou()) + raisou);
+                b.setTaiku((d.getTaikuMax() - d.getTaiku()) + taiku);
+                b.setSoukou((d.getSoukouMax() - d.getSoukou()) + soukou);
+                b.setKaihi((d.getKaihiMax() - d.getKaihi()) + kaihi);
+                b.setTaisen((d.getTaisenMax() - d.getTaisen()) + taisen);
+                b.setSakuteki((d.getSakutekiMax() - d.getSakuteki()) + sakuteki);
+                b.setLucky((d.getLuckyMax() - d.getLucky()) + lucky);
+                b.setAccuracy(d.getAccuracy());
+                b.setHougekiPower(d.getHougekiPower());
+                b.setRaigekiPower(d.getRaigekiPower());
+                b.setTaisenPower(d.getTaisenPower());
+                b.setYasenPower(d.getYasenPower());
+                b.setShip(d);
+                return b;
+            };
+        }
+        Objects.requireNonNull(mapper);
+
+        return ShipContext.get().values()
+                .stream()
+                .map(mapper)
+                .sorted(Comparator.comparing(ShipBean::getExp).thenComparing(ShipBean::getLv).reversed());
+    }
+
+    /**
      * HPのゲージイメージを作成します
      *
      * @param ship 艦娘
@@ -304,62 +439,6 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
      */
     private static int cacheKey(int... keys) {
         return Arrays.hashCode(keys);
-    }
-
-    /**
-     * 艦娘一覧の内容
-     * @return 内容
-     */
-    private static Stream<ShipBean> getShipContent() {
-        Function<ShipDto, ShipBean> mapper = d -> {
-            ShipBean b = new ShipBean();
-            b.setId(d.getId());
-            b.setFleetid(d.getFleetid());
-            b.setName(d.getName());
-            b.setType(d.getType());
-            b.setCond(d.getCond());
-            b.setCondClearDate(d.getCondClearDateString());
-            b.setLv(d.getLv());
-            b.setNext(d.getNext());
-            b.setExp(d.getExp());
-            b.setSallyArea(d.getSallyArea().getName());
-            b.setSeiku(d.getSeiku());
-            b.setSlot1(d.getSlot().get(0));
-            b.setSlot2(d.getSlot().get(1));
-            b.setSlot3(d.getSlot().get(2));
-            b.setSlot4(d.getSlot().get(3));
-            b.setSlot6(d.getSlot().get(5));
-            b.setNowHp(d.getNowhp());
-            b.setMaxHp(d.getMaxhp());
-            if (d.isBadlyDamage()) {
-                b.setState("大破");
-            } else if (d.isHalfDamage()) {
-                b.setState("中破");
-            } else if (d.isSlightDamage()) {
-                b.setState("小破");
-            } else {
-                b.setState("");
-            }
-            b.setKaryoku(d.getKaryoku());
-            b.setRaisou(d.getRaisou());
-            b.setTaiku(d.getTaiku());
-            b.setSoukou(d.getSoukou());
-            b.setKaihi(d.getKaihi());
-            b.setTaisen(d.getTaisen());
-            b.setSakuteki(d.getSakuteki());
-            b.setLucky(d.getLucky());
-            b.setAccuracy(d.getAccuracy());
-            b.setHougekiPower(d.getHougekiPower());
-            b.setRaigekiPower(d.getRaigekiPower());
-            b.setTaisenPower(d.getTaisenPower());
-            b.setYasenPower(d.getYasenPower());
-            b.setShip(d);
-            return b;
-        };
-        return ShipContext.get().values()
-                .stream()
-                .map(mapper)
-                .sorted(Comparator.comparing(ShipBean::getExp).reversed());
     }
 
     /**
@@ -432,5 +511,13 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
             // 経験値のゲージイメージ
             item.setImage(this.indexExp, ShipTable.totalExpGauge(ship, this.cache));
         }
+    }
+
+    /** 表示する内容 */
+    private static enum DisplayType {
+        /** 通常 */
+        NORMAL,
+        /** 成長の余地 */
+        ROOM;
     }
 }

@@ -128,7 +128,6 @@ public final class ShipFilterDialog extends Dialog {
 
     /**
      * Open the dialog.
-     * @return the result
      */
     public void open() {
         this.createContents();

@@ -30,7 +30,9 @@ import logbook.data.EventSender;
 import logbook.data.event.CallScript;
 import logbook.data.event.Material;
 import logbook.data.event.Nyukyo;
+import logbook.data.event.PresetSelect;
 import logbook.data.event.RemodelSlot;
+import logbook.data.event.SlotExchangeIndex;
 import logbook.dto.BattleDto;
 import logbook.dto.BattleResultDto;
 import logbook.dto.CreateItemDto;
@@ -85,6 +87,8 @@ public final class GlobalContext {
             SENDER.addEventListener(new RemodelSlot());
             SENDER.addEventListener(new Material());
             SENDER.addEventListener(new Nyukyo());
+            SENDER.addEventListener(new PresetSelect());
+            SENDER.addEventListener(new SlotExchangeIndex());
         }
     }
 
@@ -314,7 +318,8 @@ public final class GlobalContext {
     /**
      * 艦隊が遠征中かを調べます
      *
-     * @param
+     * @param idstr 艦隊
+     * @return 遠征中ならtrue
      */
     public static boolean isMission(String idstr) {
         int id = Integer.parseInt(idstr);

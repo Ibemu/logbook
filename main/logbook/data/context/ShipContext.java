@@ -43,7 +43,7 @@ public class ShipContext {
     /**
      * 秘書艦を設定します
      *
-     * @param ship
+     * @param ship 秘書艦
      */
     public static void setSecretary(ShipDto ship) {
         if ((secretary == null) || (ship.getId() != secretary.getId())) {

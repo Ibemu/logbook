@@ -30,7 +30,7 @@ public class Filter {
 
     /**
      * 鎮守府サーバー名を取得する
-     * @param name 鎮守府サーバー名
+     * @return 鎮守府サーバー名
      */
     public static String getServerName() {
         return serverName;
@@ -38,7 +38,7 @@ public class Filter {
 
     /**
      * 鎮守府サーバー名を検出した場合true
-     * 
+     *
      * @return 鎮守府サーバー名を検出した場合true
      */
     public static boolean isServerDetected() {
@@ -50,7 +50,7 @@ public class Filter {
      * 取得が必要なデータかを調べます<br>
      * 鎮守府サーバーが検出された場合はサーバー名から必要かどうかを判別します<br>
      * 鎮守府サーバーが検出できていない場合は常にtrue<br>
-     * 
+     *
      * @param name サーバー名
      * @return 取得が必要なデータか
      */
@@ -66,7 +66,7 @@ public class Filter {
      * 取得が必要なデータかを調べます<br>
      * 鎮守府サーバーが検出された場合はサーバー名とContent-Typeから必要かどうかを判別します<br>
      * 鎮守府サーバーが検出できていない場合はContent-Typeから必要かどうかを判別します<br>
-     * 
+     *
      * @param name サーバー名
      * @param contentType Content-Type
      * @return 取得が必要なデータか

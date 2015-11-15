@@ -86,13 +86,6 @@ public final class ResourceChartDialogEx extends Dialog {
     private NumberAxis xaxis;
     private NumberAxis yaxis;
     private LineChart<Number, Number> chart;
-    private XYChart.Series<Number, Number> fuel = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> ammo = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> metal = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> bauxite = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> bucket = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> burner = new XYChart.Series<>();
-    private XYChart.Series<Number, Number> research = new XYChart.Series<>();
     private Combo combo;
     private DateTime dateTimeFrom;
     private DateTime dateTimeTo;
@@ -114,7 +107,6 @@ public final class ResourceChartDialogEx extends Dialog {
     /**
      * Create the dialog.
      * @param parent
-     * @param style
      */
     public ResourceChartDialogEx(Shell parent) {
         super(parent, SWT.SHELL_TRIM | SWT.MODELESS);
@@ -123,7 +115,6 @@ public final class ResourceChartDialogEx extends Dialog {
 
     /**
      * Open the dialog.
-     * @return the result
      */
     public void open() {
         this.createContents();
@@ -385,46 +376,46 @@ public final class ResourceChartDialogEx extends Dialog {
             LoggerHolder.LOG.warn("資材チャートの読み込み中に例外が発生しました", e);
         }
 
-        this.fuel = new XYChart.Series<>();
-        this.ammo = new XYChart.Series<>();
-        this.metal = new XYChart.Series<>();
-        this.bauxite = new XYChart.Series<>();
-        this.bucket = new XYChart.Series<>();
-        this.burner = new XYChart.Series<>();
-        this.research = new XYChart.Series<>();
+        XYChart.Series<Number, Number> fuel = new XYChart.Series<>();
+        XYChart.Series<Number, Number> ammo = new XYChart.Series<>();
+        XYChart.Series<Number, Number> metal = new XYChart.Series<>();
+        XYChart.Series<Number, Number> bauxite = new XYChart.Series<>();
+        XYChart.Series<Number, Number> bucket = new XYChart.Series<>();
+        XYChart.Series<Number, Number> burner = new XYChart.Series<>();
+        XYChart.Series<Number, Number> research = new XYChart.Series<>();
 
-        this.fuel.setName("燃料");
-        this.ammo.setName("弾薬");
-        this.metal.setName("鋼材");
-        this.bauxite.setName("ボーキ");
-        this.bucket.setName("高速修復材");
-        this.burner.setName("高速建造材");
-        this.research.setName("開発資材");
+        fuel.setName("燃料");
+        ammo.setName("弾薬");
+        metal.setName("鋼材");
+        bauxite.setName("ボーキ");
+        bucket.setName("高速修復材");
+        burner.setName("高速建造材");
+        research.setName("開発資材");
 
         if (this.fuelBtn.getSelection())
-            this.fuel.getData().addAll(fuelList);
+            fuel.getData().addAll(fuelList);
         if (this.ammoBtn.getSelection())
-            this.ammo.getData().addAll(ammoList);
+            ammo.getData().addAll(ammoList);
         if (this.metalBtn.getSelection())
-            this.metal.getData().addAll(metalList);
+            metal.getData().addAll(metalList);
         if (this.bauxiteBtn.getSelection())
-            this.bauxite.getData().addAll(bauxiteList);
+            bauxite.getData().addAll(bauxiteList);
         if (this.bucketBtn.getSelection())
-            this.bucket.getData().addAll(bucketList);
+            bucket.getData().addAll(bucketList);
         if (this.burnerBtn.getSelection())
-            this.burner.getData().addAll(burnerList);
+            burner.getData().addAll(burnerList);
         if (this.researchBtn.getSelection())
-            this.research.getData().addAll(researchList);
+            research.getData().addAll(researchList);
 
         this.chart.getData().clear();
         List<XYChart.Series<Number, Number>> list = new ArrayList<>();
-        list.add(this.fuel);
-        list.add(this.ammo);
-        list.add(this.metal);
-        list.add(this.bauxite);
-        list.add(this.bucket);
-        list.add(this.burner);
-        list.add(this.research);
+        list.add(fuel);
+        list.add(ammo);
+        list.add(metal);
+        list.add(bauxite);
+        list.add(bucket);
+        list.add(burner);
+        list.add(research);
         this.chart.getData().addAll(list);
     }
 

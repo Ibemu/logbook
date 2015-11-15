@@ -18,6 +18,9 @@ public final class NdockDto extends AbstractDto {
 
     /**
      * コンストラクター
+     *
+     * @param ndockid 艦娘ID
+     * @param ndocktime お風呂から上がる時間
      */
     public NdockDto(long ndockid, Date ndocktime) {
         this.ndockid = ndockid;

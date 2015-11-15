@@ -136,7 +136,7 @@ public class BeanProperty<T> {
      * BeanからインデックスでObjectを取得します
      *
      * @param bean Bean
-     * @param name 名前
+     * @param index インデックス
      * @return Beanが持つプロパティーの値
      */
     public Optional<?> getValue(T bean, int index) {

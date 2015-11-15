@@ -255,7 +255,7 @@ public class BathwaterBean {
     }
 
     /**
-     * ShipDto -> BathwaterBean 変換
+     * ShipDto -&gt; BathwaterBean 変換
      *
      * @param e ShipDto
      * @return BathwaterBean

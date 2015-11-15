@@ -39,7 +39,7 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * 日付を取得する
-     * 
+     *
      * @return 日付
      */
     public Date getDate() {
@@ -48,7 +48,7 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * 失敗・成功を取得する
-     * 
+     *
      * @return 失敗・成功
      */
     public String getClearResult() {
@@ -57,8 +57,8 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * 失敗・成功をセットする
-     * 
-     * @param 失敗・成功フラグ
+     *
+     * @param clearResult 失敗・成功フラグ
      */
     public void setClearResult(int clearResult) {
         this.clearResult = "成功";
@@ -72,7 +72,7 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * 遠征名を取得する
-     * 
+     *
      * @return 遠征名
      */
     public String getQuestName() {
@@ -81,8 +81,8 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * 遠征名をセットする
-     * 
-     * @param 遠征名
+     *
+     * @param questName 遠征名
      */
     public void setQuestName(String questName) {
         this.questName = questName;
@@ -90,7 +90,7 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * 燃料を取得する
-     * 
+     *
      * @return 燃料
      */
     public String getFuel() {
@@ -99,8 +99,8 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * 燃料をセットする
-     * 
-     * @param 燃料
+     *
+     * @param fuel 燃料
      */
     public void setFuel(String fuel) {
         this.fuel = fuel;
@@ -108,7 +108,7 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * 弾薬を取得する
-     * 
+     *
      * @return 弾薬
      */
     public String getAmmo() {
@@ -117,8 +117,8 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * 弾薬をセットする
-     * 
-     * @param 弾薬
+     *
+     * @param ammo 弾薬
      */
     public void setAmmo(String ammo) {
         this.ammo = ammo;
@@ -126,7 +126,7 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * 鋼材を取得する
-     * 
+     *
      * @return 鋼材
      */
     public String getMetal() {
@@ -135,8 +135,8 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * 鋼材をセットする
-     * 
-     * @param 鋼材
+     *
+     * @param metal 鋼材
      */
     public void setMetal(String metal) {
         this.metal = metal;
@@ -144,7 +144,7 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * ボーキイトを取得する
-     * 
+     *
      * @return ボーキイト
      */
     public String getBauxite() {
@@ -153,8 +153,8 @@ public final class MissionResultDto extends AbstractDto {
 
     /**
      * ボーキイトをセットする
-     * 
-     * @param ボーキイト
+     *
+     * @param bauxite ボーキイト
      */
     public void setBauxite(String bauxite) {
         this.bauxite = bauxite;

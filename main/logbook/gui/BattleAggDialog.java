@@ -63,7 +63,6 @@ public class BattleAggDialog extends Dialog {
     /**
      * Create the dialog.
      * @param parent
-     * @param style
      */
     public BattleAggDialog(Shell parent) {
         super(parent, SWT.SHELL_TRIM | SWT.MODELESS);
@@ -72,7 +71,6 @@ public class BattleAggDialog extends Dialog {
 
     /**
      * Open the dialog.
-     * @return the result
      */
     public void open() {
         this.createContents();

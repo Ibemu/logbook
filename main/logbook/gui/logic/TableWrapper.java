@@ -252,6 +252,8 @@ public final class TableWrapper<T> {
 
     /**
      * 既に読み込まれているテーブルの内容をソートする
+     *
+     * @return TableWrapper
      */
     public TableWrapper<T> sort() {
         this.content = this.sort(this.content.stream())

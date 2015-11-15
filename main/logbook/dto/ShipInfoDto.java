@@ -36,6 +36,13 @@ public final class ShipInfoDto extends AbstractDto {
 
     /**
      * コンストラクター
+     *
+     * @param name 名前
+     * @param type 艦種
+     * @param flagship flagshipもしくはelite (敵艦のみ)
+     * @param afterlv 改レベル
+     * @param maxBull 弾
+     * @param maxFuel 燃料
      */
     public ShipInfoDto(String name, String type, String flagship, int afterlv, int maxBull, int maxFuel) {
         this.name = name;

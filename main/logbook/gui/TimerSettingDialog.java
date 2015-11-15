@@ -42,8 +42,6 @@ public final class TimerSettingDialog extends Dialog {
 
     /**
      * Open the dialog.
-     *
-     * @return the result
      */
     public void open() {
         this.createContents();

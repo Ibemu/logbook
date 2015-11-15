@@ -253,7 +253,7 @@ public class CreateShipReportBean {
     }
 
     /**
-     * GetShipDto -> CreateShipReportBean 変換
+     * GetShipDto -&gt; CreateShipReportBean 変換
      *
      * @param e GetShipDto
      * @return CreateShipReportBean

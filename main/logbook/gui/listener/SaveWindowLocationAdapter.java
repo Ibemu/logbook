@@ -18,7 +18,7 @@ public final class SaveWindowLocationAdapter extends ShellAdapter {
     /**
      * コンストラクター
      *
-     * @param dialog ウインドウ
+     * @param dialogClass ウインドウ
      */
     public SaveWindowLocationAdapter(Class<? extends Dialog> dialogClass) {
         this.dialogClass = dialogClass;

@@ -25,8 +25,7 @@ public final class AsyncExecConsole extends Thread {
     /**
      * 非同期にコンソールを更新します
      *
-     * @param display
-     * @param console
+     * @param console コンソール
      */
     public AsyncExecConsole(List console) {
         this.console = console;

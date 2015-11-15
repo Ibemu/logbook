@@ -80,7 +80,6 @@ public final class CaptureDialog extends Dialog {
 
     /**
      * Open the dialog.
-     * @return the result
      */
     public void open() {
         try {
