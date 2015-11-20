@@ -453,10 +453,12 @@ public final class BattleDto extends AbstractDto {
             else {
                 final List<String> conb1 = Arrays.asList("api_hougeki1", "api_raigeki", "api_opening_atack");
                 final List<String> conb2 = Arrays.asList("api_hougeki3", "api_raigeki", "api_opening_atack");
+                final List<String> conb3 = conb1;
                 boolean c = comb ||
                         ((e.getKey() != null) && e.getKey().contains("_combined")) ||
                         (((this.combined == 1) && conb1.contains(e.getKey())) ||
-                        ((this.combined == 2) && conb2.contains(e.getKey())));
+                                ((this.combined == 2) && conb2.contains(e.getKey())) ||
+                        ((this.combined == 3) && conb3.contains(e.getKey())));
                 if (e.getValue() instanceof JsonObject) {
                     this.searchDamage((JsonObject) e.getValue(), c);
                 }
@@ -507,6 +509,9 @@ public final class BattleDto extends AbstractDto {
             break;
         case 2:
             combined = "水上打撃部隊";
+            break;
+        case 3:
+            combined = "輸送護衛部隊";
             break;
         default:
             combined = "";
