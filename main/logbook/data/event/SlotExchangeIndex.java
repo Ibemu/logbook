@@ -16,7 +16,7 @@ import logbook.data.EventListener;
 import logbook.data.context.ShipContext;
 
 /**
- * 入渠
+ * 装備入れ替え
  *
  */
 @EventTarget({ DataType.SLOT_EXCHANGE_INDEX })
