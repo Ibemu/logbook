@@ -6,9 +6,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.TimeZone;
 
-import org.eclipse.swt.graphics.RGB;
-
 import logbook.internal.Version;
+
+import org.eclipse.swt.graphics.RGB;
 
 /**
  * アプリケーションで使用する共通の定数クラス
@@ -26,7 +26,7 @@ public class AppConstants {
     public static final String NAME_PLUS = "航海日誌+";
 
     /** バージョン */
-    public static final Version VERSION_PLUS = new Version(1, 1, 5);
+    public static final Version VERSION_PLUS = new Version(1, 1, 6);
 
     /** バージョン */
     public static final String VERSION_FULL = VERSION + "+" + VERSION_PLUS.toStringFull();
