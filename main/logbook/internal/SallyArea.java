@@ -8,13 +8,13 @@ public enum SallyArea {
 
     NOTHING(0, ""),
 
-    AREA1(1, "A.初動作戦"),
+    AREA1(1, "A.輸送作戦"),
 
-    AREA2(2, "B.機動部隊"),
+    AREA2(2, "B.派遣作戦"),
 
-    AREA3(3, "C.挺身部隊"),
+    AREA3(3, ""),
 
-    AREA4(4, "D.西部方面"),
+    AREA4(4, ""),
 
     UNKNOWN(-1, "不明海域");
 
