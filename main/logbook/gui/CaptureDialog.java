@@ -217,7 +217,7 @@ public final class CaptureDialog extends Dialog {
                     // 範囲を取得する
                     Rectangle rectangle = new FullScreenDialog(CaptureDialog.this.shell, image,
                             CaptureDialog.this.shell.getMonitor())
-                            .open();
+                                    .open();
 
                     if ((rectangle != null) && (rectangle.width > 1) && (rectangle.height > 1)) {
                         CaptureDialog.this.rectangle = rectangle;
@@ -311,6 +311,9 @@ public final class CaptureDialog extends Dialog {
                 // 時刻からファイル名を作成
                 Date now = Calendar.getInstance().getTime();
 
+                // 範囲をキャプチャする
+                BufferedImage image = AwtUtils.getCapture(this.rectangle);
+
                 String dir = AppConfig.get().getCapturePath();
                 String name = this.fileNameFormat.format(now) + "." + AppConfig.get().getImageFormat();
                 Path path = Paths.get(dir, name);
@@ -331,8 +334,6 @@ public final class CaptureDialog extends Dialog {
                     }
                 }
 
-                // 範囲をキャプチャする
-                BufferedImage image = AwtUtils.getCapture(this.rectangle);
                 if (image != null) {
 
                     try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
