@@ -10,14 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import logbook.config.AppConfig;
-import logbook.data.context.ShipContext;
-import logbook.dto.ShipDto;
-import logbook.internal.EvaluateExp;
-import logbook.internal.ExpTable;
-import logbook.internal.SeaExp;
-import logbook.util.CalcExpUtils;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -35,6 +27,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+
+import logbook.config.AppConfig;
+import logbook.data.context.ShipContext;
+import logbook.dto.ShipDto;
+import logbook.internal.EvaluateExp;
+import logbook.internal.ExpTable;
+import logbook.internal.SeaExp;
+import logbook.util.CalcExpUtils;
 
 /**
  * 経験値計算機
@@ -111,7 +111,7 @@ public final class CalcExpDialog extends Dialog {
         GridData gdBeforelv = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
         gdBeforelv.widthHint = 45;
         this.beforelv.setLayoutData(gdBeforelv);
-        this.beforelv.setMaximum(150);
+        this.beforelv.setMaximum(155);
         this.beforelv.setMinimum(1);
         Label label2 = new Label(plan, SWT.NONE);
         label2.setText("Lv");
@@ -129,7 +129,7 @@ public final class CalcExpDialog extends Dialog {
         GridData gdAfterlv = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
         gdAfterlv.widthHint = 45;
         this.afterlv.setLayoutData(gdAfterlv);
-        this.afterlv.setMaximum(150);
+        this.afterlv.setMaximum(155);
         this.afterlv.setMinimum(1);
         Label label5 = new Label(plan, SWT.NONE);
         label5.setText("Lv");
@@ -245,8 +245,8 @@ public final class CalcExpDialog extends Dialog {
                 if (before > after) {
                     after = before + 1;
                 }
-                // 目標レベルが150を超える場合は150に設定
-                after = Math.min(after, 150);
+                // 目標レベルが155を超える場合は155に設定
+                after = Math.min(after, 155);
 
                 String beforeexpstr = Long.toString(ship.getExp());
                 String afterexpstr = Long.toString(ExpTable.get().get(after));

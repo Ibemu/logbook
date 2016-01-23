@@ -392,7 +392,7 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
      */
     private static Image totalExpGauge(ShipDto ship, Map<Integer, Image> cache) {
         // Max経験値の基準Lv
-        int targetLv = ship.getLv() > 100 ? 150 : 100;
+        int targetLv = ship.getLv() > 100 ? 155 : 100;
         long maxExp = ExpTable.get().get(targetLv);
         // 割合
         float ratio = (float) ship.getExp() / (float) maxExp;
