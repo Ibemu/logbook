@@ -473,6 +473,10 @@ public final class GlobalContext {
                 doBattle(data);
                 break;
             // 海戦
+            case COMBINED_BATTLE_LD_AIRBATTLE:
+                doBattle(data);
+                break;
+            // 海戦
             case COMBINED_BATTLE:
                 doBattle(data);
                 break;
