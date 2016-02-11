@@ -465,6 +465,10 @@ public final class GlobalContext {
                 doBattle(data);
                 break;
             // 海戦
+            case BATTLE_LD_AIRBATTLE:
+                doBattle(data);
+                break;
+            // 海戦
             case COMBINED_BATTLE_AIRBATTLE:
                 doBattle(data);
                 break;
@@ -674,7 +678,8 @@ public final class GlobalContext {
                 addConsole("入渠情報を更新しました");
 
                 // 遠征の状態を更新する
-                deckMissions = new DeckMissionDto[] { DeckMissionDto.EMPTY, DeckMissionDto.EMPTY, DeckMissionDto.EMPTY };
+                deckMissions = new DeckMissionDto[] { DeckMissionDto.EMPTY, DeckMissionDto.EMPTY,
+                        DeckMissionDto.EMPTY };
                 for (int i = 1; i < apiDeckPort.size(); i++) {
                     JsonObject object = (JsonObject) apiDeckPort.get(i);
                     JsonArray jmission = object.getJsonArray("api_mission");
@@ -941,8 +946,7 @@ public final class GlobalContext {
                     data.getField("api_item3"),
                     data.getField("api_item4"),
                     data.getField("api_item5"),
-                    ShipContext.getSecretary(), hqLevel
-                    );
+                    ShipContext.getSecretary(), hqLevel);
             lastBuildKdock = kdockid;
             getShipResource.put(kdockid, resource);
             KdockConfig.store(kdockid, resource);
