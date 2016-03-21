@@ -492,6 +492,10 @@ public final class GlobalContext {
             case COMBINED_BATTLE_SP_MIDNIGHT:
                 doBattleNight(data);
                 break;
+            // 海戦
+            case COMBINED_BATTLE_LD_AIRBATTLE:
+                doBattle(data);
+                break;
             // 海戦結果
             case BATTLE_RESULT:
                 doBattleresult(data);
