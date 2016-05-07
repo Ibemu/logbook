@@ -3,18 +3,6 @@ package logbook.gui;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import logbook.config.AppConfig;
-import logbook.constants.AppConstants;
-import logbook.data.context.GlobalContext;
-import logbook.dto.BattleDto;
-import logbook.dto.BattleResultDto;
-import logbook.dto.DockDto;
-import logbook.dto.ShipInfoDto;
-import logbook.gui.listener.SaveWindowLocationAdapter;
-import logbook.gui.logic.LayoutLogic;
-import logbook.internal.SortiePhase;
-import logbook.thread.ThreadManager;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
@@ -36,12 +24,23 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.wb.swt.SWTResourceManager;
 
+import logbook.config.AppConfig;
+import logbook.constants.AppConstants;
+import logbook.data.context.GlobalContext;
+import logbook.dto.BattleDto;
+import logbook.dto.BattleResultDto;
+import logbook.dto.DockDto;
+import logbook.dto.ShipInfoDto;
+import logbook.gui.listener.SaveWindowLocationAdapter;
+import logbook.gui.logic.LayoutLogic;
+import logbook.internal.SortiePhase;
+import logbook.thread.ThreadManager;
+
 /**
  * 出撃詳細
  *
  */
-public final class SortieDialog extends Dialog
-{
+public final class SortieDialog extends Dialog {
     private static final int MAXCHARA = 6;
 
     private Shell shell;
@@ -68,9 +67,12 @@ public final class SortieDialog extends Dialog
     private CLabel lblBattleCount;
     private CLabel lblDayNight;
     private CLabel lblRank;
+    private CLabel lblDispSeiku;
     private CLabel lblFriendSearch;
     private CLabel lblEnemySearch;
-    private CLabel lblDispSeiku;
+    private CLabel lblFriendTouch;
+    private CLabel lblEnemyTouch;
+    private CLabel lblBossDamaged;
 
     private Label lblSeparator1;
     private Label lblSeparatorH;
@@ -138,11 +140,9 @@ public final class SortieDialog extends Dialog
         mi = new MenuItem(this.opemenu, SWT.NONE);
         mi.setText("再読み込み(&R)\tF5");
         mi.setAccelerator(SWT.F5);
-        mi.addSelectionListener(new SelectionAdapter()
-        {
+        mi.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent e)
-            {
+            public void widgetSelected(SelectionEvent e) {
                 SortieDialog.this.reload();
             }
         });
@@ -166,15 +166,12 @@ public final class SortieDialog extends Dialog
         if (AppConfig.get().isLandscapeLayout()) {
             land.setSelection(true);
         }
-        land.addSelectionListener(new SelectionAdapter()
-        {
+        land.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent e)
-            {
+            public void widgetSelected(SelectionEvent e) {
                 if (land.getSelection()) {
                     SortieDialog.this.landscape();
-                }
-                else {
+                } else {
                     SortieDialog.this.portrait();
                 }
             }
@@ -186,95 +183,156 @@ public final class SortieDialog extends Dialog
         this.summary.setLayout(getGridLayout(1, false, 2));
         // マップ|マス|ボス|戦闘回数
         this.summaryMap = new Composite(this.summary, SWT.NONE);
-        this.summaryMap.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.summaryMap.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 1));
         this.summaryMap.setLayout(getGridLayout(4, false, 2, 0));
+
         lblText = new CLabel(this.summaryMap, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
-        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 2));
         lblText.setText("マップ");
+
         lblText = new CLabel(this.summaryMap, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
-        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 2));
         lblText.setText("マス");
+
         lblText = new CLabel(this.summaryMap, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
-        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 2));
         lblText.setText("ボス");
+
         lblText = new CLabel(this.summaryMap, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
-        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 2));
         lblText.setText("回数");
 
         this.lblMapId = new CLabel(this.summaryMap, SWT.BORDER);
         this.lblMapId.setAlignment(SWT.CENTER);
         this.lblMapId.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
         this.lblCellId = new CLabel(this.summaryMap, SWT.BORDER);
         this.lblCellId.setAlignment(SWT.CENTER);
         this.lblCellId.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
         this.lblBossArrive = new CLabel(this.summaryMap, SWT.BORDER);
         this.lblBossArrive.setAlignment(SWT.CENTER);
         this.lblBossArrive.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
         this.lblBattleCount = new CLabel(this.summaryMap, SWT.BORDER);
         this.lblBattleCount.setAlignment(SWT.CENTER);
         this.lblBattleCount.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
-        // 対峙|昼夜|ランク|制空|索敵(味方)|(敵)
+        //     |    |      |    |  索敵 |  触接 |
+        // 対峙|昼夜|ランク|制空|味方|敵|味方|敵|ギミック
         this.summaryBattle = new Composite(this.summary, SWT.NONE);
-        this.summaryBattle.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        this.summaryBattle.setLayout(getGridLayout(6, false, 2, 0));
+        this.summaryBattle.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 1));
+        this.summaryBattle.setLayout(getGridLayout(9, false, 2, 0));
+
         lblText = new CLabel(this.summaryBattle, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
-        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 2));
         lblText.setText("対峙");
+
         lblText = new CLabel(this.summaryBattle, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
-        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 2));
         lblText.setText("昼夜");
+
         lblText = new CLabel(this.summaryBattle, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
-        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 2));
         lblText.setText("ランク");
+
         lblText = new CLabel(this.summaryBattle, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
-        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 2));
         lblText.setText("制空");
+
         lblText = new CLabel(this.summaryBattle, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
-        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-        lblText.setText("索敵(味方)");
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 2, 1));
+        lblText.setText("索敵");
+
         lblText = new CLabel(this.summaryBattle, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
         lblText.setAlignment(SWT.CENTER);
-        lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-        lblText.setText("(敵)");
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 2, 1));
+        lblText.setText("触接");
+
+        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
+        lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
+        lblText.setAlignment(SWT.CENTER);
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 2));
+        lblText.setText("ギミック");
+
+        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
+        lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
+        lblText.setAlignment(SWT.CENTER);
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 1));
+        lblText.setText("味方");
+
+        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
+        lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
+        lblText.setAlignment(SWT.CENTER);
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 1));
+        lblText.setText("敵");
+
+        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
+        lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
+        lblText.setAlignment(SWT.CENTER);
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 1));
+        lblText.setText("味方");
+
+        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
+        lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
+        lblText.setAlignment(SWT.CENTER);
+        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 1));
+        lblText.setText("敵");
 
         this.lblIntercept = new CLabel(this.summaryBattle, SWT.BORDER);
         this.lblIntercept.setAlignment(SWT.CENTER);
         this.lblIntercept.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
         this.lblDayNight = new CLabel(this.summaryBattle, SWT.BORDER);
         this.lblDayNight.setAlignment(SWT.CENTER);
         this.lblDayNight.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
         this.lblRank = new CLabel(this.summaryBattle, SWT.BORDER);
         this.lblRank.setAlignment(SWT.CENTER);
         this.lblRank.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
         this.lblDispSeiku = new CLabel(this.summaryBattle, SWT.BORDER);
         this.lblDispSeiku.setAlignment(SWT.CENTER);
         this.lblDispSeiku.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
         this.lblFriendSearch = new CLabel(this.summaryBattle, SWT.BORDER);
         this.lblFriendSearch.setAlignment(SWT.CENTER);
         this.lblFriendSearch.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
         this.lblEnemySearch = new CLabel(this.summaryBattle, SWT.BORDER);
         this.lblEnemySearch.setAlignment(SWT.CENTER);
         this.lblEnemySearch.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
+        this.lblFriendTouch = new CLabel(this.summaryBattle, SWT.BORDER);
+        this.lblFriendTouch.setAlignment(SWT.CENTER);
+        this.lblFriendTouch.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
+        this.lblEnemyTouch = new CLabel(this.summaryBattle, SWT.BORDER);
+        this.lblEnemyTouch.setAlignment(SWT.CENTER);
+        this.lblEnemyTouch.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+
+        this.lblBossDamaged = new CLabel(this.summaryBattle, SWT.BORDER);
+        this.lblBossDamaged.setAlignment(SWT.CENTER);
+        this.lblBossDamaged.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
         this.lblSeparator1 = new Label(this.shell, SWT.SEPARATOR | SWT.HORIZONTAL);
         this.lblSeparator1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
@@ -306,14 +364,12 @@ public final class SortieDialog extends Dialog
         // 縦長・横長表示
         if (land.getSelection()) {
             SortieDialog.this.landscape();
-        }
-        else {
+        } else {
             SortieDialog.this.portrait();
         }
     }
 
-    private void portrait()
-    {
+    private void portrait() {
         this.shell.setLayout(new GridLayout(2, false));
 
         this.summary.setLayout(getGridLayout(1, false, 2));
@@ -332,8 +388,7 @@ public final class SortieDialog extends Dialog
         this.reload();
     }
 
-    private void landscape()
-    {
+    private void landscape() {
         this.shell.setLayout(new GridLayout(5, false));
 
         this.summary.setLayout(getGridLayout(2, false, 2));
@@ -352,8 +407,7 @@ public final class SortieDialog extends Dialog
         this.reload();
     }
 
-    private void layoutPack()
-    {
+    private void layoutPack() {
         this.summaryMap.layout();
         this.summaryMap.pack();
         this.summaryBattle.layout();
@@ -370,8 +424,7 @@ public final class SortieDialog extends Dialog
         this.shell.pack();
     }
 
-    private void reload()
-    {
+    private void reload() {
         //ヘッダ
         this.lblMapId.setText(GlobalContext.getMapAreaNo() + "-" + GlobalContext.getMapInfoNo());
         this.lblCellId.setText(GlobalContext.getMapCellNo() + "");
@@ -385,10 +438,8 @@ public final class SortieDialog extends Dialog
         BattleDto battleLast = null;
         String enemyName = "(敵艦隊)";
 
-        if (GlobalContext.getSortiePhase() == SortiePhase.BATTLE)
-        {
-            if (GlobalContext.getBattleList().isEmpty())
-            {
+        if (GlobalContext.getSortiePhase() == SortiePhase.BATTLE) {
+            if (GlobalContext.getBattleList().isEmpty()) {
                 this.layoutPack();
                 return;
             }
@@ -396,11 +447,8 @@ public final class SortieDialog extends Dialog
             battleFirst = battles[0];
             battleLast = battles[battles.length - 1];
             this.lblRank.setText(getRank(battleFirst, battleLast) + "?");
-        }
-        else
-        {
-            if (GlobalContext.getBattleResultList().isEmpty())
-            {
+        } else {
+            if (GlobalContext.getBattleResultList().isEmpty()) {
                 this.layoutPack();
                 return;
             }
@@ -408,8 +456,7 @@ public final class SortieDialog extends Dialog
                     GlobalContext.getBattleResultList().size() - 1);
             this.lblRank.setText(result.getRank());
             enemyName = result.getEnemyName();
-            if (result.getBattles().length == 0)
-            {
+            if (result.getBattles().length == 0) {
                 this.layoutPack();
                 return;
             }
@@ -418,16 +465,18 @@ public final class SortieDialog extends Dialog
         }
         this.lblIntercept.setText(battleFirst.getIntercept());
         this.lblDayNight.setText(battleLast.isNight() ? "夜戦" : "昼戦");
+        this.lblDispSeiku.setText(battleFirst.getDispSeiku());
         this.lblFriendSearch.setText(battleFirst.getFriendSearch());
         this.lblEnemySearch.setText(battleFirst.getEnemySearch());
-        this.lblDispSeiku.setText(battleFirst.getDispSeiku());
+        this.lblFriendTouch.setText(battleFirst.getFriendTouch());
+        this.lblEnemyTouch.setText(battleFirst.getEnemyTouch());
+        this.lblBossDamaged.setText(Integer.toString(battleFirst.getBossDamaged()));
 
         //味方(第1)
         DockDto dock = battleFirst.getFriends().get(0);
         this.friend.getDockName().setText(dock.getName());
         this.friend.getFormation().setText(battleFirst.getFriendFormation());
-        for (int i = 0; i < dock.getShips().size(); i++)
-        {
+        for (int i = 0; i < dock.getShips().size(); i++) {
             this.friend.getNames()[i].setText(dock.getShips().get(i).getName());
             this.friend.getLvs()[i].setText(dock.getShips().get(i).getLv() + "");
             int nhp = battleFirst.getNowFriendHp()[i];
@@ -440,8 +489,7 @@ public final class SortieDialog extends Dialog
             setStatus(this.friend.getEndstats()[i], ehp, mhp, battleFirst.getFriendEscape()[i]);
             setCond(this.friend.getConds()[i], dock.getShips().get(i).getCond());
         }
-        for (int i = dock.getShips().size(); i < MAXCHARA; i++)
-        {
+        for (int i = dock.getShips().size(); i < MAXCHARA; i++) {
             resetText(this.friend.getNames()[i]);
             resetText(this.friend.getLvs()[i]);
             resetText(this.friend.getNowhps()[i]);
@@ -453,14 +501,12 @@ public final class SortieDialog extends Dialog
         }
 
         //味方(第2)
-        if (battleFirst.getFriends().size() > 1)
-        {
+        if (battleFirst.getFriends().size() > 1) {
             setVisible(this.combined, true);
             dock = battleFirst.getFriends().get(1);
             this.combined.getDockName().setText(dock.getName());
             this.combined.getFormation().setText(battleFirst.getCombinedType());
-            for (int i = 0; i < dock.getShips().size(); i++)
-            {
+            for (int i = 0; i < dock.getShips().size(); i++) {
                 this.combined.getNames()[i].setText(dock.getShips().get(i).getName());
                 this.combined.getLvs()[i].setText(dock.getShips().get(i).getLv() + "");
                 int nhp = battleFirst.getNowCombinedHp()[i];
@@ -473,8 +519,7 @@ public final class SortieDialog extends Dialog
                 setStatus(this.combined.getEndstats()[i], ehp, mhp, battleFirst.getCombinedEscape()[i]);
                 setCond(this.combined.getConds()[i], dock.getShips().get(i).getCond());
             }
-            for (int i = dock.getShips().size(); i < MAXCHARA; i++)
-            {
+            for (int i = dock.getShips().size(); i < MAXCHARA; i++) {
                 resetText(this.combined.getNames()[i]);
                 resetText(this.combined.getLvs()[i]);
                 resetText(this.combined.getNowhps()[i]);
@@ -484,15 +529,13 @@ public final class SortieDialog extends Dialog
                 resetText(this.combined.getEndstats()[i]);
                 resetText(this.combined.getConds()[i]);
             }
-        }
-        else
+        } else
             setVisible(this.combined, false);
 
         //敵
         this.enemy.getDockName().setText(enemyName);
         this.enemy.getFormation().setText(battleFirst.getEnemyFormation());
-        for (int i = 0; i < battleFirst.getEnemy().size(); i++)
-        {
+        for (int i = 0; i < battleFirst.getEnemy().size(); i++) {
             ShipInfoDto ship = battleFirst.getEnemy().get(i);
             String name = ship.getName();
             if (!StringUtils.isEmpty(ship.getFlagship())) {
@@ -512,8 +555,7 @@ public final class SortieDialog extends Dialog
             setStatus(this.enemy.getEndstats()[i], ehp, mhp, false);
             this.enemy.getConds()[i].setText("");
         }
-        for (int i = battleFirst.getEnemy().size(); i < MAXCHARA; i++)
-        {
+        for (int i = battleFirst.getEnemy().size(); i < MAXCHARA; i++) {
             resetText(this.enemy.getNames()[i]);
             resetText(this.enemy.getLvs()[i]);
             resetText(this.enemy.getNowhps()[i]);
@@ -526,8 +568,7 @@ public final class SortieDialog extends Dialog
         this.layoutPack();
     }
 
-    private static String getRank(BattleDto battleFirst, BattleDto battleLast)
-    {
+    private static String getRank(BattleDto battleFirst, BattleDto battleLast) {
         int countf = 0; //味方の数
         int counte = 0; //敵の数
         int destf = 0; //味方の撃沈数
@@ -538,10 +579,8 @@ public final class SortieDialog extends Dialog
         int nowhpe = 0;
         int endhpe = 0;
 
-        for (int i = 0; i < MAXCHARA; i++)
-        {
-            if (battleLast.getMaxFriendHp()[i] > 0)
-            {
+        for (int i = 0; i < MAXCHARA; i++) {
+            if (battleLast.getMaxFriendHp()[i] > 0) {
                 countf++;
                 nowhpf += battleFirst.getNowFriendHp()[i];
                 if (battleLast.getEndFriendHp()[i] <= 0)
@@ -549,8 +588,7 @@ public final class SortieDialog extends Dialog
                 else
                     endhpf += battleLast.getEndFriendHp()[i];
             }
-            if (battleLast.getMaxCombinedHp()[i] > 0)
-            {
+            if (battleLast.getMaxCombinedHp()[i] > 0) {
                 countf++;
                 nowhpf += battleFirst.getNowCombinedHp()[i];
                 if (battleLast.getEndCombinedHp()[i] <= 0)
@@ -558,17 +596,14 @@ public final class SortieDialog extends Dialog
                 else
                     endhpf += battleLast.getEndCombinedHp()[i];
             }
-            if (battleLast.getMaxEnemyHp()[i] > 0)
-            {
+            if (battleLast.getMaxEnemyHp()[i] > 0) {
                 counte++;
                 nowhpe += battleFirst.getNowEnemyHp()[i];
-                if (battleLast.getEndEnemyHp()[i] <= 0)
-                {
+                if (battleLast.getEndEnemyHp()[i] <= 0) {
                     deste++;
                     if (i == 0)
                         desteflg = true;
-                }
-                else
+                } else
                     endhpe += battleLast.getEndEnemyHp()[i];
             }
         }
@@ -576,27 +611,22 @@ public final class SortieDialog extends Dialog
         double gaugef = (nowhpe - endhpe) / (double) nowhpe; //味方の戦果ゲージ
         double gaugee = (nowhpf - endhpf) / (double) nowhpf; //敵の戦果ゲージ
 
-        if (destf > 0)
-        {
+        if (destf > 0) {
             //轟沈あり
             if (((deste >= 4) || ((counte <= 5) && ((deste * 2) >= counte))) && ((gaugee * 2.5) < gaugef))
                 return "B";
-            else if (desteflg)
-            {
+            else if (desteflg) {
                 if (deste > destf)
                     return "B";
                 else
                     return "C";
-            }
-            else if ((deste >= 4) || ((counte <= 5) && ((deste * 2) >= counte)))
+            } else if ((deste >= 4) || ((counte <= 5) && ((deste * 2) >= counte)))
                 return "C";
             else if (gaugee < gaugef)
                 return "C";
             else
                 return "D";
-        }
-        else
-        {
+        } else {
             if (deste == counte)
                 return "S";
             else if ((deste >= 4) || ((counte <= 5) && ((deste * 2) >= counte)))
@@ -610,43 +640,30 @@ public final class SortieDialog extends Dialog
         }
     }
 
-    private static void setStatus(CLabel label, int now, int max, boolean escape)
-    {
-        if (escape)
-        {
+    private static void setStatus(CLabel label, int now, int max, boolean escape) {
+        if (escape) {
             label.setText("退避");
             label.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLUE));
             label.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-        }
-        else
-        {
+        } else {
             now *= 4;
-            if (now > (max * 3))
-            {
+            if (now > (max * 3)) {
                 label.setText("健在");
                 label.setBackground((Color) null);
                 label.setForeground(null);
-            }
-            else if (now > (max * 2))
-            {
+            } else if (now > (max * 2)) {
                 label.setText("小破");
                 label.setBackground((Color) null);
                 label.setForeground(null);
-            }
-            else if (now > max)
-            {
+            } else if (now > max) {
                 label.setText("中破");
                 label.setBackground(SWTResourceManager.getColor(AppConstants.COND_ORANGE_COLOR));
                 label.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-            }
-            else if (now > 0)
-            {
+            } else if (now > 0) {
                 label.setText("大破");
                 label.setBackground(SWTResourceManager.getColor(AppConstants.COND_RED_COLOR));
                 label.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-            }
-            else
-            {
+            } else {
                 label.setText("撃沈");
                 label.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
                 label.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
@@ -654,8 +671,7 @@ public final class SortieDialog extends Dialog
         }
     }
 
-    private static void setCond(CLabel label, long cond)
-    {
+    private static void setCond(CLabel label, long cond) {
         label.setText(cond + "");
         if (cond <= AppConstants.COND_RED)
             label.setForeground(SWTResourceManager.getColor(AppConstants.COND_RED_COLOR));
@@ -669,44 +685,38 @@ public final class SortieDialog extends Dialog
             label.setForeground(null);
     }
 
-    private static void resetText(CLabel label)
-    {
+    private static void resetText(CLabel label) {
         label.setText("");
         label.setBackground((Color) null);
         label.setForeground(null);
     }
 
-    private static void setVisible(Control c, boolean visible)
-    {
+    private static void setVisible(Control c, boolean visible) {
         if (c.getLayoutData() instanceof GridData)
             setVisible(c, visible, (GridData) c.getLayoutData());
         else
             c.setVisible(visible);
     }
 
-    private static void setVisible(Control c, boolean visible, GridData gd)
-    {
+    private static void setVisible(Control c, boolean visible, GridData gd) {
         gd.exclude = !visible;
         c.setLayoutData(gd);
         c.setVisible(visible);
     }
 
-    private static GridLayout getGridLayout(int numColumns, boolean makeColumnsEqualWidth, int spacing)
-    {
+    private static GridLayout getGridLayout(int numColumns, boolean makeColumnsEqualWidth, int spacing) {
         GridLayout gl = new GridLayout(numColumns, makeColumnsEqualWidth);
         gl.horizontalSpacing = spacing;
         gl.verticalSpacing = spacing;
         return gl;
     }
 
-    private static GridLayout getGridLayout(int numColumns, boolean makeColumnsEqualWidth, int spacing, int margin)
-    {
+    private static GridLayout getGridLayout(int numColumns, boolean makeColumnsEqualWidth, int spacing, int margin) {
         return getGridLayout(numColumns, makeColumnsEqualWidth, spacing, margin, margin);
     }
 
     private static GridLayout getGridLayout(int numColumns, boolean makeColumnsEqualWidth, int spacing,
-            int marginWidth, int marginHeight)
-    {
+            int marginWidth, int marginHeight) {
         GridLayout gl = getGridLayout(numColumns, makeColumnsEqualWidth, spacing);
         gl.marginTop = 0;
         gl.marginLeft = 0;
@@ -717,8 +727,7 @@ public final class SortieDialog extends Dialog
         return gl;
     }
 
-    private class DockComposite extends Composite
-    {
+    private class DockComposite extends Composite {
         private final CLabel dockName;
         private final CLabel formation;
         private final CLabel names[] = new CLabel[MAXCHARA];
@@ -730,8 +739,7 @@ public final class SortieDialog extends Dialog
         private final CLabel endstats[] = new CLabel[MAXCHARA];
         private final CLabel conds[] = new CLabel[MAXCHARA];
 
-        public DockComposite(Composite parent, int style, FontData fontData)
-        {
+        public DockComposite(Composite parent, int style, FontData fontData) {
             super(parent, style);
             this.setLayout(getGridLayout(11, false, 2));
             //フォント取得
@@ -775,8 +783,7 @@ public final class SortieDialog extends Dialog
             lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
             lblText.setText("cond.");
 
-            for (int i = 0; i < MAXCHARA; i++)
-            {
+            for (int i = 0; i < MAXCHARA; i++) {
                 this.names[i] = new CLabel(this, SWT.BORDER);
                 this.names[i].setAlignment(SWT.LEFT);
                 this.names[i].setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));

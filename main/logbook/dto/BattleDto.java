@@ -82,6 +82,12 @@ public final class BattleDto extends AbstractDto {
     /** 索敵 */
     private final String enemySearch;
 
+    /** 触接 */
+    private final String friendTouch;
+
+    /** 触接 */
+    private final String enemyTouch;
+
     /** 制空 */
     private final String dispSeiku;
 
@@ -90,6 +96,9 @@ public final class BattleDto extends AbstractDto {
 
     /** 退避 */
     private final boolean[] combinedEscape = { false, false, false, false, false, false };
+
+    /** api_boss_damaged */
+    private final int bossDamaged;
 
     /**
      * コンストラクター
@@ -131,6 +140,8 @@ public final class BattleDto extends AbstractDto {
                 this.combinedEscape[idx - 1] = true;
             }
         }
+
+        this.bossDamaged = object.getInt("api_boss_damaged", 0);
 
         JsonArray shipKe = object.getJsonArray("api_ship_ke");
         for (int i = 1; i < shipKe.size(); i++) {
@@ -245,14 +256,23 @@ public final class BattleDto extends AbstractDto {
         }
 
         String dispSeiku;
+        String friendTouch = "なし";
+        String enemyTouch = "なし";
 
         try {
             JsonObject stage1 = object.getJsonObject("api_kouku").getJsonObject("api_stage1");
             dispSeiku = toDispSeiku(stage1.getInt("api_disp_seiku"));
+            JsonArray search = stage1.getJsonArray("api_touch_plane");
+            friendTouch = Item.get(search.getInt(0)).getName();
+            enemyTouch = Item.get(search.getInt(1)).getName();
         } catch (Exception e) {
             dispSeiku = "不明";
+            friendTouch = "なし";
+            enemyTouch = "なし";
         }
         this.dispSeiku = dispSeiku;
+        this.friendTouch = friendTouch;
+        this.enemyTouch = enemyTouch;
     }
 
     private static String toDispSeiku(int s) {
@@ -349,8 +369,7 @@ public final class BattleDto extends AbstractDto {
         FRIEND, COMBINED, ENEMY
     }
 
-    private void damage(DockType t, int i, int dam)
-    {
+    private void damage(DockType t, int i, int dam) {
         int[] endHp;
         int[] maxHp;
         ShipDto ship;
@@ -410,14 +429,12 @@ public final class BattleDto extends AbstractDto {
                         this.damage(DockType.FRIEND, i - 1, fdam.getJsonNumber(i).intValue());
                     }
                 }
-            }
-            else if ("api_edam".equals(e.getKey())) {
+            } else if ("api_edam".equals(e.getKey())) {
                 JsonArray edam = (JsonArray) e.getValue();
                 for (int i = 1; i < edam.size(); i++) {
                     this.damage(DockType.ENEMY, i - 1, edam.getJsonNumber(i).intValue());
                 }
-            }
-            else if ("api_damage".equals(e.getKey())) {
+            } else if ("api_damage".equals(e.getKey())) {
                 JsonArray dflist = object.getJsonArray("api_df_list");
                 JsonArray damage = (JsonArray) e.getValue();
                 for (int i = 1; i < damage.size(); i++) {
@@ -433,8 +450,7 @@ public final class BattleDto extends AbstractDto {
                             int idx = df.getJsonNumber(j).intValue();
                             if (idx < 1) {
                                 continue;
-                            }
-                            else if (idx <= 6) {
+                            } else if (idx <= 6) {
                                 if (comb) {
                                     this.damage(DockType.COMBINED, idx - 1, dm.getJsonNumber(j).intValue());
                                 } else {
@@ -449,8 +465,7 @@ public final class BattleDto extends AbstractDto {
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 final List<String> conb1 = Arrays.asList("api_hougeki1", "api_raigeki", "api_opening_atack");
                 final List<String> conb2 = Arrays.asList("api_hougeki3", "api_raigeki", "api_opening_atack");
                 final List<String> conb3 = conb1;
@@ -458,11 +473,10 @@ public final class BattleDto extends AbstractDto {
                         ((e.getKey() != null) && e.getKey().contains("_combined")) ||
                         (((this.combined == 1) && conb1.contains(e.getKey())) ||
                                 ((this.combined == 2) && conb2.contains(e.getKey())) ||
-                        ((this.combined == 3) && conb3.contains(e.getKey())));
+                                ((this.combined == 3) && conb3.contains(e.getKey())));
                 if (e.getValue() instanceof JsonObject) {
                     this.searchDamage((JsonObject) e.getValue(), c);
-                }
-                else if (e.getValue() instanceof JsonArray) {
+                } else if (e.getValue() instanceof JsonArray) {
                     this.searchDamageArray((JsonArray) e.getValue(), c);
                 }
             }
@@ -473,8 +487,7 @@ public final class BattleDto extends AbstractDto {
         for (JsonValue v : array) {
             if (v instanceof JsonObject) {
                 this.searchDamage((JsonObject) v, comb);
-            }
-            else if (v instanceof JsonArray) {
+            } else if (v instanceof JsonArray) {
                 this.searchDamageArray((JsonArray) v, comb);
             }
         }
@@ -680,6 +693,22 @@ public final class BattleDto extends AbstractDto {
     }
 
     /**
+     * 味方触接を取得します。
+     * @return 味方触接
+     */
+    public String getFriendTouch() {
+        return this.friendTouch;
+    }
+
+    /**
+     * 敵触接を取得します。
+     * @return 敵触接
+     */
+    public String getEnemyTouch() {
+        return this.enemyTouch;
+    }
+
+    /**
      * 制空を取得します。
      * @return 制空
      */
@@ -699,5 +728,13 @@ public final class BattleDto extends AbstractDto {
      */
     public boolean[] getCombinedEscape() {
         return this.combinedEscape;
+    }
+
+    /**
+     * ギミックを取得します。
+     * @return ギミック
+     */
+    public int getBossDamaged() {
+        return this.bossDamaged;
     }
 }
