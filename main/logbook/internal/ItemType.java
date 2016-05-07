@@ -51,6 +51,8 @@ public class ItemType {
             .put(33, "大型飛行艇")
             .put(34, "戦闘糧食")
             .put(35, "補給物資")
+            .put(36, "特型内火艇")
+            .put(37, "陸上攻撃機")
             .build();
 
     /**
