@@ -6,9 +6,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.TimeZone;
 
-import logbook.internal.Version;
-
 import org.eclipse.swt.graphics.RGB;
+
+import logbook.internal.Version;
 
 /**
  * アプリケーションで使用する共通の定数クラス
@@ -26,7 +26,7 @@ public class AppConstants {
     public static final String NAME_PLUS = "航海日誌+";
 
     /** バージョン */
-    public static final Version VERSION_PLUS = new Version(1, 1, 7);
+    public static final Version VERSION_PLUS = new Version(1, 1, 8);
 
     /** バージョン */
     public static final String VERSION_FULL = VERSION + "+" + VERSION_PLUS.toStringFull();
@@ -41,8 +41,8 @@ public class AppConstants {
     public static final URI UPDATE_CHECK_URI = URI.create("http://kancolle.sanaechan.net/checkversion.txt");
 
     /** アップデートチェック先 */
-    public static final URI UPDATE_CHECK_URI_PLUS =
-            URI.create("https://raw.githubusercontent.com/Ibemu/logbook/plus/checkversion.txt");
+    public static final URI UPDATE_CHECK_URI_PLUS = URI
+            .create("https://raw.githubusercontent.com/Ibemu/logbook/plus/checkversion.txt");
 
     /** 日付書式 */
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
