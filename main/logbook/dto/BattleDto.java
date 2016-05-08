@@ -255,20 +255,39 @@ public final class BattleDto extends AbstractDto {
             this.enemySearch = "不明";
         }
 
-        String dispSeiku;
+        String dispSeiku = "不明";
         String friendTouch = "なし";
         String enemyTouch = "なし";
 
         try {
             JsonObject stage1 = object.getJsonObject("api_kouku").getJsonObject("api_stage1");
-            dispSeiku = toDispSeiku(stage1.getInt("api_disp_seiku"));
+            try {
+                dispSeiku = toDispSeiku(stage1.getInt("api_disp_seiku"));
+            } catch (Exception e) {
+                dispSeiku = "不明";
+            }
             JsonArray search = stage1.getJsonArray("api_touch_plane");
-            friendTouch = Item.get(search.getInt(0)).getName();
-            enemyTouch = Item.get(search.getInt(1)).getName();
+            try {
+                int t = search.getInt(0);
+                if (t < 0) {
+                    friendTouch = "なし";
+                } else {
+                    friendTouch = Item.get(t).getName();
+                }
+            } catch (Exception e) {
+                friendTouch = "不明";
+            }
+            try {
+                int t = search.getInt(1);
+                if (t < 0) {
+                    enemyTouch = "なし";
+                } else {
+                    enemyTouch = Item.get(t).getName();
+                }
+            } catch (Exception e) {
+                enemyTouch = "不明";
+            }
         } catch (Exception e) {
-            dispSeiku = "不明";
-            friendTouch = "なし";
-            enemyTouch = "なし";
         }
         this.dispSeiku = dispSeiku;
         this.friendTouch = friendTouch;
