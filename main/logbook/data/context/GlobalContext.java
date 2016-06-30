@@ -19,6 +19,13 @@ import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.ToolTip;
+
 import logbook.config.AppConfig;
 import logbook.config.KdockConfig;
 import logbook.config.QuestConfig;
@@ -55,13 +62,6 @@ import logbook.internal.Ship;
 import logbook.internal.ShipStyle;
 import logbook.internal.SortiePhase;
 import logbook.thread.PlayerThread;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.ToolTip;
 
 /**
  * 遠征・入渠などの情報を管理します
@@ -854,7 +854,8 @@ public final class GlobalContext {
 
                 List<ShipDto> sps = new ArrayList<ShipDto>();
                 for (int i = 0; i < 6; i++) {
-                    if ((last.getMaxFriendHp()[i] > 0) && ((last.getEndFriendHp()[i] * 4) <= last.getMaxFriendHp()[i])) {
+                    if ((last.getMaxFriendHp()[i] > 0)
+                            && ((last.getEndFriendHp()[i] * 4) <= last.getMaxFriendHp()[i])) {
                         sps.add(last.getFriends().get(0).getShips().get(i));
                     }
                     if ((last.getMaxCombinedHp()[i] > 0)
@@ -875,8 +876,7 @@ public final class GlobalContext {
                         public void run() {
                             try {
                                 sleep(8000);
-                            }
-                            catch (InterruptedException e) {
+                            } catch (InterruptedException e) {
                             }
                             Display.getDefault().asyncExec(new PostFatal(this.ships));
                         }
@@ -1364,8 +1364,7 @@ public final class GlobalContext {
                 }
             }
 
-            if (data.getJsonObject().getJsonObject("api_data").getJsonNumber("api_powerup_flag").intValue() != 0)
-            {
+            if (data.getJsonObject().getJsonObject("api_data").getJsonNumber("api_powerup_flag").intValue() != 0) {
                 Date now = new Date();
                 for (Integer no : QuestConfig.getNoList()) {
                     QuestBean bean = QuestConfig.get(no);
@@ -1619,21 +1618,23 @@ public final class GlobalContext {
                         if (bean == null) {
                             bean = new QuestBean();
                         }
-                        switch (quest.getType())
-                        {
-                        case 2:
-                        case 4:
-                        case 5:
+                        switch (quest.getType()) {
+                        case 1:
                             bean.setDue(QuestDue.getDaily());
                             break;
-                        case 3:
+                        case 2:
                             bean.setDue(QuestDue.getWeekly());
                             break;
-                        case 6:
+                        case 3:
                             bean.setDue(QuestDue.getMonthly());
                             break;
-                        default:
-                            break;
+                        case 5:
+                            switch (quest.getNo()) {
+                            case 211:
+                            case 212:
+                                bean.setDue(QuestDue.getDaily());
+                                break;
+                            }
                         }
                         bean.setExecuting(quest.getState() == 2);
                         QuestConfig.put(quest.getNo(), bean);
