@@ -1,22 +1,23 @@
 package logbook.internal;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * 出撃海域
  *
  */
-public enum SallyArea {
+public class SallyArea {
 
-    NOTHING(0, ""),
+    public static final SallyArea NOTHING = new SallyArea(0, "");
+    public static final SallyArea UNKNOWN = new SallyArea(-1, "不明海域");
 
-    AREA1(1, "A.輸送作戦"),
+    private static final Map<Integer, SallyArea> AREAS = new ConcurrentHashMap<Integer, SallyArea>();
 
-    AREA2(2, "B.派遣作戦"),
-
-    AREA3(3, ""),
-
-    AREA4(4, ""),
-
-    UNKNOWN(-1, "不明海域");
+    static {
+        AREAS.put(-1, UNKNOWN);
+        AREAS.put(0, NOTHING);
+    }
 
     private final int val;
 
@@ -30,6 +31,11 @@ public enum SallyArea {
         this.name = name;
     }
 
+    private SallyArea(int val) {
+        this.val = val;
+        this.name = "第" + val + "番札";
+    }
+
     public int getValue() {
         return this.val;
     }
@@ -39,28 +45,15 @@ public enum SallyArea {
     }
 
     public static SallyArea valueOf(int val) {
-        SallyArea area;
-        switch (val) {
-        case 0:
-            area = NOTHING;
-            break;
-        case 1:
-            area = AREA1;
-            break;
-        case 2:
-            area = AREA2;
-            break;
-        case 3:
-            area = AREA3;
-            break;
-        case 4:
-            area = AREA4;
-            break;
-        default:
-            area = UNKNOWN;
-            break;
-        }
-        return area;
+        if (val < 0)
+            return UNKNOWN;
+        if (!AREAS.containsKey(val))
+            AREAS.put(val, new SallyArea(val));
+        return AREAS.get(val);
+
     }
 
+    public static SallyArea[] values() {
+        return AREAS.values().toArray(new SallyArea[0]);
+    }
 }
