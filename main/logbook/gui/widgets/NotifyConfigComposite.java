@@ -1,9 +1,5 @@
 package logbook.gui.widgets;
 
-import logbook.config.AppConfig;
-import logbook.config.bean.AppConfigBean;
-import logbook.data.context.GlobalContext;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -11,6 +7,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
+
+import logbook.config.AppConfig;
+import logbook.config.bean.AppConfigBean;
+import logbook.data.context.GlobalContext;
 
 /**
  * 設定画面-通知
@@ -24,6 +24,8 @@ public final class NotifyConfigComposite extends Composite {
     private final Spinner intervalSpinner;
     /** 遠征・入渠をバルーンで通知する */
     private final Button balloon;
+    /** 新規艦娘の着任をバルーンで通知する */
+    private final Button newShip;
     /** 母港の空きをタスクバーで通知する */
     private final Button taskbar;
     /** 母港の空きがn以下で警告表示 */
@@ -62,6 +64,11 @@ public final class NotifyConfigComposite extends Composite {
         this.balloon.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
         this.balloon.setText("遠征・入渠をバルーンで通知する");
         this.balloon.setSelection(AppConfig.get().isUseBalloon());
+
+        this.newShip = new Button(this, SWT.CHECK);
+        this.newShip.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+        this.newShip.setText("新規艦娘の着任をバルーンで通知する");
+        this.newShip.setSelection(AppConfig.get().isNoticeNewShip());
 
         this.taskbar = new Button(this, SWT.CHECK);
         this.taskbar.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
@@ -115,6 +122,14 @@ public final class NotifyConfigComposite extends Composite {
     }
 
     /**
+     * 新規艦娘の着任をバルーンで通知するを取得します。
+     * @return 新規艦娘の着任をバルーンで通知する
+     */
+    public boolean getNewShip() {
+        return this.newShip.getSelection();
+    }
+
+    /**
      * 母港の空きをタスクバーで通知するを取得します。
      * @return 母港の空きをタスクバーで通知する
      */
@@ -138,6 +153,7 @@ public final class NotifyConfigComposite extends Composite {
         config.setMissionRemind(this.getRemind());
         config.setRemindInterbal(this.getInterval());
         config.setUseBalloon(this.getBalloon());
+        config.setNoticeNewShip(this.getNewShip());
         config.setUseTaskbarNotify(this.getTaskbar());
         config.setNotifyFully(this.getFully());
     }

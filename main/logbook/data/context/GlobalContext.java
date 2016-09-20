@@ -654,12 +654,23 @@ public final class GlobalContext {
                 // 保有艦娘を更新する
                 JsonArray apiShip = apidata.getJsonArray("api_ship");
                 Set<Long> portShips = new HashSet<>();
+                long last = ShipContext.getMaxShipID();
+                long max = -1;
+                Set<ShipInfoDto> newShips = new HashSet<>();
+                Set<ShipInfoDto> oldShips = new HashSet<>();
                 for (int i = 0; i < apiShip.size(); i++) {
                     ShipDto ship = new ShipDto((JsonObject) apiShip.get(i));
                     Long key = Long.valueOf(ship.getId());
                     ShipContext.get().put(key, ship);
                     portShips.add(key);
+                    if (key > last)
+                        newShips.add(ship.getShipInfo());
+                    else
+                        oldShips.add(ship.getShipInfo());
+                    if (key > max)
+                        max = key;
                 }
+                ShipContext.setMaxShipID(max);
                 // portに無い艦娘を除く
                 for (Entry<Long, ShipDto> entry : ShipContext.get().entrySet()) {
                     if (!portShips.contains(entry.getKey())) {
@@ -669,6 +680,43 @@ public final class GlobalContext {
                             ItemContext.alv().remove(item);
                         }
                         ShipContext.get().remove(entry.getKey());
+                    }
+                }
+                // 知らない子通知
+                if (AppConfig.get().isNoticeNewShip() && !oldShips.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(AppConstants.MESSAGE_NEW_SHIP).append("\n");
+                    boolean show = false;
+                    LoggerHolder.LOG.info("last:" + last);
+                    LoggerHolder.LOG.info("new :" + newShips.size());
+                    LoggerHolder.LOG.info("old :" + oldShips.size());
+                    for (ShipInfoDto ship : newShips) {
+                        LoggerHolder.LOG.info(ship.getName());
+                        boolean isNew = true;
+                        for (ShipInfoDto old : oldShips)
+                            if (ship.compareShipIncludeAfter(old)) {
+                                LoggerHolder.LOG.info(ship.getName() + "," + old.getName());
+                                isNew = false;
+                                break;
+                            }
+                        if (isNew) {
+                            if (show)
+                                sb.append(", ");
+                            else
+                                show = true;
+                            sb.append(ship.getName());
+                        }
+                    }
+                    if (show) {
+                        String mes = sb.toString();
+                        Display.getDefault().asyncExec(() -> {
+                            ToolTip tip = new ToolTip(ApplicationMain.getWindow().getShell(), SWT.BALLOON
+                                    | SWT.ICON_INFORMATION);
+                            tip.setText("新規艦娘");
+                            tip.setMessage(mes);
+                            ApplicationMain.getWindow().getTrayItem().setToolTip(tip);
+                            tip.setVisible(true);
+                        });
                     }
                 }
 
@@ -1851,9 +1899,17 @@ public final class GlobalContext {
         if ("-".equals(flagship)) {
             flagship = "";
         }
+        int shipid = 0;
+        if (object.containsKey("api_id")) {
+            shipid = object.getJsonNumber("api_id").intValue();
+        }
         int afterlv = 0;
         if (object.containsKey("api_afterlv")) {
             afterlv = object.getJsonNumber("api_afterlv").intValue();
+        }
+        int aftershipid = 0;
+        if (object.containsKey("api_aftershipid")) {
+            aftershipid = object.getJsonNumber("api_aftershipid").intValue();
         }
         int maxBull = 0;
         if (object.containsKey("api_bull_max")) {
@@ -1863,7 +1919,7 @@ public final class GlobalContext {
         if (object.containsKey("api_fuel_max")) {
             maxFuel = object.getJsonNumber("api_fuel_max").intValue();
         }
-        return new ShipInfoDto(name, type, flagship, afterlv, maxBull, maxFuel);
+        return new ShipInfoDto(shipid, name, type, flagship, afterlv, aftershipid, maxBull, maxFuel);
     }
 
     /**

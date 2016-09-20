@@ -23,6 +23,9 @@ public class ShipContext {
     /** 艦娘Map */
     private static Map<Long, ShipDto> shipMap = new ConcurrentSkipListMap<Long, ShipDto>();
 
+    /** 最大艦娘ID */
+    private static long maxShipID;
+
     /**
      * @return 艦娘Map
      */
@@ -62,5 +65,13 @@ public class ShipContext {
     @CheckForNull
     public static Date getModifySecretaryDate() {
         return modifySecretaryDate;
+    }
+
+    public static long getMaxShipID() {
+        return maxShipID;
+    }
+
+    public static void setMaxShipID(long maxShipID) {
+        ShipContext.maxShipID = maxShipID;
     }
 }

@@ -169,6 +169,9 @@ public final class AppConfigBean {
     /** 横長表示 */
     private boolean landscapeLayout = false;
 
+    /** 新規艦娘の着任をバルーンで通知する */
+    private boolean noticeNewShip = true;
+
     /** ユーザースクリプトを使用する */
     private boolean useUserScript;
 
@@ -1072,6 +1075,22 @@ public final class AppConfigBean {
      */
     public void setScriptEngines(String[] scriptEngines) {
         this.scriptEngines = scriptEngines;
+    }
+
+    /**
+     * 新規艦娘の着任をバルーンで通知するを取得します。
+     * @return 新規艦娘の着任をバルーンで通知する
+     */
+    public boolean isNoticeNewShip() {
+        return this.noticeNewShip;
+    }
+
+    /**
+     * 新規艦娘の着任をバルーンで通知するを設定します。
+     * @param noticeNewShip 新規艦娘の着任をバルーンで通知する
+     */
+    public void setNoticeNewShip(boolean noticeNewShip) {
+        this.noticeNewShip = noticeNewShip;
     }
 
 }
