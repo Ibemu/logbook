@@ -1805,7 +1805,7 @@ public final class GlobalContext {
                 JsonArray apiMstShip = obj.getJsonArray("api_mst_ship");
                 for (int i = 0; i < apiMstShip.size(); i++) {
                     JsonObject object = (JsonObject) apiMstShip.get(i);
-                    String id = object.getJsonNumber("api_id").toString();
+                    int id = object.getJsonNumber("api_id").intValue();
                     Ship.set(id, toShipInfoDto(object));
                 }
                 addConsole("艦娘一覧を更新しました");

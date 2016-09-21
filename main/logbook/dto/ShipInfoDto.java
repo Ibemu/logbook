@@ -211,7 +211,7 @@ public final class ShipInfoDto extends AbstractDto {
             if (this.getShipId() == after)
                 return true;
             afters.add(after);
-            after = Ship.get(Integer.toString(after)).getAfterShipId();
+            after = Ship.get(after).getAfterShipId();
         }
         afters.clear();
         after = this.getAfterShipId();
@@ -219,7 +219,7 @@ public final class ShipInfoDto extends AbstractDto {
             if (other.getShipId() == after)
                 return true;
             afters.add(after);
-            after = Ship.get(Integer.toString(after)).getAfterShipId();
+            after = Ship.get(after).getAfterShipId();
         }
         return false;
     }

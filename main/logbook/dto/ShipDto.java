@@ -223,7 +223,7 @@ public final class ShipDto extends AbstractDto {
         this.id = object.getJsonNumber("api_id").longValue();
         this.locked = object.getJsonNumber("api_locked").longValue() == 1;
 
-        ShipInfoDto shipinfo = Ship.get(object.getJsonNumber("api_ship_id").toString());
+        ShipInfoDto shipinfo = Ship.get(object.getJsonNumber("api_ship_id").intValue());
         this.shipInfo = shipinfo;
         this.name = shipinfo.getName();
         this.type = shipinfo.getType();
