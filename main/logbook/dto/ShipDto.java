@@ -26,6 +26,64 @@ import logbook.internal.Ship;
  */
 public final class ShipDto extends AbstractDto {
 
+    private static int skillLevel(int e) {
+        switch (e) {
+        case 1:
+            return 10;
+        case 2:
+            return 25;
+        case 3:
+            return 40;
+        case 4:
+            return 55;
+        case 5:
+            return 70;
+        case 6:
+            return 85;
+        case 7:
+            return 100;
+        }
+        return 0;
+    }
+
+    // 制空ボーナス(艦戦)
+    private static int bonusF(int e) {
+        switch (e) {
+        case 2:
+            return 2;
+        case 3:
+            return 5;
+        case 4:
+            return 9;
+        case 5:
+            return 14;
+        case 6:
+            return 14;
+        case 7:
+            return 22;
+        }
+        return 0;
+    }
+
+    // 制空ボーナス(水爆)
+    private static int bonusS(int e) {
+        switch (e) {
+        case 2:
+            return 1;
+        case 3:
+            return 1;
+        case 4:
+            return 1;
+        case 5:
+            return 3;
+        case 6:
+            return 3;
+        case 7:
+            return 6;
+        }
+        return 0;
+    }
+
     /** 日時 */
     private final Calendar time = Calendar.getInstance();
 
@@ -487,16 +545,27 @@ public final class ShipDto extends AbstractDto {
      */
     public int getSeiku() {
         List<ItemDto> items = this.getItem();
+        Map<Long, Integer> alvMap = ItemContext.alv();
         int seiku = 0;
         for (int i = 0; i < items.size(); i++) {
             ItemDto item = items.get(i);
             if (item != null) {
-                if ((item.getType3() == 6)
-                        || (item.getType3() == 7)
-                        || (item.getType3() == 8)
-                        || ((item.getType3() == 10) && (item.getType2() == 11))) {
-                    //6:艦上戦闘機,7:艦上爆撃機,8:艦上攻撃機,10:水上偵察機(ただし瑞雲のみ)の場合は制空値を計算する
-                    seiku += (int) Math.floor(item.getTyku() * Math.sqrt(this.onslot.get(i)));
+                if ((item.getType2() == 6)
+                        || (item.getType2() == 7)
+                        || (item.getType2() == 8)
+                        || (item.getType2() == 11)
+                        || (item.getType2() == 45)) {
+                    //6:艦上戦闘機,7:艦上爆撃機,8:艦上攻撃機,11:水上爆撃機,45:水上戦闘機の場合は制空値を計算する
+                    double bonus = 0;
+                    Integer alv = alvMap.get(this.slot.get(i));
+                    if (alv != null) {
+                        bonus += Math.sqrt(skillLevel(alv) / 10.0);
+                        if ((item.getType2() == 6) || (item.getType2() == 45))
+                            bonus += bonusF(alv);
+                        else if (item.getType2() == 11)
+                            bonus += bonusS(alv);
+                    }
+                    seiku += (int) Math.floor((item.getTyku() * Math.sqrt(this.onslot.get(i))) + bonus);
                 }
             }
         }
