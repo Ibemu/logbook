@@ -207,7 +207,7 @@ public class AppConstants {
     public static final String R_ICON_STAR = "/resources/icon/star.png";
 
     /** 艦隊タブの艦娘ラベルに設定するツールチップテキスト */
-    public static final String TOOLTIP_FLEETTAB_SHIP = "HP:{0}/{1} 燃料:{2}/{3} 弾:{4}/{5}\nNext:{6}exp\n装備\n  {7}";
+    public static final String TOOLTIP_FLEETTAB_SHIP = "HP:{0}/{1} 燃料:{2}/{3} 弾:{4}/{5}\nNext:{6}exp\n装備\n{7}";
 
     /** メッセージ 出撃できます。 */
     public static final String MESSAGE_GOOD = "出撃できます。";

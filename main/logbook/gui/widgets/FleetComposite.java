@@ -11,21 +11,6 @@ import java.util.List;
 
 import javax.annotation.CheckForNull;
 
-import logbook.config.AppConfig;
-import logbook.constants.AppConstants;
-import logbook.data.context.GlobalContext;
-import logbook.data.context.ShipContext;
-import logbook.dto.DockDto;
-import logbook.dto.ItemDto;
-import logbook.dto.ShipDto;
-import logbook.gui.ApplicationMain;
-import logbook.gui.TimerSettingDialog;
-import logbook.internal.EvaluateExp;
-import logbook.internal.SeaExp;
-import logbook.thread.PlayerThread;
-import logbook.util.CalcExpUtils;
-import logbook.util.SwtUtils;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -45,6 +30,21 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolTip;
 import org.eclipse.wb.swt.SWTResourceManager;
+
+import logbook.config.AppConfig;
+import logbook.constants.AppConstants;
+import logbook.data.context.GlobalContext;
+import logbook.data.context.ShipContext;
+import logbook.dto.DockDto;
+import logbook.dto.ItemDto;
+import logbook.dto.ShipDto;
+import logbook.gui.ApplicationMain;
+import logbook.gui.TimerSettingDialog;
+import logbook.internal.EvaluateExp;
+import logbook.internal.SeaExp;
+import logbook.thread.PlayerThread;
+import logbook.util.CalcExpUtils;
+import logbook.util.SwtUtils;
 
 /**
  * 艦隊タブのウィジェットです
@@ -463,13 +463,21 @@ public class FleetComposite extends Composite {
             // ステータス.ダメコン
             // 装備
             List<ItemDto> item = ship.getItem();
+            // 搭載機数
+            List<Integer> onslot = ship.getOnslot();
             List<String> names = new ArrayList<String>();
             int dmgcsty = 0;
             int dmgcstm = 0;
             boolean drum = false;
             // 索敵値計(秋)
             long saku = ship.getSakuteki();
-            for (ItemDto itemDto : item) {
+            for (int j = 0; j < item.size(); ++j) {
+                if (j == 4)
+                    continue;
+                String name = "**: ";
+                if (j < onslot.size())
+                    name = String.format("%02d: ", onslot.get(j));
+                ItemDto itemDto = item.get(j);
                 if (itemDto != null) {
                     if (itemDto.getName().equals("応急修理要員")) {
                         dmgcsty++;
@@ -480,8 +488,7 @@ public class FleetComposite extends Composite {
                         drum = true;
                     }
                     // 索敵値計(秋)
-                    switch (itemDto.getType2())
-                    {
+                    switch (itemDto.getType2()) {
                     case 7:
                         //艦上爆撃機
                         totalSakutekiAutumn += itemDto.getSaku() * 1.04;
@@ -516,8 +523,9 @@ public class FleetComposite extends Composite {
                         break;
                     }
                     saku -= itemDto.getSaku();
-                    names.add(itemDto.getName());
+                    name += itemDto.getName();
                 }
+                names.add(name);
             }
             totalSakutekiAutumn += Math.sqrt(saku) * 1.69;
             if (drum) {
@@ -604,7 +612,7 @@ public class FleetComposite extends Composite {
             // 名前
             this.nameLabels[i].setText(ship.getName());
             this.nameLabels[i].setToolTipText(MessageFormat.format(AppConstants.TOOLTIP_FLEETTAB_SHIP, nowhp, maxhp,
-                    fuel, fuelmax, bull, bullmax, ship.getNext(), StringUtils.join(names, "\n  ")));
+                    fuel, fuelmax, bull, bullmax, ship.getNext(), StringUtils.join(names, "\n")));
             this.lvLabels[i].setText(MessageFormat.format("(Lv.{0})", ship.getLv()));
             // HP
             this.hpLabels[i].setText(MessageFormat.format("{0}/{1} ", nowhp, maxhp));
