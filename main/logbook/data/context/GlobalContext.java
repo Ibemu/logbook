@@ -687,15 +687,11 @@ public final class GlobalContext {
                     StringBuilder sb = new StringBuilder();
                     sb.append(AppConstants.MESSAGE_NEW_SHIP).append("\n");
                     boolean show = false;
-                    LoggerHolder.LOG.info("last:" + last);
-                    LoggerHolder.LOG.info("new :" + newShips.size());
-                    LoggerHolder.LOG.info("old :" + oldShips.size());
                     for (ShipInfoDto ship : newShips) {
                         LoggerHolder.LOG.info(ship.getName());
                         boolean isNew = true;
                         for (ShipInfoDto old : oldShips)
                             if (ship.compareShipIncludeAfter(old)) {
-                                LoggerHolder.LOG.info(ship.getName() + "," + old.getName());
                                 isNew = false;
                                 break;
                             }
