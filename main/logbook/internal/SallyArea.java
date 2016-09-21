@@ -33,7 +33,7 @@ public class SallyArea {
 
     private SallyArea(int val) {
         this.val = val;
-        this.name = "第" + val + "番札";
+        this.name = "札" + val;
     }
 
     public int getValue() {
