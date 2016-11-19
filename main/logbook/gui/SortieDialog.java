@@ -78,9 +78,10 @@ public final class SortieDialog extends Dialog {
     private Label lblSeparatorH;
     private Label lblSeparatorV;
 
-    private DockComposite friend;
-    private DockComposite combined;
-    private DockComposite enemy;
+    private DockComposite friend1;
+    private DockComposite friend2;
+    private DockComposite enemy1;
+    private DockComposite enemy2;
 
     /**
      * Create the dialog.
@@ -337,10 +338,10 @@ public final class SortieDialog extends Dialog {
         this.lblSeparator1 = new Label(this.shell, SWT.SEPARATOR | SWT.HORIZONTAL);
         this.lblSeparator1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
-        this.friend = new DockComposite(this.shell, SWT.NONE, fontData);
-        this.friend.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        this.combined = new DockComposite(this.shell, SWT.NONE, fontData);
-        this.combined.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.friend1 = new DockComposite(this.shell, SWT.NONE, fontData);
+        this.friend1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.friend2 = new DockComposite(this.shell, SWT.NONE, fontData);
+        this.friend2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
         this.lblSeparatorH = new Label(this.shell, SWT.SEPARATOR | SWT.HORIZONTAL);
         this.lblSeparatorH.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
@@ -348,8 +349,10 @@ public final class SortieDialog extends Dialog {
         this.lblSeparatorV = new Label(this.shell, SWT.SEPARATOR | SWT.VERTICAL);
         setVisible(this.lblSeparatorV, false, new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
-        this.enemy = new DockComposite(this.shell, SWT.NONE, fontData);
-        this.enemy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+        this.enemy1 = new DockComposite(this.shell, SWT.NONE, fontData);
+        this.enemy1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.enemy2 = new DockComposite(this.shell, SWT.NONE, fontData);
+        this.enemy2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
         // 閉じた時に設定を保存
         this.shell.addShellListener(new ShellAdapter() {
@@ -377,32 +380,34 @@ public final class SortieDialog extends Dialog {
 
         this.lblSeparator1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
-        this.friend.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        this.combined.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.friend1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.friend2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
         setVisible(this.lblSeparatorH, true, new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
         setVisible(this.lblSeparatorV, false, new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
-        this.enemy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+        this.enemy1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.enemy1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
         this.reload();
     }
 
     private void landscape() {
-        this.shell.setLayout(new GridLayout(5, false));
+        this.shell.setLayout(new GridLayout(6, false));
 
         this.summary.setLayout(getGridLayout(2, false, 2));
-        this.summary.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 5, 1));
+        this.summary.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 6, 1));
 
-        this.lblSeparator1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1));
+        this.lblSeparator1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 6, 1));
 
-        this.friend.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-        this.combined.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.friend1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.friend2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
         setVisible(this.lblSeparatorH, false, new GridData(SWT.CENTER, SWT.FILL, false, true, 1, 1));
         setVisible(this.lblSeparatorV, true, new GridData(SWT.CENTER, SWT.FILL, false, true, 1, 1));
 
-        this.enemy.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.enemy1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.enemy1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
         this.reload();
     }
@@ -414,12 +419,14 @@ public final class SortieDialog extends Dialog {
         this.summaryBattle.pack();
         this.summary.layout();
         this.summary.pack();
-        this.friend.layout();
-        this.friend.pack();
-        this.combined.layout();
-        this.combined.pack();
-        this.enemy.layout();
-        this.enemy.pack();
+        this.friend1.layout();
+        this.friend1.pack();
+        this.friend2.layout();
+        this.friend2.pack();
+        this.enemy1.layout();
+        this.enemy1.pack();
+        this.enemy2.layout();
+        this.enemy2.pack();
         this.shell.layout();
         this.shell.pack();
     }
@@ -474,96 +481,96 @@ public final class SortieDialog extends Dialog {
 
         //味方(第1)
         DockDto dock = battleFirst.getFriends().get(0);
-        this.friend.getDockName().setText(dock.getName());
-        this.friend.getFormation().setText(battleFirst.getFriendFormation());
+        this.friend1.getDockName().setText(dock.getName());
+        this.friend1.getFormation().setText(battleFirst.getFriendFormation());
         for (int i = 0; i < dock.getShips().size(); i++) {
-            this.friend.getNames()[i].setText(dock.getShips().get(i).getName());
-            this.friend.getLvs()[i].setText(dock.getShips().get(i).getLv() + "");
+            this.friend1.getNames()[i].setText(dock.getShips().get(i).getName());
+            this.friend1.getLvs()[i].setText(dock.getShips().get(i).getLv() + "");
             int nhp = battleFirst.getNowFriendHp()[i];
             int ehp = battleLast.getEndFriendHp()[i];
             int mhp = battleFirst.getMaxFriendHp()[i];
-            this.friend.getNowhps()[i].setText(nhp + "");
-            this.friend.getEndhps()[i].setText(ehp + "");
-            this.friend.getMaxhps()[i].setText(mhp + "");
-            setStatus(this.friend.getNowstats()[i], nhp, mhp, battleFirst.getFriendEscape()[i]);
-            setStatus(this.friend.getEndstats()[i], ehp, mhp, battleFirst.getFriendEscape()[i]);
-            setCond(this.friend.getConds()[i], dock.getShips().get(i).getCond());
+            this.friend1.getNowhps()[i].setText(nhp + "");
+            this.friend1.getEndhps()[i].setText(ehp + "");
+            this.friend1.getMaxhps()[i].setText(mhp + "");
+            setStatus(this.friend1.getNowstats()[i], nhp, mhp, battleFirst.getFriendEscape()[i]);
+            setStatus(this.friend1.getEndstats()[i], ehp, mhp, battleFirst.getFriendEscape()[i]);
+            setCond(this.friend1.getConds()[i], dock.getShips().get(i).getCond());
         }
         for (int i = dock.getShips().size(); i < MAXCHARA; i++) {
-            resetText(this.friend.getNames()[i]);
-            resetText(this.friend.getLvs()[i]);
-            resetText(this.friend.getNowhps()[i]);
-            resetText(this.friend.getEndhps()[i]);
-            resetText(this.friend.getMaxhps()[i]);
-            resetText(this.friend.getNowstats()[i]);
-            resetText(this.friend.getEndstats()[i]);
-            resetText(this.friend.getConds()[i]);
+            resetText(this.friend1.getNames()[i]);
+            resetText(this.friend1.getLvs()[i]);
+            resetText(this.friend1.getNowhps()[i]);
+            resetText(this.friend1.getEndhps()[i]);
+            resetText(this.friend1.getMaxhps()[i]);
+            resetText(this.friend1.getNowstats()[i]);
+            resetText(this.friend1.getEndstats()[i]);
+            resetText(this.friend1.getConds()[i]);
         }
 
         //味方(第2)
         if (battleFirst.getFriends().size() > 1) {
-            setVisible(this.combined, true);
+            setVisible(this.friend2, true);
             dock = battleFirst.getFriends().get(1);
-            this.combined.getDockName().setText(dock.getName());
-            this.combined.getFormation().setText(battleFirst.getCombinedType());
+            this.friend2.getDockName().setText(dock.getName());
+            this.friend2.getFormation().setText(battleFirst.getCombinedType());
             for (int i = 0; i < dock.getShips().size(); i++) {
-                this.combined.getNames()[i].setText(dock.getShips().get(i).getName());
-                this.combined.getLvs()[i].setText(dock.getShips().get(i).getLv() + "");
+                this.friend2.getNames()[i].setText(dock.getShips().get(i).getName());
+                this.friend2.getLvs()[i].setText(dock.getShips().get(i).getLv() + "");
                 int nhp = battleFirst.getNowCombinedHp()[i];
                 int ehp = battleLast.getEndCombinedHp()[i];
                 int mhp = battleFirst.getMaxCombinedHp()[i];
-                this.combined.getNowhps()[i].setText(nhp + "");
-                this.combined.getEndhps()[i].setText(ehp + "");
-                this.combined.getMaxhps()[i].setText(mhp + "");
-                setStatus(this.combined.getNowstats()[i], nhp, mhp, battleFirst.getCombinedEscape()[i]);
-                setStatus(this.combined.getEndstats()[i], ehp, mhp, battleFirst.getCombinedEscape()[i]);
-                setCond(this.combined.getConds()[i], dock.getShips().get(i).getCond());
+                this.friend2.getNowhps()[i].setText(nhp + "");
+                this.friend2.getEndhps()[i].setText(ehp + "");
+                this.friend2.getMaxhps()[i].setText(mhp + "");
+                setStatus(this.friend2.getNowstats()[i], nhp, mhp, battleFirst.getCombinedEscape()[i]);
+                setStatus(this.friend2.getEndstats()[i], ehp, mhp, battleFirst.getCombinedEscape()[i]);
+                setCond(this.friend2.getConds()[i], dock.getShips().get(i).getCond());
             }
             for (int i = dock.getShips().size(); i < MAXCHARA; i++) {
-                resetText(this.combined.getNames()[i]);
-                resetText(this.combined.getLvs()[i]);
-                resetText(this.combined.getNowhps()[i]);
-                resetText(this.combined.getEndhps()[i]);
-                resetText(this.combined.getMaxhps()[i]);
-                resetText(this.combined.getNowstats()[i]);
-                resetText(this.combined.getEndstats()[i]);
-                resetText(this.combined.getConds()[i]);
+                resetText(this.friend2.getNames()[i]);
+                resetText(this.friend2.getLvs()[i]);
+                resetText(this.friend2.getNowhps()[i]);
+                resetText(this.friend2.getEndhps()[i]);
+                resetText(this.friend2.getMaxhps()[i]);
+                resetText(this.friend2.getNowstats()[i]);
+                resetText(this.friend2.getEndstats()[i]);
+                resetText(this.friend2.getConds()[i]);
             }
         } else
-            setVisible(this.combined, false);
+            setVisible(this.friend2, false);
 
         //敵
-        this.enemy.getDockName().setText(enemyName);
-        this.enemy.getFormation().setText(battleFirst.getEnemyFormation());
+        this.enemy1.getDockName().setText(enemyName);
+        this.enemy1.getFormation().setText(battleFirst.getEnemyFormation());
         for (int i = 0; i < battleFirst.getEnemy().size(); i++) {
             ShipInfoDto ship = battleFirst.getEnemy().get(i);
             String name = ship.getName();
             if (!StringUtils.isEmpty(ship.getFlagship())) {
                 name += " " + ship.getFlagship();
             }
-            this.enemy.getNames()[i].setText(name);
-            this.enemy.getLvs()[i]
+            this.enemy1.getNames()[i].setText(name);
+            this.enemy1.getLvs()[i]
                     .setText((i < battleFirst.getEnemyLv().size()) ? (battleFirst.getEnemyLv().get(i) + "")
                             : "");
             int nhp = battleFirst.getNowEnemyHp()[i];
             int ehp = battleLast.getEndEnemyHp()[i];
             int mhp = battleFirst.getMaxEnemyHp()[i];
-            this.enemy.getNowhps()[i].setText(nhp + "");
-            this.enemy.getEndhps()[i].setText(ehp + "");
-            this.enemy.getMaxhps()[i].setText(mhp + "");
-            setStatus(this.enemy.getNowstats()[i], nhp, mhp, false);
-            setStatus(this.enemy.getEndstats()[i], ehp, mhp, false);
-            this.enemy.getConds()[i].setText("");
+            this.enemy1.getNowhps()[i].setText(nhp + "");
+            this.enemy1.getEndhps()[i].setText(ehp + "");
+            this.enemy1.getMaxhps()[i].setText(mhp + "");
+            setStatus(this.enemy1.getNowstats()[i], nhp, mhp, false);
+            setStatus(this.enemy1.getEndstats()[i], ehp, mhp, false);
+            this.enemy1.getConds()[i].setText("");
         }
         for (int i = battleFirst.getEnemy().size(); i < MAXCHARA; i++) {
-            resetText(this.enemy.getNames()[i]);
-            resetText(this.enemy.getLvs()[i]);
-            resetText(this.enemy.getNowhps()[i]);
-            resetText(this.enemy.getEndhps()[i]);
-            resetText(this.enemy.getMaxhps()[i]);
-            resetText(this.enemy.getNowstats()[i]);
-            resetText(this.enemy.getEndstats()[i]);
-            resetText(this.enemy.getConds()[i]);
+            resetText(this.enemy1.getNames()[i]);
+            resetText(this.enemy1.getLvs()[i]);
+            resetText(this.enemy1.getNowhps()[i]);
+            resetText(this.enemy1.getEndhps()[i]);
+            resetText(this.enemy1.getMaxhps()[i]);
+            resetText(this.enemy1.getNowstats()[i]);
+            resetText(this.enemy1.getEndstats()[i]);
+            resetText(this.enemy1.getConds()[i]);
         }
         this.layoutPack();
     }
