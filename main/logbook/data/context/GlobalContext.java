@@ -62,6 +62,7 @@ import logbook.internal.Ship;
 import logbook.internal.ShipStyle;
 import logbook.internal.SortiePhase;
 import logbook.thread.PlayerThread;
+import logbook.util.JsonUtils;
 
 /**
  * 遠征・入渠などの情報を管理します
@@ -688,7 +689,6 @@ public final class GlobalContext {
                     sb.append(AppConstants.MESSAGE_NEW_SHIP).append("\n");
                     boolean show = false;
                     for (ShipInfoDto ship : newShips) {
-                        LoggerHolder.LOG.info(ship.getName());
                         boolean isNew = true;
                         for (ShipInfoDto old : oldShips)
                             if (ship.compareShipIncludeAfter(old)) {
@@ -1890,30 +1890,30 @@ public final class GlobalContext {
             return ShipInfoDto.EMPTY;
         }
 
-        String type = ShipStyle.get(object.getJsonNumber("api_stype").toString());
+        String type = ShipStyle.get(JsonUtils.getInt(object.get("api_stype")));
         String flagship = object.getString("api_yomi");
         if ("-".equals(flagship)) {
             flagship = "";
         }
         int shipid = 0;
         if (object.containsKey("api_id")) {
-            shipid = object.getJsonNumber("api_id").intValue();
+            shipid = JsonUtils.getInt(object.get("api_id"));
         }
         int afterlv = 0;
         if (object.containsKey("api_afterlv")) {
-            afterlv = object.getJsonNumber("api_afterlv").intValue();
+            afterlv = JsonUtils.getInt(object.get("api_afterlv"));
         }
         int aftershipid = 0;
         if (object.containsKey("api_aftershipid")) {
-            aftershipid = object.getJsonNumber("api_aftershipid").intValue();
+            aftershipid = JsonUtils.getInt(object.get("api_aftershipid"));
         }
         int maxBull = 0;
         if (object.containsKey("api_bull_max")) {
-            maxBull = object.getJsonNumber("api_bull_max").intValue();
+            maxBull = JsonUtils.getInt(object.get("api_bull_max"));
         }
         int maxFuel = 0;
         if (object.containsKey("api_fuel_max")) {
-            maxFuel = object.getJsonNumber("api_fuel_max").intValue();
+            maxFuel = JsonUtils.getInt(object.get("api_fuel_max"));
         }
         return new ShipInfoDto(shipid, name, type, flagship, afterlv, aftershipid, maxBull, maxFuel);
     }
