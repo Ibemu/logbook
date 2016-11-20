@@ -119,16 +119,16 @@ public final class CreateReportLogic {
             if (docks != null) {
                 DockDto dock = docks.get(0);
                 List<ShipDto> friendships = dock.getShips();
-                int[] fnowhps = battle.getNowFriendHp();
-                int[] fmaxhps = battle.getMaxFriendHp();
+                int[] fnowhps = battle.getNowFriend1Hp();
+                int[] fmaxhps = battle.getMaxFriend1Hp();
                 for (int j = 0; j < friendships.size(); j++) {
                     ShipDto ship = friendships.get(j);
                     friend[j] = ship.getName() + "(Lv" + ship.getLv() + ")";
                     friendHp[j] = fnowhps[j] + "/" + fmaxhps[j];
                 }
-                List<ShipInfoDto> enemyships = battle.getEnemy();
-                int[] enowhps = battle.getNowEnemyHp();
-                int[] emaxhps = battle.getMaxEnemyHp();
+                List<ShipInfoDto> enemyships = battle.getEnemy1();
+                int[] enowhps = battle.getNowEnemy1Hp();
+                int[] emaxhps = battle.getMaxEnemy1Hp();
                 for (int j = 0; j < enemyships.size(); j++) {
                     ShipInfoDto ship = enemyships.get(j);
                     if (!StringUtils.isEmpty(ship.getFlagship())) {

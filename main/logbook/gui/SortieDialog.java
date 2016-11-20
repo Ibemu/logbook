@@ -72,7 +72,6 @@ public final class SortieDialog extends Dialog {
     private CLabel lblEnemySearch;
     private CLabel lblFriendTouch;
     private CLabel lblEnemyTouch;
-    private CLabel lblBossDamaged;
 
     private Label lblSeparator1;
     private Label lblSeparatorH;
@@ -227,11 +226,11 @@ public final class SortieDialog extends Dialog {
         this.lblBattleCount.setAlignment(SWT.CENTER);
         this.lblBattleCount.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
-        //     |    |      |    |  索敵 |  触接 |
-        // 対峙|昼夜|ランク|制空|味方|敵|味方|敵|ギミック
+        //     |    |      |    |  索敵 |  触接
+        // 対峙|昼夜|ランク|制空|味方|敵|味方|敵
         this.summaryBattle = new Composite(this.summary, SWT.NONE);
         this.summaryBattle.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 1));
-        this.summaryBattle.setLayout(getGridLayout(9, false, 2, 0));
+        this.summaryBattle.setLayout(getGridLayout(8, false, 2, 0));
 
         lblText = new CLabel(this.summaryBattle, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
@@ -268,12 +267,6 @@ public final class SortieDialog extends Dialog {
         lblText.setAlignment(SWT.CENTER);
         lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 2, 1));
         lblText.setText("触接");
-
-        lblText = new CLabel(this.summaryBattle, SWT.BORDER);
-        lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
-        lblText.setAlignment(SWT.CENTER);
-        lblText.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, false, false, 1, 2));
-        lblText.setText("ギミック");
 
         lblText = new CLabel(this.summaryBattle, SWT.BORDER);
         lblText.setFont(SWTResourceManager.getFont(fontName, size, SWT.BOLD));
@@ -330,10 +323,6 @@ public final class SortieDialog extends Dialog {
         this.lblEnemyTouch = new CLabel(this.summaryBattle, SWT.BORDER);
         this.lblEnemyTouch.setAlignment(SWT.CENTER);
         this.lblEnemyTouch.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
-
-        this.lblBossDamaged = new CLabel(this.summaryBattle, SWT.BORDER);
-        this.lblBossDamaged.setAlignment(SWT.CENTER);
-        this.lblBossDamaged.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
 
         this.lblSeparator1 = new Label(this.shell, SWT.SEPARATOR | SWT.HORIZONTAL);
         this.lblSeparator1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
@@ -477,7 +466,6 @@ public final class SortieDialog extends Dialog {
         this.lblEnemySearch.setText(battleFirst.getEnemySearch());
         this.lblFriendTouch.setText(battleFirst.getFriendTouch());
         this.lblEnemyTouch.setText(battleFirst.getEnemyTouch());
-        this.lblBossDamaged.setText(Integer.toString(battleFirst.getBossDamaged()));
 
         //味方(第1)
         DockDto dock = battleFirst.getFriends().get(0);
@@ -486,14 +474,14 @@ public final class SortieDialog extends Dialog {
         for (int i = 0; i < dock.getShips().size(); i++) {
             this.friend1.getNames()[i].setText(dock.getShips().get(i).getName());
             this.friend1.getLvs()[i].setText(dock.getShips().get(i).getLv() + "");
-            int nhp = battleFirst.getNowFriendHp()[i];
-            int ehp = battleLast.getEndFriendHp()[i];
-            int mhp = battleFirst.getMaxFriendHp()[i];
+            int nhp = battleFirst.getNowFriend1Hp()[i];
+            int ehp = battleLast.getEndFriend1Hp()[i];
+            int mhp = battleFirst.getMaxFriend1Hp()[i];
             this.friend1.getNowhps()[i].setText(nhp + "");
             this.friend1.getEndhps()[i].setText(ehp + "");
             this.friend1.getMaxhps()[i].setText(mhp + "");
-            setStatus(this.friend1.getNowstats()[i], nhp, mhp, battleFirst.getFriendEscape()[i]);
-            setStatus(this.friend1.getEndstats()[i], ehp, mhp, battleFirst.getFriendEscape()[i]);
+            setStatus(this.friend1.getNowstats()[i], nhp, mhp, battleFirst.getFriend1Escape()[i]);
+            setStatus(this.friend1.getEndstats()[i], ehp, mhp, battleFirst.getFriend1Escape()[i]);
             setCond(this.friend1.getConds()[i], dock.getShips().get(i).getCond());
         }
         for (int i = dock.getShips().size(); i < MAXCHARA; i++) {
@@ -516,14 +504,14 @@ public final class SortieDialog extends Dialog {
             for (int i = 0; i < dock.getShips().size(); i++) {
                 this.friend2.getNames()[i].setText(dock.getShips().get(i).getName());
                 this.friend2.getLvs()[i].setText(dock.getShips().get(i).getLv() + "");
-                int nhp = battleFirst.getNowCombinedHp()[i];
-                int ehp = battleLast.getEndCombinedHp()[i];
-                int mhp = battleFirst.getMaxCombinedHp()[i];
+                int nhp = battleFirst.getNowFriend2Hp()[i];
+                int ehp = battleLast.getEndFriend2Hp()[i];
+                int mhp = battleFirst.getMaxFriend2Hp()[i];
                 this.friend2.getNowhps()[i].setText(nhp + "");
                 this.friend2.getEndhps()[i].setText(ehp + "");
                 this.friend2.getMaxhps()[i].setText(mhp + "");
-                setStatus(this.friend2.getNowstats()[i], nhp, mhp, battleFirst.getCombinedEscape()[i]);
-                setStatus(this.friend2.getEndstats()[i], ehp, mhp, battleFirst.getCombinedEscape()[i]);
+                setStatus(this.friend2.getNowstats()[i], nhp, mhp, battleFirst.getFriend2Escape()[i]);
+                setStatus(this.friend2.getEndstats()[i], ehp, mhp, battleFirst.getFriend2Escape()[i]);
                 setCond(this.friend2.getConds()[i], dock.getShips().get(i).getCond());
             }
             for (int i = dock.getShips().size(); i < MAXCHARA; i++) {
@@ -539,22 +527,22 @@ public final class SortieDialog extends Dialog {
         } else
             setVisible(this.friend2, false);
 
-        //敵
+        //敵(第1)
         this.enemy1.getDockName().setText(enemyName);
         this.enemy1.getFormation().setText(battleFirst.getEnemyFormation());
-        for (int i = 0; i < battleFirst.getEnemy().size(); i++) {
-            ShipInfoDto ship = battleFirst.getEnemy().get(i);
+        for (int i = 0; i < battleFirst.getEnemy1().size(); i++) {
+            ShipInfoDto ship = battleFirst.getEnemy1().get(i);
             String name = ship.getName();
             if (!StringUtils.isEmpty(ship.getFlagship())) {
                 name += " " + ship.getFlagship();
             }
             this.enemy1.getNames()[i].setText(name);
             this.enemy1.getLvs()[i]
-                    .setText((i < battleFirst.getEnemyLv().size()) ? (battleFirst.getEnemyLv().get(i) + "")
+                    .setText((i < battleFirst.getEnemy1Lv().size()) ? (battleFirst.getEnemy1Lv().get(i) + "")
                             : "");
-            int nhp = battleFirst.getNowEnemyHp()[i];
-            int ehp = battleLast.getEndEnemyHp()[i];
-            int mhp = battleFirst.getMaxEnemyHp()[i];
+            int nhp = battleFirst.getNowEnemy1Hp()[i];
+            int ehp = battleLast.getEndEnemy1Hp()[i];
+            int mhp = battleFirst.getMaxEnemy1Hp()[i];
             this.enemy1.getNowhps()[i].setText(nhp + "");
             this.enemy1.getEndhps()[i].setText(ehp + "");
             this.enemy1.getMaxhps()[i].setText(mhp + "");
@@ -562,7 +550,7 @@ public final class SortieDialog extends Dialog {
             setStatus(this.enemy1.getEndstats()[i], ehp, mhp, false);
             this.enemy1.getConds()[i].setText("");
         }
-        for (int i = battleFirst.getEnemy().size(); i < MAXCHARA; i++) {
+        for (int i = battleFirst.getEnemy1().size(); i < MAXCHARA; i++) {
             resetText(this.enemy1.getNames()[i]);
             resetText(this.enemy1.getLvs()[i]);
             resetText(this.enemy1.getNowhps()[i]);
@@ -572,6 +560,43 @@ public final class SortieDialog extends Dialog {
             resetText(this.enemy1.getEndstats()[i]);
             resetText(this.enemy1.getConds()[i]);
         }
+
+        //敵(第2)
+        if (battleFirst.isEnemyCombined()) {
+            setVisible(this.enemy2, true);
+            for (int i = 0; i < battleFirst.getEnemy2().size(); i++) {
+                ShipInfoDto ship = battleFirst.getEnemy2().get(i);
+                String name = ship.getName();
+                if (!StringUtils.isEmpty(ship.getFlagship())) {
+                    name += " " + ship.getFlagship();
+                }
+                this.enemy2.getNames()[i].setText(name);
+                this.enemy2.getLvs()[i]
+                        .setText((i < battleFirst.getEnemy2Lv().size()) ? (battleFirst.getEnemy2Lv().get(i) + "")
+                                : "");
+                int nhp = battleFirst.getNowEnemy2Hp()[i];
+                int ehp = battleLast.getEndEnemy2Hp()[i];
+                int mhp = battleFirst.getMaxEnemy2Hp()[i];
+                this.enemy2.getNowhps()[i].setText(nhp + "");
+                this.enemy2.getEndhps()[i].setText(ehp + "");
+                this.enemy2.getMaxhps()[i].setText(mhp + "");
+                setStatus(this.enemy2.getNowstats()[i], nhp, mhp, false);
+                setStatus(this.enemy2.getEndstats()[i], ehp, mhp, false);
+                this.enemy2.getConds()[i].setText("");
+            }
+            for (int i = dock.getShips().size(); i < MAXCHARA; i++) {
+                resetText(this.enemy2.getNames()[i]);
+                resetText(this.enemy2.getLvs()[i]);
+                resetText(this.enemy2.getNowhps()[i]);
+                resetText(this.enemy2.getEndhps()[i]);
+                resetText(this.enemy2.getMaxhps()[i]);
+                resetText(this.enemy2.getNowstats()[i]);
+                resetText(this.enemy2.getEndstats()[i]);
+                resetText(this.enemy2.getConds()[i]);
+            }
+        } else
+            setVisible(this.enemy2, false);
+
         this.layoutPack();
     }
 
@@ -587,31 +612,31 @@ public final class SortieDialog extends Dialog {
         int endhpe = 0;
 
         for (int i = 0; i < MAXCHARA; i++) {
-            if (battleLast.getMaxFriendHp()[i] > 0) {
+            if (battleLast.getMaxFriend1Hp()[i] > 0) {
                 countf++;
-                nowhpf += battleFirst.getNowFriendHp()[i];
-                if (battleLast.getEndFriendHp()[i] <= 0)
+                nowhpf += battleFirst.getNowFriend1Hp()[i];
+                if (battleLast.getEndFriend1Hp()[i] <= 0)
                     destf++;
                 else
-                    endhpf += battleLast.getEndFriendHp()[i];
+                    endhpf += battleLast.getEndFriend1Hp()[i];
             }
-            if (battleLast.getMaxCombinedHp()[i] > 0) {
+            if (battleLast.getMaxFriend2Hp()[i] > 0) {
                 countf++;
-                nowhpf += battleFirst.getNowCombinedHp()[i];
-                if (battleLast.getEndCombinedHp()[i] <= 0)
+                nowhpf += battleFirst.getNowFriend2Hp()[i];
+                if (battleLast.getEndFriend2Hp()[i] <= 0)
                     destf++;
                 else
-                    endhpf += battleLast.getEndCombinedHp()[i];
+                    endhpf += battleLast.getEndFriend2Hp()[i];
             }
-            if (battleLast.getMaxEnemyHp()[i] > 0) {
+            if (battleLast.getMaxEnemy1Hp()[i] > 0) {
                 counte++;
-                nowhpe += battleFirst.getNowEnemyHp()[i];
-                if (battleLast.getEndEnemyHp()[i] <= 0) {
+                nowhpe += battleFirst.getNowEnemy1Hp()[i];
+                if (battleLast.getEndEnemy1Hp()[i] <= 0) {
                     deste++;
                     if (i == 0)
                         desteflg = true;
                 } else
-                    endhpe += battleLast.getEndEnemyHp()[i];
+                    endhpe += battleLast.getEndEnemy1Hp()[i];
             }
         }
 

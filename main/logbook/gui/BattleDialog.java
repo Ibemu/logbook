@@ -244,8 +244,8 @@ public final class BattleDialog extends Dialog {
         gdeItem5.widthHint = 100;
         lbleItem5.setLayoutData(gdeItem5);
 
-        List<ShipInfoDto> enemyships = battle.getEnemy();
-        List<ItemDto[]> enemySlots = battle.getEnemySlot();
+        List<ShipInfoDto> enemyships = battle.getEnemy1();
+        List<ItemDto[]> enemySlots = battle.getEnemy1Slot();
 
         for (int i = 0; i < enemyships.size(); i++) {
             ShipInfoDto ship = enemyships.get(i);
@@ -260,7 +260,7 @@ public final class BattleDialog extends Dialog {
             lblName.setText(name);
 
             Label lblHp = new Label(eComposite, SWT.NONE);
-            lblHp.setText(battle.getNowEnemyHp()[i] + "/" + battle.getMaxEnemyHp()[i]);
+            lblHp.setText(battle.getNowEnemy1Hp()[i] + "/" + battle.getMaxEnemy1Hp()[i]);
 
             for (int j = 0; j < slot.length; j++) {
                 Label lblSlot = new Label(eComposite, SWT.NONE);
@@ -371,8 +371,8 @@ public final class BattleDialog extends Dialog {
         sb.append("     </thead>").append("\r\n");
         sb.append("     <tbody>").append("\r\n");
 
-        List<ShipInfoDto> enemyships = battle.getEnemy();
-        List<ItemDto[]> enemySlots = battle.getEnemySlot();
+        List<ShipInfoDto> enemyships = battle.getEnemy1();
+        List<ItemDto[]> enemySlots = battle.getEnemy1Slot();
         for (int i = 0; i < enemyships.size(); i++) {
             ShipInfoDto ship = enemyships.get(i);
             ItemDto[] slot = enemySlots.get(i);
@@ -384,7 +384,7 @@ public final class BattleDialog extends Dialog {
 
             sb.append("         <tr>").append("\r\n");
             sb.append("             <td>" + name + "</td>").append("\r\n");
-            sb.append("             <td>" + battle.getNowEnemyHp()[i] + "/" + battle.getMaxEnemyHp()[i] + "</td>")
+            sb.append("             <td>" + battle.getNowEnemy1Hp()[i] + "/" + battle.getMaxEnemy1Hp()[i] + "</td>")
                     .append("\r\n");
             for (int j = 0; j < slot.length; j++) {
                 if (slot[j] != null) {

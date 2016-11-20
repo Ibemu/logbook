@@ -486,6 +486,18 @@ public final class GlobalContext {
                 doBattle(data);
                 break;
             // 海戦
+            case COMBINED_BATTLE_EC:
+                doBattle(data);
+                break;
+            // 海戦
+            case COMBINED_BATTLE_EACH:
+                doBattle(data);
+                break;
+            // 海戦
+            case COMBINED_BATTLE_EC_MIDNIGHT:
+                doBattleNight(data);
+                break;
+            // 海戦
             case COMBINED_BATTLE_MIDNIGHT:
                 doBattleNight(data);
                 break;
@@ -809,9 +821,9 @@ public final class GlobalContext {
                 int cv = 0;
                 int ss = 0;
 
-                for (int i = 0; i < last.getEnemy().size(); ++i) {
-                    if (last.getEndEnemyHp()[i] <= 0) {
-                        switch (last.getEnemy().get(i).getType()) {
+                for (int i = 0; i < last.getEnemy1().size(); ++i) {
+                    if (last.getEndEnemy1Hp()[i] <= 0) {
+                        switch (last.getEnemy1().get(i).getType()) {
                         case "補給艦":
                             ap++;
                             break;
@@ -898,12 +910,12 @@ public final class GlobalContext {
 
                 List<ShipDto> sps = new ArrayList<ShipDto>();
                 for (int i = 0; i < 6; i++) {
-                    if ((last.getMaxFriendHp()[i] > 0)
-                            && ((last.getEndFriendHp()[i] * 4) <= last.getMaxFriendHp()[i])) {
+                    if ((last.getMaxFriend1Hp()[i] > 0)
+                            && ((last.getEndFriend1Hp()[i] * 4) <= last.getMaxFriend1Hp()[i])) {
                         sps.add(last.getFriends().get(0).getShips().get(i));
                     }
-                    if ((last.getMaxCombinedHp()[i] > 0)
-                            && ((last.getEndCombinedHp()[i] * 4) <= last.getMaxCombinedHp()[i])) {
+                    if ((last.getMaxFriend2Hp()[i] > 0)
+                            && ((last.getEndFriend2Hp()[i] * 4) <= last.getMaxFriend2Hp()[i])) {
                         sps.add(last.getFriends().get(1).getShips().get(i));
                     }
                 }

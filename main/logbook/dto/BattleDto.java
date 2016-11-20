@@ -12,6 +12,7 @@ import javax.json.JsonValue;
 import logbook.data.context.GlobalContext;
 import logbook.internal.Item;
 import logbook.internal.Ship;
+import logbook.util.JsonUtils;
 
 /**
  * 会敵を表します
@@ -23,46 +24,67 @@ public final class BattleDto extends AbstractDto {
     private final List<DockDto> friends = new ArrayList<>();
 
     /** 敵艦隊 */
-    private final List<ShipInfoDto> enemy = new ArrayList<>();
+    private final List<ShipInfoDto> enemy1 = new ArrayList<>();
+
+    /** 敵艦隊 */
+    private final List<ShipInfoDto> enemy2 = new ArrayList<>();
 
     /** 敵装備 */
-    private final List<ItemDto[]> enemySlot = new ArrayList<>();
+    private final List<ItemDto[]> enemy1Slot = new ArrayList<>();
+
+    /** 敵装備 */
+    private final List<ItemDto[]> enemy2Slot = new ArrayList<>();
 
     /** 敵Lv */
-    private final List<Long> enemyLv = new ArrayList<>();
+    private final List<Long> enemy1Lv = new ArrayList<>();
+
+    /** 敵Lv */
+    private final List<Long> enemy2Lv = new ArrayList<>();
 
     /** 味方最終HP */
-    private final int[] endFriendHp = new int[6];
+    private final int[] endFriend1Hp = new int[6];
 
     /** 味方最終HP */
-    private final int[] endCombinedHp = new int[6];
+    private final int[] endFriend2Hp = new int[6];
 
     /** 敵最終HP */
-    private final int[] endEnemyHp = new int[6];
+    private final int[] endEnemy1Hp = new int[6];
+
+    /** 敵最終HP */
+    private final int[] endEnemy2Hp = new int[6];
 
     /** 味方HP */
-    private final int[] nowFriendHp = new int[6];
+    private final int[] nowFriend1Hp = new int[6];
 
     /** 味方HP */
-    private final int[] nowCombinedHp = new int[6];
+    private final int[] nowFriend2Hp = new int[6];
 
     /** 敵HP */
-    private final int[] nowEnemyHp = new int[6];
+    private final int[] nowEnemy1Hp = new int[6];
+
+    /** 敵HP */
+    private final int[] nowEnemy2Hp = new int[6];
 
     /** 味方MaxHP */
-    private final int[] maxFriendHp = new int[6];
+    private final int[] maxFriend1Hp = new int[6];
 
     /** 味方MaxHP */
-    private final int[] maxCombinedHp = new int[6];
+    private final int[] maxFriend2Hp = new int[6];
 
     /** 敵MaxHP */
-    private final int[] maxEnemyHp = new int[6];
+    private final int[] maxEnemy1Hp = new int[6];
+
+    /** 敵MaxHP */
+    private final int[] maxEnemy2Hp = new int[6];
 
     /** 夜戦 */
     private final boolean night;
 
     /** 連合艦隊 */
-    private final int combined;
+    private final int friendCombined;
+
+    /** 連合艦隊 */
+    private final boolean enemyCombined;
 
     /** 連合艦隊 */
     private final String combinedType;
@@ -92,13 +114,14 @@ public final class BattleDto extends AbstractDto {
     private final String dispSeiku;
 
     /** 退避 */
-    private final boolean[] friendEscape = { false, false, false, false, false, false };
+    private final boolean[] friend1Escape = { false, false, false, false, false, false };
 
     /** 退避 */
-    private final boolean[] combinedEscape = { false, false, false, false, false, false };
+    private final boolean[] friend2Escape = { false, false, false, false, false, false };
 
-    /** api_boss_damaged */
-    private final int bossDamaged;
+    /** api_active_deck */
+    private final int friendActiveDeck;
+    private final int enemyActiveDeck;
 
     /**
      * コンストラクター
@@ -118,18 +141,18 @@ public final class BattleDto extends AbstractDto {
 
         if (object.containsKey("api_fParam_combined")) {
             this.friends.add(GlobalContext.getDock("2"));
-            this.combined = combined;
+            this.friendCombined = combined;
         } else {
-            this.combined = 0;
+            this.friendCombined = 0;
         }
 
-        this.combinedType = toCombined(this.combined);
+        this.combinedType = toCombined(this.friendCombined);
 
         if (object.containsKey("api_escape_idx")) {
             JsonArray escIdx = object.getJsonArray("api_escape_idx");
             for (int i = 0; i < escIdx.size(); i++) {
                 int idx = escIdx.getJsonNumber(i).intValue();
-                this.friendEscape[idx - 1] = true;
+                this.friend1Escape[idx - 1] = true;
             }
         }
 
@@ -137,25 +160,23 @@ public final class BattleDto extends AbstractDto {
             JsonArray escIdx = object.getJsonArray("api_escape_idx_combined");
             for (int i = 0; i < escIdx.size(); i++) {
                 int idx = escIdx.getJsonNumber(i).intValue();
-                this.combinedEscape[idx - 1] = true;
+                this.friend2Escape[idx - 1] = true;
             }
         }
-
-        this.bossDamaged = object.getInt("api_boss_damaged", 0);
 
         JsonArray shipKe = object.getJsonArray("api_ship_ke");
         for (int i = 1; i < shipKe.size(); i++) {
             int id = shipKe.getJsonNumber(i).intValue();
             ShipInfoDto dto = Ship.get(id);
             if (dto != null) {
-                this.enemy.add(dto);
+                this.enemy1.add(dto);
             }
         }
 
         JsonArray shipLv = object.getJsonArray("api_ship_lv");
         for (int i = 1; i < shipLv.size(); i++) {
             long lv = shipLv.getJsonNumber(i).longValue();
-            this.enemyLv.add(lv);
+            this.enemy1Lv.add(lv);
         }
 
         JsonArray eSlots = object.getJsonArray("api_eSlot");
@@ -165,40 +186,91 @@ public final class BattleDto extends AbstractDto {
             for (int j = 0; j < eSlot.size(); j++) {
                 slot[j] = Item.get(eSlot.getInt(j));
             }
-            this.enemySlot.add(slot);
+            this.enemy1Slot.add(slot);
+        }
+
+        this.enemyCombined = object.containsKey("api_ship_ke_combined");
+        if (this.enemyCombined) {
+
+            JsonArray shipKeC = object.getJsonArray("api_ship_ke_combined");
+            for (int i = 1; i < shipKeC.size(); i++) {
+                int id = shipKeC.getJsonNumber(i).intValue();
+                ShipInfoDto dto = Ship.get(id);
+                if (dto != null) {
+                    this.enemy2.add(dto);
+                }
+            }
+
+            JsonArray shipLvC = object.getJsonArray("api_ship_lv_combined");
+            for (int i = 1; i < shipLvC.size(); i++) {
+                long lv = shipLvC.getJsonNumber(i).longValue();
+                this.enemy2Lv.add(lv);
+            }
+
+            JsonArray eSlotsC = object.getJsonArray("api_eSlot_combined");
+            for (int i = 0; i < eSlotsC.size(); i++) {
+                JsonArray eSlot = eSlotsC.getJsonArray(i);
+                ItemDto[] slot = new ItemDto[5];
+                for (int j = 0; j < eSlot.size(); j++) {
+                    slot[j] = Item.get(eSlot.getInt(j));
+                }
+                this.enemy2Slot.add(slot);
+            }
         }
 
         JsonArray nowhps = object.getJsonArray("api_nowhps");
         for (int i = 1; i < nowhps.size(); i++) {
             if (i <= 6) {
-                this.endFriendHp[i - 1] = this.nowFriendHp[i - 1] = nowhps.getJsonNumber(i).intValue();
-            } else {
-                this.endEnemyHp[i - 1 - 6] = this.nowEnemyHp[i - 1 - 6] = nowhps.getJsonNumber(i).intValue();
+                this.endFriend1Hp[i - 1] = this.nowFriend1Hp[i - 1] = nowhps.getJsonNumber(i).intValue();
+            } else if (i <= 12) {
+                this.endEnemy1Hp[i - 1 - 6] = this.nowEnemy1Hp[i - 1 - 6] = nowhps.getJsonNumber(i).intValue();
             }
         }
 
         JsonArray maxhps = object.getJsonArray("api_maxhps");
         for (int i = 1; i < maxhps.size(); i++) {
             if (i <= 6) {
-                this.maxFriendHp[i - 1] = maxhps.getJsonNumber(i).intValue();
-            } else {
-                this.maxEnemyHp[i - 1 - 6] = maxhps.getJsonNumber(i).intValue();
+                this.maxFriend1Hp[i - 1] = maxhps.getJsonNumber(i).intValue();
+            } else if (i <= 12) {
+                this.maxEnemy1Hp[i - 1 - 6] = maxhps.getJsonNumber(i).intValue();
             }
         }
 
         if (object.containsKey("api_nowhps_combined")) {
-            JsonArray nowhpsc = object.getJsonArray("api_nowhps_combined");
-            for (int i = 1; i < nowhpsc.size(); i++) {
-                this.endCombinedHp[i - 1] = this.nowCombinedHp[i - 1] = nowhpsc.getJsonNumber(i).intValue();
+            JsonArray nowhpsC = object.getJsonArray("api_nowhps_combined");
+            for (int i = 1; i < nowhpsC.size(); i++) {
+                if (i <= 6) {
+                    this.endFriend2Hp[i - 1] = this.nowFriend2Hp[i - 1] = nowhpsC.getJsonNumber(i).intValue();
+                } else if (i <= 12) {
+                    this.endEnemy2Hp[i - 1 - 6] = this.nowEnemy2Hp[i - 1 - 6] = nowhpsC.getJsonNumber(i).intValue();
+                }
             }
 
-            JsonArray maxhpsc = object.getJsonArray("api_maxhps_combined");
-            for (int i = 1; i < maxhpsc.size(); i++) {
-                this.maxCombinedHp[i - 1] = maxhpsc.getJsonNumber(i).intValue();
+            JsonArray maxhpsC = object.getJsonArray("api_maxhps_combined");
+            for (int i = 1; i < maxhpsC.size(); i++) {
+                if (i <= 6) {
+                    this.maxFriend2Hp[i - 1] = maxhpsC.getJsonNumber(i).intValue();
+                } else if (i <= 12) {
+                    this.maxEnemy2Hp[i - 1 - 6] = maxhpsC.getJsonNumber(i).intValue();
+                }
             }
         }
 
-        this.searchDamage(object, night && (combined != 0));
+        if (object.containsKey("api_active_deck")) {
+            JsonArray activeDeck = object.getJsonArray("api_active_deck");
+            this.friendActiveDeck = JsonUtils.getInt(activeDeck.get(0));
+            this.enemyActiveDeck = JsonUtils.getInt(activeDeck.get(1));
+        } else {
+            this.friendActiveDeck = this.friendCombined != 0 ? 2 : 1;
+            this.enemyActiveDeck = 1;
+        }
+
+        if (this.enemyCombined) {
+            this.searchDamageEc(object, night && (this.friendCombined != 0) && (this.friendActiveDeck == 2),
+                    night && (this.enemyActiveDeck == 2));
+        } else {
+            this.searchDamage(object, night && (this.friendCombined != 0));
+        }
 
         if (object.containsKey("api_formation")) {
             JsonArray formation = object.getJsonArray("api_formation");
@@ -385,7 +457,7 @@ public final class BattleDto extends AbstractDto {
     }
 
     enum DockType {
-        FRIEND, COMBINED, ENEMY
+        FRIEND1, FRIEND2, ENEMY1, ENEMY2
     }
 
     private void damage(DockType t, int i, int dam) {
@@ -393,27 +465,32 @@ public final class BattleDto extends AbstractDto {
         int[] maxHp;
         ShipDto ship;
         switch (t) {
-        case FRIEND:
-            endHp = this.endFriendHp;
-            maxHp = this.maxFriendHp;
+        case FRIEND1:
+            endHp = this.endFriend1Hp;
+            maxHp = this.maxFriend1Hp;
             try {
                 ship = this.friends.get(0).getShips().get(i);
             } catch (Exception e) {
                 ship = null;
             }
             break;
-        case COMBINED:
-            endHp = this.endCombinedHp;
-            maxHp = this.maxCombinedHp;
+        case FRIEND2:
+            endHp = this.endFriend2Hp;
+            maxHp = this.maxFriend2Hp;
             try {
                 ship = this.friends.get(1).getShips().get(i);
             } catch (Exception e) {
                 ship = null;
             }
             break;
-        case ENEMY:
-            endHp = this.endEnemyHp;
-            maxHp = this.maxEnemyHp;
+        case ENEMY1:
+            endHp = this.endEnemy1Hp;
+            maxHp = this.maxEnemy1Hp;
+            ship = null;
+            break;
+        case ENEMY2:
+            endHp = this.endEnemy2Hp;
+            maxHp = this.maxEnemy2Hp;
             ship = null;
             break;
         default:
@@ -443,15 +520,15 @@ public final class BattleDto extends AbstractDto {
                 JsonArray fdam = (JsonArray) e.getValue();
                 for (int i = 1; i < fdam.size(); i++) {
                     if (comb) {
-                        this.damage(DockType.COMBINED, i - 1, fdam.getJsonNumber(i).intValue());
+                        this.damage(DockType.FRIEND2, i - 1, fdam.getJsonNumber(i).intValue());
                     } else {
-                        this.damage(DockType.FRIEND, i - 1, fdam.getJsonNumber(i).intValue());
+                        this.damage(DockType.FRIEND1, i - 1, fdam.getJsonNumber(i).intValue());
                     }
                 }
             } else if ("api_edam".equals(e.getKey())) {
                 JsonArray edam = (JsonArray) e.getValue();
                 for (int i = 1; i < edam.size(); i++) {
-                    this.damage(DockType.ENEMY, i - 1, edam.getJsonNumber(i).intValue());
+                    this.damage(DockType.ENEMY1, i - 1, edam.getJsonNumber(i).intValue());
                 }
             } else if ("api_damage".equals(e.getKey())) {
                 JsonArray dflist = object.getJsonArray("api_df_list");
@@ -460,7 +537,7 @@ public final class BattleDto extends AbstractDto {
                     JsonValue v = damage.get(i);
                     switch (v.getValueType()) {
                     case NUMBER:
-                        this.damage(DockType.ENEMY, i - 1, ((JsonNumber) v).intValue());
+                        this.damage(DockType.ENEMY1, i - 1, ((JsonNumber) v).intValue());
                         break;
                     case ARRAY:
                         JsonArray dm = (JsonArray) v;
@@ -471,12 +548,12 @@ public final class BattleDto extends AbstractDto {
                                 continue;
                             } else if (idx <= 6) {
                                 if (comb) {
-                                    this.damage(DockType.COMBINED, idx - 1, dm.getJsonNumber(j).intValue());
+                                    this.damage(DockType.FRIEND2, idx - 1, dm.getJsonNumber(j).intValue());
                                 } else {
-                                    this.damage(DockType.FRIEND, idx - 1, dm.getJsonNumber(j).intValue());
+                                    this.damage(DockType.FRIEND1, idx - 1, dm.getJsonNumber(j).intValue());
                                 }
                             } else {
-                                this.damage(DockType.ENEMY, idx - 1 - 6, dm.getJsonNumber(j).intValue());
+                                this.damage(DockType.ENEMY1, idx - 1 - 6, dm.getJsonNumber(j).intValue());
                             }
                         }
                         break;
@@ -490,9 +567,9 @@ public final class BattleDto extends AbstractDto {
                 final List<String> conb3 = conb1;
                 boolean c = comb ||
                         ((e.getKey() != null) && e.getKey().contains("_combined")) ||
-                        (((this.combined == 1) && conb1.contains(e.getKey())) ||
-                                ((this.combined == 2) && conb2.contains(e.getKey())) ||
-                                ((this.combined == 3) && conb3.contains(e.getKey())));
+                        (((this.friendCombined == 1) && conb1.contains(e.getKey())) ||
+                                ((this.friendCombined == 2) && conb2.contains(e.getKey())) ||
+                                ((this.friendCombined == 3) && conb3.contains(e.getKey())));
                 if (e.getValue() instanceof JsonObject) {
                     this.searchDamage((JsonObject) e.getValue(), c);
                 } else if (e.getValue() instanceof JsonArray) {
@@ -508,6 +585,115 @@ public final class BattleDto extends AbstractDto {
                 this.searchDamage((JsonObject) v, comb);
             } else if (v instanceof JsonArray) {
                 this.searchDamageArray((JsonArray) v, comb);
+            }
+        }
+    }
+
+    private void searchDamageEc(JsonObject object, boolean fcomb, boolean ecomb) {
+        for (JsonObject.Entry<String, JsonValue> e : object.entrySet()) {
+            if ("api_fdam".equals(e.getKey())) {
+                JsonArray fdam = (JsonArray) e.getValue();
+                for (int i = 1; i < fdam.size(); i++) {
+                    if (fcomb) {
+                        this.damage(DockType.FRIEND2, i - 1, fdam.getJsonNumber(i).intValue());
+                    } else if (i > 6) {
+                        this.damage(DockType.FRIEND2, i - 1 - 6, fdam.getJsonNumber(i).intValue());
+                    } else {
+                        this.damage(DockType.FRIEND1, i - 1, fdam.getJsonNumber(i).intValue());
+                    }
+                }
+            } else if ("api_edam".equals(e.getKey())) {
+                JsonArray edam = (JsonArray) e.getValue();
+                for (int i = 1; i < edam.size(); i++) {
+                    if (ecomb) {
+                        this.damage(DockType.ENEMY2, i - 1, edam.getJsonNumber(i).intValue());
+                    } else if (i > 6) {
+                        this.damage(DockType.ENEMY2, i - 1 - 6, edam.getJsonNumber(i).intValue());
+                    } else {
+                        this.damage(DockType.ENEMY1, i - 1, edam.getJsonNumber(i).intValue());
+                    }
+                }
+            } else if ("api_damage".equals(e.getKey())) {
+                JsonArray eflag = object.containsKey("api_at_eflag") ? object.getJsonArray("api_at_eflag") : null;
+                JsonArray dflist = object.getJsonArray("api_df_list");
+                JsonArray damage = (JsonArray) e.getValue();
+                for (int i = 1; i < damage.size(); i++) {
+                    JsonValue v = damage.get(i);
+                    switch (v.getValueType()) {
+                    case NUMBER:
+                        if (ecomb) {
+                            this.damage(DockType.ENEMY2, i - 1, ((JsonNumber) v).intValue());
+                        } else if (i > 6) {
+                            this.damage(DockType.ENEMY2, i - 1 - 6, ((JsonNumber) v).intValue());
+                        } else {
+                            this.damage(DockType.ENEMY1, i - 1, ((JsonNumber) v).intValue());
+                        }
+                        break;
+                    case ARRAY:
+                        JsonArray dm = (JsonArray) v;
+                        JsonArray df = dflist.getJsonArray(i);
+                        if (eflag == null) {
+                            for (int j = 0; j < dm.size(); j++) {
+                                int idx = df.getJsonNumber(j).intValue();
+                                if (idx < 1) {
+                                    continue;
+                                } else if (idx <= 6) {
+                                    if (fcomb) {
+                                        this.damage(DockType.FRIEND2, idx - 1, dm.getJsonNumber(j).intValue());
+                                    } else {
+                                        this.damage(DockType.FRIEND1, idx - 1, dm.getJsonNumber(j).intValue());
+                                    }
+                                } else {
+                                    if (ecomb) {
+                                        this.damage(DockType.ENEMY2, idx - 1 - 6, dm.getJsonNumber(j).intValue());
+                                    } else {
+                                        this.damage(DockType.ENEMY1, idx - 1 - 6, dm.getJsonNumber(j).intValue());
+                                    }
+                                }
+                            }
+                        } else {
+                            int ef = eflag.getJsonNumber(i).intValue();
+                            for (int j = 0; j < dm.size(); j++) {
+                                int idx = df.getJsonNumber(j).intValue();
+                                if (idx < 1) {
+                                    continue;
+                                } else if (idx <= 6) {
+                                    if (ef == 0) {
+                                        this.damage(DockType.ENEMY1, idx - 1, dm.getJsonNumber(j).intValue());
+                                    } else {
+                                        this.damage(DockType.FRIEND1, idx - 1, dm.getJsonNumber(j).intValue());
+                                    }
+                                } else {
+                                    if (ef == 0) {
+                                        this.damage(DockType.ENEMY2, idx - 1 - 6, dm.getJsonNumber(j).intValue());
+                                    } else {
+                                        this.damage(DockType.FRIEND2, idx - 1 - 6, dm.getJsonNumber(j).intValue());
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            } else {
+                boolean c = ((e.getKey() != null) && e.getKey().contains("_combined"));
+                if (e.getValue() instanceof JsonObject) {
+                    this.searchDamageEc((JsonObject) e.getValue(), c || fcomb, c || ecomb);
+                } else if (e.getValue() instanceof JsonArray) {
+                    this.searchDamageArrayEc((JsonArray) e.getValue(), c || fcomb, c || ecomb);
+                }
+            }
+        }
+    }
+
+    private void searchDamageArrayEc(JsonArray array, boolean fcomb, boolean ecomb) {
+        for (JsonValue v : array) {
+            if (v instanceof JsonObject) {
+                this.searchDamageEc((JsonObject) v, fcomb, ecomb);
+            } else if (v instanceof JsonArray) {
+                this.searchDamageArrayEc((JsonArray) v, fcomb, ecomb);
             }
         }
     }
@@ -563,91 +749,138 @@ public final class BattleDto extends AbstractDto {
      * 敵艦隊を取得します。
      * @return 敵艦隊
      */
-    public List<ShipInfoDto> getEnemy() {
-        return this.enemy;
+    public List<ShipInfoDto> getEnemy1() {
+        return this.enemy1;
+    }
+
+    /**
+     * 敵艦隊を取得します。
+     * @return 敵艦隊
+     */
+    public List<ShipInfoDto> getEnemy2() {
+        return this.enemy2;
     }
 
     /**
      * 敵Lvを取得します。
      * @return 敵Lv
      */
-    public List<Long> getEnemyLv() {
-        return this.enemyLv;
+    public List<Long> getEnemy1Lv() {
+        return this.enemy1Lv;
+    }
+
+    /**
+     * 敵Lvを取得します。
+     * @return 敵Lv
+     */
+    public List<Long> getEnemy2Lv() {
+        return this.enemy2Lv;
     }
 
     /**
      * 敵装備を取得します。
      * @return 敵装備
      */
-    public List<ItemDto[]> getEnemySlot() {
-        return this.enemySlot;
+    public List<ItemDto[]> getEnemy1Slot() {
+        return this.enemy1Slot;
+    }
+
+    /**
+     * 敵装備を取得します。
+     * @return 敵装備
+     */
+    public List<ItemDto[]> getEnemy2Slot() {
+        return this.enemy2Slot;
     }
 
     /**
      * @return endFriendHp
      */
-    public int[] getEndFriendHp() {
-        return this.endFriendHp;
+    public int[] getEndFriend1Hp() {
+        return this.endFriend1Hp;
     }
 
     /**
      * @return endCombinedHp
      */
-    public int[] getEndCombinedHp() {
-        return this.endCombinedHp;
+    public int[] getEndFriend2Hp() {
+        return this.endFriend2Hp;
     }
 
     /**
      * @return endEnemyHp
      */
-    public int[] getEndEnemyHp() {
-        return this.endEnemyHp;
+    public int[] getEndEnemy1Hp() {
+        return this.endEnemy1Hp;
+    }
+
+    /**
+     * @return endEnemyHp
+     */
+    public int[] getEndEnemy2Hp() {
+        return this.endEnemy2Hp;
     }
 
     /**
      * 味方HPを取得します。
      * @return 味方HP
      */
-    public int[] getNowFriendHp() {
-        return this.nowFriendHp;
+    public int[] getNowFriend1Hp() {
+        return this.nowFriend1Hp;
     }
 
     /**
      * @return nowCombinedHp
      */
-    public int[] getNowCombinedHp() {
-        return this.nowCombinedHp;
+    public int[] getNowFriend2Hp() {
+        return this.nowFriend2Hp;
     }
 
     /**
      * 敵HPを取得します。
      * @return 敵HP
      */
-    public int[] getNowEnemyHp() {
-        return this.nowEnemyHp;
+    public int[] getNowEnemy1Hp() {
+        return this.nowEnemy1Hp;
+    }
+
+    /**
+     * 敵HPを取得します。
+     * @return 敵HP
+     */
+    public int[] getNowEnemy2Hp() {
+        return this.nowEnemy2Hp;
     }
 
     /**
      * 味方MaxHPを取得します。
      * @return 味方MaxHP
      */
-    public int[] getMaxFriendHp() {
-        return this.maxFriendHp;
+    public int[] getMaxFriend1Hp() {
+        return this.maxFriend1Hp;
     }
 
     /**
      * @return maxCombinedHp
      */
-    public int[] getMaxCombinedHp() {
-        return this.maxCombinedHp;
+    public int[] getMaxFriend2Hp() {
+        return this.maxFriend2Hp;
     }
 
     /**
      * 敵MaxHPを取得します。
      * @return 敵MaxHP
      */
-    public int[] getMaxEnemyHp() {
-        return this.maxEnemyHp;
+    public int[] getMaxEnemy1Hp() {
+        return this.maxEnemy1Hp;
+    }
+
+    /**
+     * 敵MaxHPを取得します。
+     * @return 敵MaxHP
+     */
+    public int[] getMaxEnemy2Hp() {
+        return this.maxEnemy2Hp;
     }
 
     /**
@@ -660,8 +893,15 @@ public final class BattleDto extends AbstractDto {
     /**
      * @return combined
      */
-    public boolean isCombined() {
-        return this.combined != 0;
+    public boolean isFriendCombined() {
+        return this.friendCombined != 0;
+    }
+
+    /**
+     * @return combined
+     */
+    public boolean isEnemyCombined() {
+        return this.enemyCombined;
     }
 
     /**
@@ -738,22 +978,14 @@ public final class BattleDto extends AbstractDto {
     /**
      * @return friendEscape
      */
-    public boolean[] getFriendEscape() {
-        return this.friendEscape;
+    public boolean[] getFriend1Escape() {
+        return this.friend1Escape;
     }
 
     /**
      * @return combinedEscape
      */
-    public boolean[] getCombinedEscape() {
-        return this.combinedEscape;
-    }
-
-    /**
-     * ギミックを取得します。
-     * @return ギミック
-     */
-    public int getBossDamaged() {
-        return this.bossDamaged;
+    public boolean[] getFriend2Escape() {
+        return this.friend2Escape;
     }
 }
