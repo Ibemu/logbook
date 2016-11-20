@@ -494,6 +494,10 @@ public final class GlobalContext {
                 doBattle(data);
                 break;
             // 海戦
+            case COMBINED_BATTLE_EACH_WATER:
+                doBattle(data);
+                break;
+            // 海戦
             case COMBINED_BATTLE_EC_MIDNIGHT:
                 doBattleNight(data);
                 break;
