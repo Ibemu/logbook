@@ -79,8 +79,8 @@ public final class SortieDialog extends Dialog {
 
     private DockComposite friend1;
     private DockComposite friend2;
-    private DockComposite enemy1;
     private DockComposite enemy2;
+    private DockComposite enemy1;
 
     /**
      * Create the dialog.
@@ -338,10 +338,10 @@ public final class SortieDialog extends Dialog {
         this.lblSeparatorV = new Label(this.shell, SWT.SEPARATOR | SWT.VERTICAL);
         setVisible(this.lblSeparatorV, false, new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
-        this.enemy1 = new DockComposite(this.shell, SWT.NONE, fontData);
-        this.enemy1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         this.enemy2 = new DockComposite(this.shell, SWT.NONE, fontData);
         this.enemy2.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+        this.enemy1 = new DockComposite(this.shell, SWT.NONE, fontData);
+        this.enemy1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 
         // 閉じた時に設定を保存
         this.shell.addShellListener(new ShellAdapter() {
@@ -564,6 +564,7 @@ public final class SortieDialog extends Dialog {
         //敵(第2)
         if (battleFirst.isEnemyCombined()) {
             setVisible(this.enemy2, true);
+            this.enemy2.getDockName().setText("(敵随伴艦隊)");
             for (int i = 0; i < battleFirst.getEnemy2().size(); i++) {
                 ShipInfoDto ship = battleFirst.getEnemy2().get(i);
                 String name = ship.getName();
