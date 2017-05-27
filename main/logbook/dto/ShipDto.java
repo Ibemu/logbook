@@ -557,6 +557,7 @@ public final class ShipDto extends AbstractDto {
     public int getSeiku() {
         List<ItemDto> items = this.getItem();
         Map<Long, Integer> alvMap = ItemContext.alv();
+        Map<Long, Integer> levelMap = ItemContext.level();
         int seiku = 0;
         for (int i = 0; i < items.size(); i++) {
             ItemDto item = items.get(i);
@@ -576,7 +577,15 @@ public final class ShipDto extends AbstractDto {
                         else if (item.getType2() == 11)
                             bonus += bonusS(alv);
                     }
-                    seiku += (int) Math.floor((item.getTyku() * Math.sqrt(this.onslot.get(i))) + bonus);
+                    double tyku = item.getTyku();
+                    Integer level = levelMap.get(this.slot.get(i));
+                    if (level != null) {
+                        if ((item.getType2() == 6) || (item.getType2() == 45))
+                            tyku += 0.2 * level;
+                        else if (item.getType2() == 7)
+                            tyku += 0.25 * level;
+                    }
+                    seiku += (int) Math.floor((tyku * Math.sqrt(this.onslot.get(i))) + bonus);
                 }
             }
         }
