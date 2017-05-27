@@ -6,13 +6,6 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import logbook.config.ShipGroupConfig;
-import logbook.config.bean.ShipGroupBean;
-import logbook.data.context.ItemContext;
-import logbook.dto.ItemDto;
-import logbook.dto.ShipFilterDto;
-import logbook.internal.SallyArea;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -33,6 +26,13 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import logbook.config.ShipGroupConfig;
+import logbook.config.bean.ShipGroupBean;
+import logbook.data.context.ItemContext;
+import logbook.dto.ItemDto;
+import logbook.dto.ShipFilterDto;
+import logbook.internal.SallyArea;
 
 /**
  * 所有艦娘一覧で使用するフィルターダイアログ
@@ -90,6 +90,8 @@ public final class ShipFilterDialog extends Dialog {
     private Button trainingShip;
     /** 艦種.補給艦 */
     private Button supply;
+    /** 艦種.海防艦 */
+    private Button escort;
     /** 全て選択 */
     private Button selectall;
     /** グループ */
@@ -277,6 +279,11 @@ public final class ShipFilterDialog extends Dialog {
         this.supply.setSelection(true);
         this.supply.addSelectionListener(listener);
 
+        this.escort = new Button(shiptypegroup, SWT.CHECK);
+        this.escort.setText("海防艦");
+        this.escort.setSelection(true);
+        this.escort.addSelectionListener(listener);
+
         new Label(shiptypegroup, SWT.NONE);
 
         new Label(shiptypegroup, SWT.NONE);
@@ -407,6 +414,8 @@ public final class ShipFilterDialog extends Dialog {
             setTypeSelection(filter, this.trainingShip);
             // 艦種.補給艦
             setTypeSelection(filter, this.supply);
+            // 艦種.海防艦
+            setTypeSelection(filter, this.escort);
 
             if (filter.group != null) {
                 // グループ
@@ -501,6 +510,8 @@ public final class ShipFilterDialog extends Dialog {
         setTypeFilter(this.trainingShip, filter);
         // 艦種.補給艦
         setTypeFilter(this.supply, filter);
+        // 艦種.海防艦
+        setTypeFilter(this.escort, filter);
         filter.group = null;
         if (ShipFilterDialog.this.group.getSelection()) {
             int idx = ShipFilterDialog.this.groupcombo.getSelectionIndex();
@@ -576,6 +587,7 @@ public final class ShipFilterDialog extends Dialog {
             ShipFilterDialog.this.submarineTender.setSelection(select);
             ShipFilterDialog.this.trainingShip.setSelection(select);
             ShipFilterDialog.this.supply.setSelection(select);
+            ShipFilterDialog.this.escort.setSelection(select);
 
             ShipFilterDialog.this.update.accept(ShipFilterDialog.this.createFilter());
         }
