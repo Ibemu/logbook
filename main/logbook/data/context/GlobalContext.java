@@ -1906,14 +1906,17 @@ public final class GlobalContext {
             return ShipInfoDto.EMPTY;
         }
 
-        String type = ShipStyle.get(JsonUtils.getInt(object.get("api_stype")));
-        String flagship = object.getString("api_yomi");
-        if ("-".equals(flagship)) {
-            flagship = "";
+        String yomi = object.getString("api_yomi");
+        if ("-".equals(yomi)) {
+            yomi = "";
         }
         int shipid = 0;
         if (object.containsKey("api_id")) {
             shipid = JsonUtils.getInt(object.get("api_id"));
+        }
+        String stype = "";
+        if (object.containsKey("api_stype")) {
+            stype = ShipStyle.get(JsonUtils.getInt(object.get("api_stype")));
         }
         int afterlv = 0;
         if (object.containsKey("api_afterlv")) {
@@ -1923,15 +1926,19 @@ public final class GlobalContext {
         if (object.containsKey("api_aftershipid")) {
             aftershipid = JsonUtils.getInt(object.get("api_aftershipid"));
         }
-        int maxBull = 0;
-        if (object.containsKey("api_bull_max")) {
-            maxBull = JsonUtils.getInt(object.get("api_bull_max"));
+        int slotNum = 0;
+        if (object.containsKey("api_slot_num")) {
+            slotNum = JsonUtils.getInt(object.get("api_slot_num"));
         }
         int maxFuel = 0;
         if (object.containsKey("api_fuel_max")) {
             maxFuel = JsonUtils.getInt(object.get("api_fuel_max"));
         }
-        return new ShipInfoDto(shipid, name, type, flagship, afterlv, aftershipid, maxBull, maxFuel);
+        int maxBull = 0;
+        if (object.containsKey("api_bull_max")) {
+            maxBull = JsonUtils.getInt(object.get("api_bull_max"));
+        }
+        return new ShipInfoDto(shipid, name, yomi, stype, afterlv, aftershipid, slotNum, maxFuel, maxBull);
     }
 
     /**

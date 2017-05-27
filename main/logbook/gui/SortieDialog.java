@@ -533,8 +533,8 @@ public final class SortieDialog extends Dialog {
         for (int i = 0; i < battleFirst.getEnemy1().size(); i++) {
             ShipInfoDto ship = battleFirst.getEnemy1().get(i);
             String name = ship.getName();
-            if (!StringUtils.isEmpty(ship.getFlagship())) {
-                name += " " + ship.getFlagship();
+            if (!StringUtils.isEmpty(ship.getYomi())) {
+                name += " " + ship.getYomi();
             }
             this.enemy1.getNames()[i].setText(name);
             this.enemy1.getLvs()[i]
@@ -568,8 +568,8 @@ public final class SortieDialog extends Dialog {
             for (int i = 0; i < battleFirst.getEnemy2().size(); i++) {
                 ShipInfoDto ship = battleFirst.getEnemy2().get(i);
                 String name = ship.getName();
-                if (!StringUtils.isEmpty(ship.getFlagship())) {
-                    name += " " + ship.getFlagship();
+                if (!StringUtils.isEmpty(ship.getYomi())) {
+                    name += " " + ship.getYomi();
                 }
                 this.enemy2.getNames()[i].setText(name);
                 this.enemy2.getLvs()[i]

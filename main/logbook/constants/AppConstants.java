@@ -237,7 +237,13 @@ public class AppConstants {
     public static final String MESSAGE_SEIKU = "制空:{0}。";
 
     /** メッセージ  索敵値計:{0} */
-    public static final String MESSAGE_SAKUTEKI = "索敵:{0}, {1}。";
+    public static final String MESSAGE_SAKUTEKI = "索敵:{0} (";
+
+    /** メッセージ  分岐点係数:{0} */
+    public static final String MESSAGE_SAKUTEKI_NODE = "分岐点係数:{0}";
+
+    /** メッセージ  )。 */
+    public static final String MESSAGE_SAKUTEKI_AFTER = ")。";
 
     /** メッセージ  艦隊合計Lv:{0} */
     public static final String MESSAGE_TOTAL_LV = "合計Lv:{0}。";

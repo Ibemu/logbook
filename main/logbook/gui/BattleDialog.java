@@ -252,8 +252,8 @@ public final class BattleDialog extends Dialog {
             ItemDto[] slot = enemySlots.get(i);
 
             String name = ship.getName();
-            if (!StringUtils.isEmpty(ship.getFlagship())) {
-                name += "(" + ship.getFlagship() + ")";
+            if (!StringUtils.isEmpty(ship.getYomi())) {
+                name += "(" + ship.getYomi() + ")";
             }
 
             Label lblName = new Label(eComposite, SWT.NONE);
@@ -378,8 +378,8 @@ public final class BattleDialog extends Dialog {
             ItemDto[] slot = enemySlots.get(i);
 
             String name = ship.getName();
-            if (!StringUtils.isEmpty(ship.getFlagship())) {
-                name += "(" + ship.getFlagship() + ")";
+            if (!StringUtils.isEmpty(ship.getYomi())) {
+                name += "(" + ship.getYomi() + ")";
             }
 
             sb.append("         <tr>").append("\r\n");

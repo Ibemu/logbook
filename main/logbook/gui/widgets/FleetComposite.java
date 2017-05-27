@@ -1,7 +1,5 @@
 package logbook.gui.widgets;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -34,11 +32,13 @@ import org.eclipse.wb.swt.SWTResourceManager;
 import logbook.config.AppConfig;
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
+import logbook.data.context.ItemContext;
 import logbook.data.context.ShipContext;
 import logbook.dto.DockDto;
 import logbook.dto.ItemDto;
 import logbook.dto.ShipDto;
 import logbook.gui.ApplicationMain;
+import logbook.gui.NodeFactorDialog;
 import logbook.gui.TimerSettingDialog;
 import logbook.internal.EvaluateExp;
 import logbook.internal.SeaExp;
@@ -91,6 +91,8 @@ public class FleetComposite extends Composite {
     private Date clearDate;
     /** 大破している */
     private boolean badlyDamage;
+    /** 分岐点係数 */
+    private double nodeFactor = 1;
 
     /** アイコンラベル */
     private final Label[] iconLabels = new Label[MAXCHARA];
@@ -174,12 +176,22 @@ public class FleetComposite extends Composite {
                 try {
                     int offset = FleetComposite.this.message.getOffsetAtLocation(new Point(event.x, event.y));
                     StyleRange style = FleetComposite.this.message.getStyleRangeAtOffset(offset);
-                    if ((style != null) && (style.data instanceof Date)) {
+                    if (style != null) {
+                        if (style.data instanceof Date) {
 
-                        TimerSettingDialog dialog = new TimerSettingDialog(FleetComposite.this.getShell());
-                        dialog.setTime((Date) style.data);
-                        dialog.setMessage(MessageFormat.format("「{0}」の疲労が回復しました", FleetComposite.this.dock.getName()));
-                        dialog.open();
+                            TimerSettingDialog dialog = new TimerSettingDialog(FleetComposite.this.getShell());
+                            dialog.setTime((Date) style.data);
+                            dialog.setMessage(
+                                    MessageFormat.format("「{0}」の疲労が回復しました", FleetComposite.this.dock.getName()));
+                            dialog.open();
+                        }
+                        if (style.data instanceof Double) {
+
+                            NodeFactorDialog dialog = new NodeFactorDialog(FleetComposite.this.getShell(),
+                                    (double) style.data);
+                            FleetComposite.this.nodeFactor = dialog.open();
+                            FleetComposite.this.updateFleet(FleetComposite.this.dock, true);
+                        }
                     }
                 } catch (IllegalArgumentException e) {
                     // no character under event.x, event.y
@@ -292,7 +304,16 @@ public class FleetComposite extends Composite {
      * @param dock
      */
     public void updateFleet(DockDto dock) {
-        if ((this.dock == dock) && !this.dock.isUpdate(this.dockUpdate)) {
+        this.updateFleet(dock, false);
+    }
+
+    /**
+     * 艦隊を更新します
+     *
+     * @param dock
+     */
+    private void updateFleet(DockDto dock, boolean force) {
+        if ((this.dock == dock) && !this.dock.isUpdate(this.dockUpdate) && !force) {
             return;
         }
 
@@ -327,13 +348,9 @@ public class FleetComposite extends Composite {
         // 艦隊合計Lv
         int totallv = 0;
         // 索敵値計(素)
-        int totalSakuteki = 0;
-        // 偵察機索敵値計
-        int totalSakutekiSurvey = 0;
-        // 電探索敵値計
-        int totalSakutekiRader = 0;
-        // 2-5式(秋)索敵値計
-        double totalSakutekiAutumn = Math.ceil(GlobalContext.hqLevel() / 5.0) * 5 * -0.61;
+        double shipSakuteki = 0;
+        // 装備索敵値計
+        double itemSakuteki = 0;
         // ドラム缶計
         int totalDrum = 0;
         // ドラム缶所持艦娘計
@@ -368,11 +385,7 @@ public class FleetComposite extends Composite {
             // 艦隊合計Lv
             totallv += ship.getLv();
             // 索敵値計(素)
-            totalSakuteki += ship.getSakuteki();
-            // 偵察機索敵値計
-            totalSakutekiSurvey += ship.getSakutekiSurvey();
-            // 電探索敵値計
-            totalSakutekiRader += ship.getSakutekiRader();
+            long saku = ship.getSakuteki();
 
             // 疲労している艦娘がいる場合メッセージを表示
             if (this.cond > cond) {
@@ -463,22 +476,24 @@ public class FleetComposite extends Composite {
             // ステータス.ダメコン
             // 装備
             List<ItemDto> item = ship.getItem();
+            List<String> itemName = ship.getSlot();
+            List<Long> itemId = ship.getItemId();
             // 搭載機数
             List<Integer> onslot = ship.getOnslot();
             List<String> names = new ArrayList<String>();
             int dmgcsty = 0;
             int dmgcstm = 0;
             boolean drum = false;
-            // 索敵値計(秋)
-            long saku = ship.getSakuteki();
             for (int j = 0; j < item.size(); ++j) {
                 if (j == 4)
                     continue;
                 String name = "**: ";
-                if (j < onslot.size())
+                if (j < ship.getShipInfo().getSlotNum())
                     name = String.format("%02d: ", onslot.get(j));
                 ItemDto itemDto = item.get(j);
                 if (itemDto != null) {
+                    int itemLevel = ItemContext.level().get(itemId.get(j));
+
                     if (itemDto.getName().equals("応急修理要員")) {
                         dmgcsty++;
                     } else if (itemDto.getName().equals("応急修理女神")) {
@@ -487,50 +502,98 @@ public class FleetComposite extends Composite {
                         totalDrum++;
                         drum = true;
                     }
-                    // 索敵値計(秋)
+                    // 索敵値計(33式)
+                    saku -= itemDto.getSaku();
                     switch (itemDto.getType2()) {
+                    case 6:
+                        //艦上戦闘機
+                        itemSakuteki += itemDto.getSaku() * 0.6;
+                        break;
                     case 7:
                         //艦上爆撃機
-                        totalSakutekiAutumn += itemDto.getSaku() * 1.04;
+                        itemSakuteki += itemDto.getSaku() * 0.6;
                         break;
                     case 8:
                         //艦上攻撃機
-                        totalSakutekiAutumn += itemDto.getSaku() * 1.37;
+                        itemSakuteki += itemDto.getSaku() * 0.8;
                         break;
                     case 9:
                         //艦上偵察機
-                        totalSakutekiAutumn += itemDto.getSaku() * 1.66;
+                        itemSakuteki += itemDto.getSaku() * 1.0;
                         break;
                     case 10:
                         //水上偵察機
-                        totalSakutekiAutumn += itemDto.getSaku() * 2.00;
+                        itemSakuteki += (itemDto.getSaku() + (Math.sqrt(itemLevel) * 1.2)) * 1.2;
                         break;
                     case 11:
                         //水上爆撃機
-                        totalSakutekiAutumn += itemDto.getSaku() * 1.78;
+                        itemSakuteki += itemDto.getSaku() * 1.1;
                         break;
                     case 12:
                         //小型電探
-                        totalSakutekiAutumn += itemDto.getSaku() * 1.00;
+                        itemSakuteki += (itemDto.getSaku() + (Math.sqrt(itemLevel) * 1.25)) * 0.6;
                         break;
                     case 13:
                         //大型電探
-                        totalSakutekiAutumn += itemDto.getSaku() * 0.99;
+                        itemSakuteki += (itemDto.getSaku() + (Math.sqrt(itemLevel) * 1.4)) * 0.6;
+                        break;
+                    case 26:
+                        //対潜哨戒機
+                        itemSakuteki += itemDto.getSaku() * 0.6;
                         break;
                     case 29:
                         //探照灯
-                        totalSakutekiAutumn += itemDto.getSaku() * 0.91;
+                        itemSakuteki += itemDto.getSaku() * 0.6;
+                        break;
+                    case 34:
+                        //司令部施設
+                        itemSakuteki += itemDto.getSaku() * 0.6;
+                        break;
+                    case 35:
+                        //航空要員
+                        itemSakuteki += itemDto.getSaku() * 0.6;
+                        break;
+                    case 39:
+                        //水上艦要員
+                        itemSakuteki += itemDto.getSaku() * 0.6;
+                        break;
+                    case 40:
+                        //大型ソナー
+                        itemSakuteki += itemDto.getSaku() * 0.6;
+                        break;
+                    case 41:
+                        //大型飛行艇
+                        itemSakuteki += itemDto.getSaku() * 0.6;
+                        break;
+                    case 42:
+                        //大型探照灯
+                        itemSakuteki += itemDto.getSaku() * 0.6;
+                        break;
+                    case 45:
+                        //水上戦闘機
+                        itemSakuteki += itemDto.getSaku() * 0.6;
+                        break;
+                    case 57:
+                        //噴式戦闘爆撃機
+                        itemSakuteki += itemDto.getSaku() * 0.6;
+                        break;
+                    case 94:
+                        //艦上偵察機（II）
+                        itemSakuteki += (itemDto.getSaku() + (Math.sqrt(itemLevel) * 1.2)) * 1.0;
                         break;
                     }
-                    saku -= itemDto.getSaku();
-                    name += itemDto.getName();
-                }
+                    name += itemName.get(j);
+                } else
+                    name += "----------";
                 names.add(name);
             }
-            totalSakutekiAutumn += Math.sqrt(saku) * 1.69;
             if (drum) {
                 totalDrumShip++;
             }
+
+            // 素索敵
+            shipSakuteki += Math.sqrt(saku);
+
             if (dmgcsty > 0) {
                 this.dmgcstyLabels[i].setText("要員x" + dmgcsty);
                 this.dmgcstyLabels[i].setEnabled(true);
@@ -645,11 +708,9 @@ public class FleetComposite extends Composite {
         for (ShipDto shipDto : ships) {
             seiku += shipDto.getSeiku();
         }
-        // 索敵値を計算
-        // 偵察機索敵値×2 ＋ 電探索敵値 ＋ √(艦隊の装備込み索敵値合計 - 偵察機索敵値 - 電探索敵値)
-        BigDecimal sakuteki = BigDecimal.valueOf((totalSakutekiSurvey * 2) + totalSakutekiRader
-                + Math.sqrt(totalSakuteki - totalSakutekiSurvey - totalSakutekiRader));
-        sakuteki = sakuteki.setScale(2, RoundingMode.HALF_UP);
+        // 索敵値を計算(33式)
+        double sakuteki = ((shipSakuteki + (this.nodeFactor * itemSakuteki)) - Math.ceil(0.4 * GlobalContext.hqLevel()))
+                + (2 * (MAXCHARA - ships.size()));
 
         if (GlobalContext.isMission(this.dock.getId())) {
             // 遠征中
@@ -693,7 +754,16 @@ public class FleetComposite extends Composite {
         this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_SEIKU, seiku), null);
         // 索敵
         this.addStyledText(this.message,
-                MessageFormat.format(AppConstants.MESSAGE_SAKUTEKI, sakuteki, totalSakutekiAutumn), null);
+                MessageFormat.format(AppConstants.MESSAGE_SAKUTEKI, sakuteki), null);
+        {
+            StyleRange style = new StyleRange();
+            style.data = this.nodeFactor;
+            style.underline = true;
+            style.underlineStyle = SWT.UNDERLINE_LINK;
+            this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_SAKUTEKI_NODE, this.nodeFactor),
+                    style);
+        }
+        this.addStyledText(this.message, AppConstants.MESSAGE_SAKUTEKI_AFTER, null);
         // 合計Lv
         this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_TOTAL_LV, totallv), null);
         // ドラム缶

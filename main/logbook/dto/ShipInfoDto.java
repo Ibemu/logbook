@@ -30,7 +30,7 @@ public final class ShipInfoDto extends AbstractDto {
     private int afterShipId;
 
     /** flagshipもしくはelite (敵艦のみ) */
-    private String flagship;
+    private String yomi;
 
     /** 弾 */
     private int maxBull;
@@ -38,11 +38,14 @@ public final class ShipInfoDto extends AbstractDto {
     /** 燃料 */
     private int maxFuel;
 
+    /** スロット数 */
+    private int slotNum;
+
     /**
      * コンストラクター
      */
     public ShipInfoDto() {
-        this(0, "", "", "", 0, 0, 0, 0);
+        this(0, "", "", "", 0, 0, 0, 0, 0);
     }
 
     /**
@@ -50,23 +53,25 @@ public final class ShipInfoDto extends AbstractDto {
      *
      * @param shipId ID
      * @param name 名前
-     * @param type 艦種
-     * @param flagship flagshipもしくはelite (敵艦のみ)
+     * @param yomi 読み（味方）、flagshipもしくはelite (敵艦)
+     * @param stype 艦種
      * @param afterlv 改レベル
      * @param afterShipId 改造後
-     * @param maxBull 弾
+     * @param slotNum スロット数
      * @param maxFuel 燃料
+     * @param maxBull 弾
      */
-    public ShipInfoDto(int shipId, String name, String type, String flagship, int afterlv, int afterShipId, int maxBull,
-            int maxFuel) {
+    public ShipInfoDto(int shipId, String name, String yomi, String stype, int afterlv, int afterShipId, int slotNum,
+            int maxFuel, int maxBull) {
         this.shipId = shipId;
         this.name = name;
-        this.type = type;
-        this.flagship = flagship;
+        this.yomi = yomi;
+        this.type = stype;
         this.afterlv = afterlv;
         this.afterShipId = afterShipId;
-        this.maxBull = maxBull;
+        this.slotNum = slotNum;
         this.maxFuel = maxFuel;
+        this.maxBull = maxBull;
     }
 
     /**
@@ -120,16 +125,16 @@ public final class ShipInfoDto extends AbstractDto {
      * flagshipもしくはelite (敵艦のみ)を取得します。
      * @return flagshipもしくはelite (敵艦のみ)
      */
-    public String getFlagship() {
-        return this.flagship;
+    public String getYomi() {
+        return this.yomi;
     }
 
     /**
      * flagshipもしくはelite (敵艦のみ)を設定します。
      * @param flagship flagshipもしくはelite (敵艦のみ)
      */
-    public void setFlagship(String flagship) {
-        this.flagship = flagship;
+    public void setYomi(String yomi) {
+        this.yomi = yomi;
     }
 
     /**
@@ -181,8 +186,8 @@ public final class ShipInfoDto extends AbstractDto {
     }
 
     /**
-     * 艦船IDを設定します。
-     * @param afterShipId 艦船ID
+     * 艦船IDを取得します。
+     * @return 艦船ID
      */
     public int getShipId() {
         return this.shipId;
@@ -194,6 +199,22 @@ public final class ShipInfoDto extends AbstractDto {
      */
     public void setShipId(int shipId) {
         this.shipId = shipId;
+    }
+
+    /**
+     * スロット数を取得します。
+     * @return slotNum スロット数
+     */
+    public int getSlotNum() {
+        return this.slotNum;
+    }
+
+    /**
+     * スロット数を設定します。
+     * @param slotNum スロット数
+     */
+    public void setSlotNum(int slotNum) {
+        this.slotNum = slotNum;
     }
 
     /**

@@ -131,8 +131,8 @@ public final class CreateReportLogic {
                 int[] emaxhps = battle.getMaxEnemy1Hp();
                 for (int j = 0; j < enemyships.size(); j++) {
                     ShipInfoDto ship = enemyships.get(j);
-                    if (!StringUtils.isEmpty(ship.getFlagship())) {
-                        enemy[j] = ship.getName() + "(" + ship.getFlagship() + ")";
+                    if (!StringUtils.isEmpty(ship.getYomi())) {
+                        enemy[j] = ship.getName() + "(" + ship.getYomi() + ")";
                     } else {
                         enemy[j] = ship.getName();
                     }
