@@ -38,6 +38,8 @@ public enum DataType {
     SHIP3("/kcsapi/api_get_member/ship3"),
     /** アイテム一覧 */
     SLOTITEM_MEMBER("/kcsapi/api_get_member/slot_item"),
+    /** 初期化一覧 */
+    REQUIRE_INFO("/kcsapi/api_get_member/require_info"),
 
     // ---------- api_port ----------
     /** 母港 */

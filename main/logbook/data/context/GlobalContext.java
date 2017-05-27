@@ -402,6 +402,10 @@ public final class GlobalContext {
             case BASIC:
                 doBasic(data);
                 break;
+            // 初期化一覧
+            case REQUIRE_INFO:
+                doRequireInfo(data);
+                break;
             // 遠征
             case MISSION_START:
                 doMission(data);
@@ -648,6 +652,25 @@ public final class GlobalContext {
             }
         } catch (Exception e) {
             LoggerHolder.LOG.warn("編成を更新しますに失敗しました", e);
+            LoggerHolder.LOG.warn(data);
+        }
+    }
+
+    /**
+     * 初期化一覧を更新します
+     * @param data
+     */
+    private static void doRequireInfo(Data data) {
+        try {
+            JsonObject apidata = data.getJsonObject().getJsonObject("api_data");
+            if (apidata != null) {
+                // 保有装備を更新する
+                JsonArray apiSlotItem = apidata.getJsonArray("api_slot_item");
+                doSlotitemMemberSub(apiSlotItem);
+                addConsole("保有装備情報を更新しました");
+            }
+        } catch (Exception e) {
+            LoggerHolder.LOG.warn("初期化一覧を更新しますに失敗しました", e);
             LoggerHolder.LOG.warn(data);
         }
     }
@@ -1162,34 +1185,43 @@ public final class GlobalContext {
     private static void doSlotitemMember(Data data) {
         try {
             JsonArray apidata = data.getJsonObject().getJsonArray("api_data");
-            // 破棄
-            ItemContext.get().clear();
-            ItemContext.level().clear();
-            for (int i = 0; i < apidata.size(); i++) {
-                JsonObject object = (JsonObject) apidata.get(i);
-                int typeid = object.getJsonNumber("api_slotitem_id").intValue();
-                int level = object.getJsonNumber("api_level").intValue();
-                int alv = -1;
-                if (object.containsKey("api_alv")) {
-                    alv = object.getJsonNumber("api_alv").intValue();
-                }
-                Long id = object.getJsonNumber("api_id").longValue();
-                ItemDto item = Item.get(typeid);
-                if (item != null) {
-                    ItemContext.get().put(id, item);
-                    ItemContext.level().put(id, level);
-                    if (alv > 0) {
-                        ItemContext.alv().put(id, alv);
-                    } else {
-                        ItemContext.alv().remove(id);
-                    }
-                }
-            }
+            doSlotitemMemberSub(apidata);
 
             addConsole("保有装備情報を更新しました");
         } catch (Exception e) {
             LoggerHolder.LOG.warn("保有装備を更新しますに失敗しました", e);
             LoggerHolder.LOG.warn(data);
+        }
+    }
+
+    /**
+     * 保有装備を更新します
+     *
+     * @param data
+     */
+    private static void doSlotitemMemberSub(JsonArray apidata) {
+        // 破棄
+        ItemContext.get().clear();
+        ItemContext.level().clear();
+        for (int i = 0; i < apidata.size(); i++) {
+            JsonObject object = (JsonObject) apidata.get(i);
+            int typeid = object.getJsonNumber("api_slotitem_id").intValue();
+            int level = object.getJsonNumber("api_level").intValue();
+            int alv = -1;
+            if (object.containsKey("api_alv")) {
+                alv = object.getJsonNumber("api_alv").intValue();
+            }
+            Long id = object.getJsonNumber("api_id").longValue();
+            ItemDto item = Item.get(typeid);
+            if (item != null) {
+                ItemContext.get().put(id, item);
+                ItemContext.level().put(id, level);
+                if (alv > 0) {
+                    ItemContext.alv().put(id, alv);
+                } else {
+                    ItemContext.alv().remove(id);
+                }
+            }
         }
     }
 
