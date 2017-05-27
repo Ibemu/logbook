@@ -485,8 +485,6 @@ public class FleetComposite extends Composite {
             int dmgcstm = 0;
             boolean drum = false;
             for (int j = 0; j < item.size(); ++j) {
-                if (j == 4)
-                    continue;
                 String name = "**: ";
                 if (j < ship.getShipInfo().getSlotNum())
                     name = String.format("%02d: ", onslot.get(j));
@@ -583,8 +581,10 @@ public class FleetComposite extends Composite {
                         break;
                     }
                     name += itemName.get(j);
-                } else
-                    name += "----------";
+                } else if (j < ship.getShipInfo().getSlotNum())
+                    name += itemName.get(j);
+                else if ((j != 5) || !ship.HasExSlot())
+                    name += "--------------------";
                 names.add(name);
             }
             if (drum) {

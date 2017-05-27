@@ -213,6 +213,9 @@ public final class ShipDto extends AbstractDto {
     /** 装備リスト */
     private List<ItemDto> items;
 
+    /** 補強増設 */
+    private boolean hasExSlot;
+
     /**
      * コンストラクター
      *
@@ -252,6 +255,7 @@ public final class ShipDto extends AbstractDto {
         }
         if (object.containsKey("api_slot_ex")) {
             long itemid = object.getJsonNumber("api_slot_ex").longValue();
+            this.hasExSlot = itemid != 0;
             this.slot.add(itemid);
         }
         this.onslot = new ArrayList<Integer>();
@@ -538,6 +542,13 @@ public final class ShipDto extends AbstractDto {
      */
     public List<Integer> getOnslot() {
         return this.onslot;
+    }
+
+    /**
+     * @return 補強増設
+     */
+    public boolean HasExSlot() {
+        return this.hasExSlot;
     }
 
     /**
