@@ -889,13 +889,12 @@ public final class ShipDto extends AbstractDto {
                             ItemDto item = itemMap.get(itemid);
                             if ((item != null)
                                     && ("九七式艦攻(九三一空)".equals(item.getName()) || "天山(九三一空)".equals(item.getName()))
-                                    && (this.getTaisen() >= 65)) {
+                                    && (tais >= 65)) {
                                 return true;
                             }
                         }
                     }
-                } else if (("大鷹改".equals(this.getName()) || "大鷹改二".equals(this.getName()))
-                        && (this.getTaisen() >= 65)) {
+                } else if (("大鷹改".equals(this.getName()) || "大鷹改二".equals(this.getName())) && (tais >= 65)) {
                     return true;
                 }
                 // FALL THROUGH
@@ -903,6 +902,8 @@ public final class ShipDto extends AbstractDto {
             case "航空戦艦":
             case "水上機母艦":
             case "揚陸艦":
+                if (tais < 100)
+                    return false;
                 for (Long itemid : this.slot) {
                     if (-1 != itemid) {
                         ItemDto item = itemMap.get(itemid);
@@ -928,7 +929,7 @@ public final class ShipDto extends AbstractDto {
                         }
                     }
                 }
-                return sonar && plane && (this.getTaisen() >= 100);
+                return sonar && plane;
 
             case "軽巡洋艦":
                 if ("五十鈴改二".equals(this.getName()))
@@ -971,7 +972,7 @@ public final class ShipDto extends AbstractDto {
                         }
                     }
                 }
-                return (tais > 0) && ((this.getTaisen() >= 75) || (sonar && (this.getTaisen() >= 60)));
+                return (tais > 0) && (sonar || ((this.getTaisen() >= 75) && ((this.getTaisen() - tais) >= 4)));
             }
         }
         return false;
