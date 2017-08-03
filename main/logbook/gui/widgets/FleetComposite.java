@@ -116,6 +116,8 @@ public class FleetComposite extends Composite {
     private final Label[] bullstLabels = new Label[MAXCHARA];
     /** 燃料ステータス */
     private final Label[] fuelstLabels = new Label[MAXCHARA];
+    /** 対潜先制爆雷攻撃 */
+    private final Label[] tsbkLabels = new Label[MAXCHARA];
     /** ダメコンステータス(要員) */
     private final Label[] dmgcstyLabels = new Label[MAXCHARA];
     /** ダメコンステータス(女神) */
@@ -253,7 +255,7 @@ public class FleetComposite extends Composite {
             // ステータス
             new Label(this.fleetGroup, SWT.NONE);
             Composite stateComposite = new Composite(this.fleetGroup, SWT.NONE);
-            GridLayout glState = new GridLayout(6, false);
+            GridLayout glState = new GridLayout(7, false);
             glState.horizontalSpacing = 0;
             glState.marginTop = 0;
             glState.marginWidth = 0;
@@ -269,6 +271,8 @@ public class FleetComposite extends Composite {
             fuelst.setText("燃");
             Label bullst = new Label(stateComposite, SWT.NONE);
             bullst.setText("弾");
+            Label tsbk = new Label(stateComposite, SWT.NONE);
+            tsbk.setText("先潜");
             Label dmgcsty = new Label(stateComposite, SWT.NONE);
             dmgcsty.setText("ダ");
             Label dmgcstm = new Label(stateComposite, SWT.NONE);
@@ -291,6 +295,7 @@ public class FleetComposite extends Composite {
             this.condLabels[i] = cond;
             this.condstLabels[i] = condst;
             this.bullstLabels[i] = bullst;
+            this.tsbkLabels[i] = tsbk;
             this.dmgcstyLabels[i] = dmgcsty;
             this.dmgcstmLabels[i] = dmgcstm;
             this.fuelstLabels[i] = fuelst;
@@ -340,6 +345,7 @@ public class FleetComposite extends Composite {
             this.condLabels[i].setText("");
             this.condstLabels[i].setText("");
             this.bullstLabels[i].setText("");
+            this.tsbkLabels[i].setText("");
             this.dmgcstyLabels[i].setText("");
             this.dmgcstmLabels[i].setText("");
             this.fuelstLabels[i].setText("");
@@ -472,6 +478,15 @@ public class FleetComposite extends Composite {
                 } else if (bullraito <= AppConstants.LOW_SUPPLY) {
                     this.bullstLabels[i].setForeground(SWTResourceManager.getColor(AppConstants.COND_ORANGE_COLOR));
                 }
+            }
+            // ステータス.対潜先制爆雷攻撃
+            this.tsbkLabels[i].setText("先潜");
+            if (ship.canTsbk()) {
+                this.tsbkLabels[i].setEnabled(true);
+                this.tsbkLabels[i].setForeground(SWTResourceManager.getColor(AppConstants.COND_GREEN_COLOR));
+            } else {
+                this.tsbkLabels[i].setEnabled(false);
+                this.tsbkLabels[i].setForeground(null);
             }
             // ステータス.ダメコン
             // 装備

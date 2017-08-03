@@ -869,4 +869,111 @@ public final class ShipDto extends AbstractDto {
     public long getYasenPower() {
         return this.getKaryoku() + this.getRaisou();
     }
+
+    /**
+     * 対潜先制爆雷攻撃可能
+     *
+     * @return 対潜先制爆雷攻撃
+     */
+    public boolean canTsbk() {
+        if (this.getType() != null) {
+            Map<Long, ItemDto> itemMap = ItemContext.get();
+            boolean plane = false;
+            boolean sonar = false;
+            long tais = this.getTaisen();
+            switch (this.getType()) {
+            case "軽空母":
+                if ("大鷹".equals(this.getName())) {
+                    for (Long itemid : this.slot) {
+                        if (-1 != itemid) {
+                            ItemDto item = itemMap.get(itemid);
+                            if ((item != null)
+                                    && ("九七式艦攻(九三一空)".equals(item.getName()) || "天山(九三一空)".equals(item.getName()))
+                                    && (this.getTaisen() >= 65)) {
+                                return true;
+                            }
+                        }
+                    }
+                } else if (("大鷹改".equals(this.getName()) || "大鷹改二".equals(this.getName()))
+                        && (this.getTaisen() >= 65)) {
+                    return true;
+                }
+                // FALL THROUGH
+            case "航空巡洋艦":
+            case "航空戦艦":
+            case "水上機母艦":
+            case "揚陸艦":
+                for (Long itemid : this.slot) {
+                    if (-1 != itemid) {
+                        ItemDto item = itemMap.get(itemid);
+                        if (item != null) {
+                            switch (item.getType2()) {
+                            case 7: //艦爆
+                            case 8: //艦攻
+                            case 11: //水爆
+                            case 25: //オートジャイロ
+                            case 26: //対潜哨戒機
+                            case 47: //陸上攻撃機
+                            case 57: //噴式戦闘爆撃機
+                            case 58: //噴式攻撃機
+                            case 41: //大型飛行艇
+                                if (item.getTais() > 0) {
+                                    plane = true;
+                                }
+                                break;
+                            case 14: //ソナー
+                            case 40: //大型ソナー
+                                sonar = true;
+                            }
+                        }
+                    }
+                }
+                return sonar && plane && (this.getTaisen() >= 100);
+
+            case "軽巡洋艦":
+                if ("五十鈴改二".equals(this.getName()))
+                    return true;
+                // FALL THROUGH
+            case "駆逐艦":
+            case "重雷装巡洋艦":
+            case "練習巡洋艦":
+            case "補給艦":
+                if (tais < 100)
+                    return false;
+                for (Long itemid : this.slot) {
+                    if (-1 != itemid) {
+                        ItemDto item = itemMap.get(itemid);
+                        if (item != null) {
+                            tais -= item.getTais();
+                            switch (item.getType2()) {
+                            case 14: //ソナー
+                            case 40: //大型ソナー
+                                sonar = true;
+                            }
+                        }
+                    }
+                }
+                return sonar && (tais > 0);
+
+            case "海防艦":
+                if (tais < 60)
+                    return false;
+                for (Long itemid : this.slot) {
+                    if (-1 != itemid) {
+                        ItemDto item = itemMap.get(itemid);
+                        if (item != null) {
+                            tais -= item.getTais();
+                            switch (item.getType2()) {
+                            case 14: //ソナー
+                            case 40: //大型ソナー
+                                sonar = true;
+                            }
+                        }
+                    }
+                }
+                return (tais > 0) && ((this.getTaisen() >= 75) || (sonar && (this.getTaisen() >= 60)));
+            }
+        }
+        return false;
+    }
 }

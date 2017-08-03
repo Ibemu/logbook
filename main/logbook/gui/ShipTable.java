@@ -14,6 +14,22 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.wb.swt.SWTResourceManager;
+
 import logbook.config.ShipGroupConfig;
 import logbook.config.bean.ShipGroupBean;
 import logbook.constants.AppConstants;
@@ -31,22 +47,6 @@ import logbook.gui.logic.TableItemDecorator;
 import logbook.gui.logic.TableWrapper;
 import logbook.internal.ExpTable;
 import logbook.util.SwtUtils;
-
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 /**
  * 所有艦娘一覧テーブル
@@ -313,6 +313,11 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
                 b.setRaigekiPower(d.getRaigekiPower());
                 b.setTaisenPower(d.getTaisenPower());
                 b.setYasenPower(d.getYasenPower());
+                if (d.canTsbk()) {
+                    b.setTsbk("○");
+                } else {
+                    b.setTsbk("");
+                }
                 b.setShip(d);
                 return b;
             };
@@ -370,6 +375,11 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
                 b.setRaigekiPower(d.getRaigekiPower());
                 b.setTaisenPower(d.getTaisenPower());
                 b.setYasenPower(d.getYasenPower());
+                if (d.canTsbk()) {
+                    b.setTsbk("○");
+                } else {
+                    b.setTsbk("");
+                }
                 b.setShip(d);
                 return b;
             };

@@ -137,6 +137,10 @@ public class ShipBean {
     @Name("夜戦火力")
     private Long yasenPower;
 
+    /** 対潜先制爆雷攻撃 */
+    @Name("対潜先制")
+    private String tsbk;
+
     /** 艦娘 */
     private ShipDto ship;
 
@@ -650,6 +654,22 @@ public class ShipBean {
      */
     public void setYasenPower(Long yasenPower) {
         this.yasenPower = yasenPower;
+    }
+
+    /**
+     * 対潜先制爆雷攻撃を取得します。
+     * @return 対潜先制爆雷攻撃
+     */
+    public String getTsbk() {
+        return this.tsbk;
+    }
+
+    /**
+     * 対潜先制爆雷攻撃を設定します。
+     * @param tsbk 対潜先制爆雷攻撃
+     */
+    public void setTsbk(String tsbk) {
+        this.tsbk = tsbk;
     }
 
     /**
