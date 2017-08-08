@@ -38,7 +38,7 @@ public enum AntiAirCutInKind {
     ),
 
     ALL_BBR(5, "水上艦／高性能高角砲・高性能高角砲・対空電探", "砲砲電", 4, 1.5,
-            s -> (s.getItem().stream().filter(i -> (i != null) && i.isBuiltInHAMount()).count() > 2) // 高性能高角砲x2
+            s -> (s.getItem().stream().filter(i -> (i != null) && i.isBuiltInHAMount()).count() >= 2) // 高性能高角砲x2
                     && s.getItem().stream().anyMatch(i -> (i != null) && i.isAntiAirRadar()) // 対空電探
     ),
 
