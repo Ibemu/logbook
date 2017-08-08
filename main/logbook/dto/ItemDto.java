@@ -42,7 +42,7 @@ public final class ItemDto extends AbstractDto {
 
     /**
      * コンストラクター
-     * 
+     *
      * @param object JSON Object
      */
     public ItemDto(JsonObject object) {
@@ -75,7 +75,7 @@ public final class ItemDto extends AbstractDto {
 
     /**
      * コンストラクター
-     * 
+     *
      * @param id
      * @param type2
      * @param type3
@@ -501,6 +501,27 @@ public final class ItemDto extends AbstractDto {
      */
     public void setTyku(int tyku) {
         this.tyku = tyku;
+    }
+
+    /**
+     * 対空電探か
+     */
+    public boolean isAntiAirRadar() {
+        return (this.type3 == 11) && (this.tyku > 0);
+    }
+
+    /**
+     * 高性能高角砲か
+     */
+    public boolean isBuiltInHAMount() {
+        return (this.id == 122) || (this.id == 130) || (this.id == 135) || (this.id == 172);
+    }
+
+    /**
+     * 高性能機銃か
+     */
+    public boolean isCDMG() {
+        return (this.id == 131) || (this.id == 173) || (this.id == 191);
     }
 
     @Override
