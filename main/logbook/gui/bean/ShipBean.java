@@ -138,8 +138,12 @@ public class ShipBean {
     private Long yasenPower;
 
     /** 対潜先制爆雷攻撃 */
-    @Name("対潜先制")
+    @Name("先制対潜")
     private String tsbk;
+
+    /** 対空CI */
+    @Name("対空CI")
+    private String aaci;
 
     /** 艦娘 */
     private ShipDto ship;
@@ -670,6 +674,22 @@ public class ShipBean {
      */
     public void setTsbk(String tsbk) {
         this.tsbk = tsbk;
+    }
+
+    /**
+     * 対空CIを取得します。
+     * @return 対空CI
+     */
+    public String getAaci() {
+        return this.aaci;
+    }
+
+    /**
+     * 対空CIを設定します。
+     * @param aaci 対空CI
+     */
+    public void setAaci(String aaci) {
+        this.aaci = aaci;
     }
 
     /**

@@ -2,11 +2,14 @@ package logbook.dto;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.CheckForNull;
 import javax.json.JsonArray;
@@ -16,6 +19,7 @@ import javax.json.JsonValue;
 
 import logbook.constants.AppConstants;
 import logbook.data.context.ItemContext;
+import logbook.internal.AntiAirCutInKind;
 import logbook.internal.ExpTable;
 import logbook.internal.SallyArea;
 import logbook.internal.Ship;
@@ -976,5 +980,15 @@ public final class ShipDto extends AbstractDto {
             }
         }
         return false;
+    }
+
+    /**
+     * 発動できる対空カットイン種別
+     *
+     * @return 発動できる対空カットイン種別
+     */
+    public Set<AntiAirCutInKind> getAntiAirCI() {
+        return Arrays.stream(AntiAirCutInKind.values()).filter(k -> k.getCondition().test(this))
+                .collect(Collectors.toSet());
     }
 }

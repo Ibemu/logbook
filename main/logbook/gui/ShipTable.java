@@ -318,6 +318,9 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
                 } else {
                     b.setTsbk("");
                 }
+                b.setAaci(String.join(", ",
+                        d.getAntiAirCI().stream().map(k -> Integer.toString(k.getKind())).sorted()
+                                .toArray(String[]::new)));
                 b.setShip(d);
                 return b;
             };
@@ -380,6 +383,9 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
                 } else {
                     b.setTsbk("");
                 }
+                b.setAaci(String.join(", ",
+                        d.getAntiAirCI().stream().map(k -> Integer.toString(k.getKind())).sorted()
+                                .toArray(String[]::new)));
                 b.setShip(d);
                 return b;
             };

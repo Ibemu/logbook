@@ -4,8 +4,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.CheckForNull;
 
@@ -40,6 +42,7 @@ import logbook.dto.ShipDto;
 import logbook.gui.ApplicationMain;
 import logbook.gui.NodeFactorDialog;
 import logbook.gui.TimerSettingDialog;
+import logbook.internal.AntiAirCutInKind;
 import logbook.internal.EvaluateExp;
 import logbook.internal.SeaExp;
 import logbook.thread.PlayerThread;
@@ -118,6 +121,8 @@ public class FleetComposite extends Composite {
     private final Label[] fuelstLabels = new Label[MAXCHARA];
     /** 対潜先制爆雷攻撃 */
     private final Label[] tsbkLabels = new Label[MAXCHARA];
+    /** 対空CI */
+    private final Label[] aaciLabels = new Label[MAXCHARA];
     /** ダメコンステータス(要員) */
     private final Label[] dmgcstyLabels = new Label[MAXCHARA];
     /** ダメコンステータス(女神) */
@@ -255,7 +260,7 @@ public class FleetComposite extends Composite {
             // ステータス
             new Label(this.fleetGroup, SWT.NONE);
             Composite stateComposite = new Composite(this.fleetGroup, SWT.NONE);
-            GridLayout glState = new GridLayout(7, false);
+            GridLayout glState = new GridLayout(8, false);
             glState.horizontalSpacing = 0;
             glState.marginTop = 0;
             glState.marginWidth = 0;
@@ -273,6 +278,8 @@ public class FleetComposite extends Composite {
             bullst.setText("弾");
             Label tsbk = new Label(stateComposite, SWT.NONE);
             tsbk.setText("先潜");
+            Label aaci = new Label(stateComposite, SWT.NONE);
+            tsbk.setText("対空");
             Label dmgcsty = new Label(stateComposite, SWT.NONE);
             dmgcsty.setText("ダ");
             Label dmgcstm = new Label(stateComposite, SWT.NONE);
@@ -296,6 +303,7 @@ public class FleetComposite extends Composite {
             this.condstLabels[i] = condst;
             this.bullstLabels[i] = bullst;
             this.tsbkLabels[i] = tsbk;
+            this.aaciLabels[i] = aaci;
             this.dmgcstyLabels[i] = dmgcsty;
             this.dmgcstmLabels[i] = dmgcstm;
             this.fuelstLabels[i] = fuelst;
@@ -346,6 +354,7 @@ public class FleetComposite extends Composite {
             this.condstLabels[i].setText("");
             this.bullstLabels[i].setText("");
             this.tsbkLabels[i].setText("");
+            this.aaciLabels[i].setText("");
             this.dmgcstyLabels[i].setText("");
             this.dmgcstmLabels[i].setText("");
             this.fuelstLabels[i].setText("");
@@ -480,13 +489,26 @@ public class FleetComposite extends Composite {
                 }
             }
             // ステータス.対潜先制爆雷攻撃
-            this.tsbkLabels[i].setText("先潜");
             if (ship.canTsbk()) {
+                this.tsbkLabels[i].setText("先制対潜");
                 this.tsbkLabels[i].setEnabled(true);
                 this.tsbkLabels[i].setForeground(SWTResourceManager.getColor(AppConstants.COND_GREEN_COLOR));
             } else {
+                this.tsbkLabels[i].setText("");
                 this.tsbkLabels[i].setEnabled(false);
                 this.tsbkLabels[i].setForeground(null);
+            }
+            // ステータス.対空CI
+            Set<AntiAirCutInKind> aacis = ship.getAntiAirCI();
+            if (aacis.isEmpty()) {
+                this.aaciLabels[i].setText("");
+                this.aaciLabels[i].setEnabled(false);
+                this.aaciLabels[i].setForeground(null);
+            } else {
+                this.aaciLabels[i].setText("対空CI:" +
+                        aacis.stream().max(Comparator.comparing(AntiAirCutInKind::getBasicBonus)).get().getShortName());
+                this.aaciLabels[i].setEnabled(true);
+                this.aaciLabels[i].setForeground(SWTResourceManager.getColor(AppConstants.COND_GREEN_COLOR));
             }
             // ステータス.ダメコン
             // 装備

@@ -41,11 +41,14 @@ public final class ShipInfoDto extends AbstractDto {
     /** スロット数 */
     private int slotNum;
 
+    /** 艦型ID */
+    private int ctype;
+
     /**
      * コンストラクター
      */
     public ShipInfoDto() {
-        this(0, "", "", "", 0, 0, 0, 0, 0);
+        this(0, "", "", "", 0, 0, 0, 0, 0, 0);
     }
 
     /**
@@ -60,9 +63,10 @@ public final class ShipInfoDto extends AbstractDto {
      * @param slotNum スロット数
      * @param maxFuel 燃料
      * @param maxBull 弾
+     * @param ctype 艦型ID
      */
     public ShipInfoDto(int shipId, String name, String yomi, String stype, int afterlv, int afterShipId, int slotNum,
-            int maxFuel, int maxBull) {
+            int maxFuel, int maxBull, int ctype) {
         this.shipId = shipId;
         this.name = name;
         this.yomi = yomi;
@@ -72,6 +76,7 @@ public final class ShipInfoDto extends AbstractDto {
         this.slotNum = slotNum;
         this.maxFuel = maxFuel;
         this.maxBull = maxBull;
+        this.ctype = ctype;
     }
 
     /**
@@ -203,7 +208,7 @@ public final class ShipInfoDto extends AbstractDto {
 
     /**
      * スロット数を取得します。
-     * @return slotNum スロット数
+     * @return スロット数
      */
     public int getSlotNum() {
         return this.slotNum;
@@ -215,6 +220,22 @@ public final class ShipInfoDto extends AbstractDto {
      */
     public void setSlotNum(int slotNum) {
         this.slotNum = slotNum;
+    }
+
+    /**
+     * 艦型IDを取得します。
+     * @return 艦型ID
+     */
+    public int getClassType() {
+        return this.ctype;
+    }
+
+    /**
+     * 艦型IDを設定します。
+     * @param ctype 艦型ID
+     */
+    public void setClassType(int ctype) {
+        this.ctype = ctype;
     }
 
     /**
