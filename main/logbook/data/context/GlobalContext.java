@@ -1972,7 +1972,7 @@ public final class GlobalContext {
         }
         int ctype = 0;
         if (object.containsKey("api_ctype")) {
-            maxBull = JsonUtils.getInt(object.get("api_ctype"));
+            ctype = JsonUtils.getInt(object.get("api_ctype"));
         }
         return new ShipInfoDto(shipid, name, yomi, stype, afterlv, aftershipid, slotNum, maxFuel, maxBull, ctype);
     }
