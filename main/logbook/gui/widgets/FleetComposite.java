@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
@@ -515,6 +516,7 @@ public class FleetComposite extends Composite {
             List<ItemDto> item = ship.getItem();
             List<String> itemName = ship.getSlot();
             List<Long> itemId = ship.getItemId();
+            Map<Long, Integer> levelMap = ItemContext.level();
             // 搭載機数
             List<Integer> onslot = ship.getOnslot();
             List<String> names = new ArrayList<String>();
@@ -527,7 +529,8 @@ public class FleetComposite extends Composite {
                     name = String.format("%02d: ", onslot.get(j));
                 ItemDto itemDto = item.get(j);
                 if (itemDto != null) {
-                    int itemLevel = ItemContext.level().get(itemId.get(j));
+                    int itemLevel = ((levelMap != null) && (itemId != null))
+                            ? ItemContext.level().getOrDefault(itemId.get(j), 0) : 0;
 
                     if (itemDto.getName().equals("応急修理要員")) {
                         dmgcsty++;

@@ -220,6 +220,9 @@ public final class ShipDto extends AbstractDto {
     /** 補強増設 */
     private boolean hasExSlot;
 
+    /** 対空CI */
+    private Set<AntiAirCutInKind> aaci;
+
     /**
      * コンストラクター
      *
@@ -298,6 +301,7 @@ public final class ShipDto extends AbstractDto {
         }
         this.isCarrier = "水上機母艦".equals(this.type) || "軽空母".equals(this.type) || "正規空母".equals(this.type)
                 || "装甲空母".equals(this.type);
+        this.aaci = null;
     }
 
     /**
@@ -467,6 +471,7 @@ public final class ShipDto extends AbstractDto {
         }
         this.itemNames = null;
         this.items = null;
+        this.aaci = null;
     }
 
     /**
@@ -881,24 +886,22 @@ public final class ShipDto extends AbstractDto {
      */
     public boolean canTsbk() {
         if (this.getType() != null) {
-            Map<Long, ItemDto> itemMap = ItemContext.get();
+            List<ItemDto> items = this.getItem();
             boolean plane = false;
             boolean sonar = false;
             long tais = this.getTaisen();
             switch (this.getType()) {
             case "軽空母":
                 if ("大鷹".equals(this.getName())) {
-                    for (Long itemid : this.slot) {
-                        if (-1 != itemid) {
-                            ItemDto item = itemMap.get(itemid);
-                            if ((item != null)
-                                    && ("九七式艦攻(九三一空)".equals(item.getName()) || "天山(九三一空)".equals(item.getName()))
-                                    && (tais >= 65)) {
-                                return true;
-                            }
+                    for (ItemDto item : items) {
+                        if ((item != null)
+                                && ("九七式艦攻(九三一空)".equals(item.getName()) || "天山(九三一空)".equals(item.getName()))
+                                && (tais >= 65)) {
+                            return true;
                         }
                     }
-                } else if (("大鷹改".equals(this.getName()) || "大鷹改二".equals(this.getName())) && (tais >= 65)) {
+                } else if (("大鷹改".equals(this.getName()) || "大鷹改二".equals(this.getName())) && (tais >= 65)
+                        && items.stream().anyMatch(i -> (i != null) && (i.getTais() > 0))) {
                     return true;
                 }
                 // FALL THROUGH
@@ -908,28 +911,25 @@ public final class ShipDto extends AbstractDto {
             case "揚陸艦":
                 if (tais < 100)
                     return false;
-                for (Long itemid : this.slot) {
-                    if (-1 != itemid) {
-                        ItemDto item = itemMap.get(itemid);
-                        if (item != null) {
-                            switch (item.getType2()) {
-                            case 7: //艦爆
-                            case 8: //艦攻
-                            case 11: //水爆
-                            case 25: //オートジャイロ
-                            case 26: //対潜哨戒機
-                            case 47: //陸上攻撃機
-                            case 57: //噴式戦闘爆撃機
-                            case 58: //噴式攻撃機
-                            case 41: //大型飛行艇
-                                if (item.getTais() > 0) {
-                                    plane = true;
-                                }
-                                break;
-                            case 14: //ソナー
-                            case 40: //大型ソナー
-                                sonar = true;
+                for (ItemDto item : items) {
+                    if (item != null) {
+                        switch (item.getType2()) {
+                        case 7: //艦爆
+                        case 8: //艦攻
+                        case 11: //水爆
+                        case 25: //オートジャイロ
+                        case 26: //対潜哨戒機
+                        case 47: //陸上攻撃機
+                        case 57: //噴式戦闘爆撃機
+                        case 58: //噴式攻撃機
+                        case 41: //大型飛行艇
+                            if (item.getTais() > 0) {
+                                plane = true;
                             }
+                            break;
+                        case 14: //ソナー
+                        case 40: //大型ソナー
+                            sonar = true;
                         }
                     }
                 }
@@ -945,16 +945,13 @@ public final class ShipDto extends AbstractDto {
             case "補給艦":
                 if (tais < 100)
                     return false;
-                for (Long itemid : this.slot) {
-                    if (-1 != itemid) {
-                        ItemDto item = itemMap.get(itemid);
-                        if (item != null) {
-                            tais -= item.getTais();
-                            switch (item.getType2()) {
-                            case 14: //ソナー
-                            case 40: //大型ソナー
-                                sonar = true;
-                            }
+                for (ItemDto item : items) {
+                    if (item != null) {
+                        tais -= item.getTais();
+                        switch (item.getType2()) {
+                        case 14: //ソナー
+                        case 40: //大型ソナー
+                            sonar = true;
                         }
                     }
                 }
@@ -963,16 +960,13 @@ public final class ShipDto extends AbstractDto {
             case "海防艦":
                 if (tais < 60)
                     return false;
-                for (Long itemid : this.slot) {
-                    if (-1 != itemid) {
-                        ItemDto item = itemMap.get(itemid);
-                        if (item != null) {
-                            tais -= item.getTais();
-                            switch (item.getType2()) {
-                            case 14: //ソナー
-                            case 40: //大型ソナー
-                                sonar = true;
-                            }
+                for (ItemDto item : items) {
+                    if (item != null) {
+                        tais -= item.getTais();
+                        switch (item.getType2()) {
+                        case 14: //ソナー
+                        case 40: //大型ソナー
+                            sonar = true;
                         }
                     }
                 }
@@ -988,7 +982,9 @@ public final class ShipDto extends AbstractDto {
      * @return 発動できる対空カットイン種別
      */
     public Set<AntiAirCutInKind> getAntiAirCI() {
-        return Arrays.stream(AntiAirCutInKind.values()).filter(k -> k.getCondition().test(this))
-                .collect(Collectors.toSet());
+        if (this.aaci == null)
+            this.aaci = Arrays.stream(AntiAirCutInKind.values()).filter(k -> k.getCondition().test(this))
+                    .collect(Collectors.toSet());
+        return this.aaci;
     }
 }
