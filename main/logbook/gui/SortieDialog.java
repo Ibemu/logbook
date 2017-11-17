@@ -41,7 +41,6 @@ import logbook.thread.ThreadManager;
  *
  */
 public final class SortieDialog extends Dialog {
-    private static final int MAXCHARA = 6;
 
     private Shell shell;
     private Display display;
@@ -484,7 +483,7 @@ public final class SortieDialog extends Dialog {
             setStatus(this.friend1.getEndstats()[i], ehp, mhp, battleFirst.getFriend1Escape()[i]);
             setCond(this.friend1.getConds()[i], dock.getShips().get(i).getCond());
         }
-        for (int i = dock.getShips().size(); i < MAXCHARA; i++) {
+        for (int i = dock.getShips().size(); i < AppConstants.MAX_CHARA; i++) {
             resetText(this.friend1.getNames()[i]);
             resetText(this.friend1.getLvs()[i]);
             resetText(this.friend1.getNowhps()[i]);
@@ -514,7 +513,7 @@ public final class SortieDialog extends Dialog {
                 setStatus(this.friend2.getEndstats()[i], ehp, mhp, battleFirst.getFriend2Escape()[i]);
                 setCond(this.friend2.getConds()[i], dock.getShips().get(i).getCond());
             }
-            for (int i = dock.getShips().size(); i < MAXCHARA; i++) {
+            for (int i = dock.getShips().size(); i < AppConstants.MAX_CHARA; i++) {
                 resetText(this.friend2.getNames()[i]);
                 resetText(this.friend2.getLvs()[i]);
                 resetText(this.friend2.getNowhps()[i]);
@@ -550,7 +549,7 @@ public final class SortieDialog extends Dialog {
             setStatus(this.enemy1.getEndstats()[i], ehp, mhp, false);
             this.enemy1.getConds()[i].setText("");
         }
-        for (int i = battleFirst.getEnemy1().size(); i < MAXCHARA; i++) {
+        for (int i = battleFirst.getEnemy1().size(); i < AppConstants.MAX_CHARA; i++) {
             resetText(this.enemy1.getNames()[i]);
             resetText(this.enemy1.getLvs()[i]);
             resetText(this.enemy1.getNowhps()[i]);
@@ -585,7 +584,7 @@ public final class SortieDialog extends Dialog {
                 setStatus(this.enemy2.getEndstats()[i], ehp, mhp, false);
                 this.enemy2.getConds()[i].setText("");
             }
-            for (int i = dock.getShips().size(); i < MAXCHARA; i++) {
+            for (int i = dock.getShips().size(); i < AppConstants.MAX_CHARA; i++) {
                 resetText(this.enemy2.getNames()[i]);
                 resetText(this.enemy2.getLvs()[i]);
                 resetText(this.enemy2.getNowhps()[i]);
@@ -612,7 +611,7 @@ public final class SortieDialog extends Dialog {
         int nowhpe = 0;
         int endhpe = 0;
 
-        for (int i = 0; i < MAXCHARA; i++) {
+        for (int i = 0; i < AppConstants.MAX_CHARA; i++) {
             if (battleLast.getMaxFriend1Hp()[i] > 0) {
                 countf++;
                 nowhpf += battleFirst.getNowFriend1Hp()[i];
@@ -763,14 +762,14 @@ public final class SortieDialog extends Dialog {
     private class DockComposite extends Composite {
         private final CLabel dockName;
         private final CLabel formation;
-        private final CLabel names[] = new CLabel[MAXCHARA];
-        private final CLabel lvs[] = new CLabel[MAXCHARA];
-        private final CLabel nowhps[] = new CLabel[MAXCHARA];
-        private final CLabel endhps[] = new CLabel[MAXCHARA];
-        private final CLabel maxhps[] = new CLabel[MAXCHARA];
-        private final CLabel nowstats[] = new CLabel[MAXCHARA];
-        private final CLabel endstats[] = new CLabel[MAXCHARA];
-        private final CLabel conds[] = new CLabel[MAXCHARA];
+        private final CLabel names[] = new CLabel[AppConstants.MAX_CHARA];
+        private final CLabel lvs[] = new CLabel[AppConstants.MAX_CHARA];
+        private final CLabel nowhps[] = new CLabel[AppConstants.MAX_CHARA];
+        private final CLabel endhps[] = new CLabel[AppConstants.MAX_CHARA];
+        private final CLabel maxhps[] = new CLabel[AppConstants.MAX_CHARA];
+        private final CLabel nowstats[] = new CLabel[AppConstants.MAX_CHARA];
+        private final CLabel endstats[] = new CLabel[AppConstants.MAX_CHARA];
+        private final CLabel conds[] = new CLabel[AppConstants.MAX_CHARA];
 
         public DockComposite(Composite parent, int style, FontData fontData) {
             super(parent, style);
@@ -816,7 +815,7 @@ public final class SortieDialog extends Dialog {
             lblText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
             lblText.setText("cond.");
 
-            for (int i = 0; i < MAXCHARA; i++) {
+            for (int i = 0; i < AppConstants.MAX_CHARA; i++) {
                 this.names[i] = new CLabel(this, SWT.BORDER);
                 this.names[i].setAlignment(SWT.LEFT);
                 this.names[i].setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));

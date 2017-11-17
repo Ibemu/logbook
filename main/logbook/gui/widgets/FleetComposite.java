@@ -60,8 +60,6 @@ public class FleetComposite extends Composite {
     private static final int WARN = 1;
     /** 致命的 */
     private static final int FATAL = 2;
-    /** 1艦隊に編成できる艦娘の数 */
-    private static final int MAXCHARA = 6;
 
     /** HPゲージ幅 */
     private static final int GAUGE_WIDTH = 50;
@@ -99,37 +97,37 @@ public class FleetComposite extends Composite {
     private double nodeFactor = 1;
 
     /** アイコンラベル */
-    private final Label[] iconLabels = new Label[MAXCHARA];
+    private final Label[] iconLabels = new Label[AppConstants.MAX_CHARA];
     /** 名前ラベル */
-    private final Label[] nameLabels = new Label[MAXCHARA];
+    private final Label[] nameLabels = new Label[AppConstants.MAX_CHARA];
     /** Lvラベル */
-    private final Label[] lvLabels = new Label[MAXCHARA];
+    private final Label[] lvLabels = new Label[AppConstants.MAX_CHARA];
     /** HP */
-    private final Label[] hpLabels = new Label[MAXCHARA];
+    private final Label[] hpLabels = new Label[AppConstants.MAX_CHARA];
     /** HPゲージ */
-    private final Label[] hpgaugeLabels = new Label[MAXCHARA];
+    private final Label[] hpgaugeLabels = new Label[AppConstants.MAX_CHARA];
     /** HPゲージイメージ */
-    private final Image[] hpgaugeImages = new Image[MAXCHARA];
+    private final Image[] hpgaugeImages = new Image[AppConstants.MAX_CHARA];
     /** HPメッセージ */
-    private final Label[] hpmsgLabels = new Label[MAXCHARA];
+    private final Label[] hpmsgLabels = new Label[AppConstants.MAX_CHARA];
     /** コンディション */
-    private final Label[] condLabels = new Label[MAXCHARA];
+    private final Label[] condLabels = new Label[AppConstants.MAX_CHARA];
     /** コンディションステータス */
-    private final Label[] condstLabels = new Label[MAXCHARA];
+    private final Label[] condstLabels = new Label[AppConstants.MAX_CHARA];
     /** 弾ステータス */
-    private final Label[] bullstLabels = new Label[MAXCHARA];
+    private final Label[] bullstLabels = new Label[AppConstants.MAX_CHARA];
     /** 燃料ステータス */
-    private final Label[] fuelstLabels = new Label[MAXCHARA];
+    private final Label[] fuelstLabels = new Label[AppConstants.MAX_CHARA];
     /** 対潜先制爆雷攻撃 */
-    private final Label[] tsbkLabels = new Label[MAXCHARA];
+    private final Label[] tsbkLabels = new Label[AppConstants.MAX_CHARA];
     /** 対空CI */
-    private final Label[] aaciLabels = new Label[MAXCHARA];
+    private final Label[] aaciLabels = new Label[AppConstants.MAX_CHARA];
     /** ダメコンステータス(要員) */
-    private final Label[] dmgcstyLabels = new Label[MAXCHARA];
+    private final Label[] dmgcstyLabels = new Label[AppConstants.MAX_CHARA];
     /** ダメコンステータス(女神) */
-    private final Label[] dmgcstmLabels = new Label[MAXCHARA];
+    private final Label[] dmgcstmLabels = new Label[AppConstants.MAX_CHARA];
     /** レベリングステータス */
-    private final Label[] nextLabels = new Label[MAXCHARA];
+    private final Label[] nextLabels = new Label[AppConstants.MAX_CHARA];
     /** メッセージ */
     private final StyledText message;
 
@@ -215,7 +213,7 @@ public class FleetComposite extends Composite {
      * 初期化
      */
     private void init() {
-        for (int i = 0; i < MAXCHARA; i++) {
+        for (int i = 0; i < AppConstants.MAX_CHARA; i++) {
             // アイコン
             Label iconlabel = new Label(this.fleetGroup, SWT.NONE);
             GridData gdIconlabel = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
@@ -344,7 +342,7 @@ public class FleetComposite extends Composite {
         this.message.setText("");
 
         List<ShipDto> ships = dock.getShips();
-        for (int i = ships.size(); i < MAXCHARA; i++) {
+        for (int i = ships.size(); i < AppConstants.MAX_CHARA; i++) {
             this.iconLabels[i].setImage(null);
             this.nameLabels[i].setText("");
             this.lvLabels[i].setText("");
@@ -750,7 +748,7 @@ public class FleetComposite extends Composite {
         }
         // 索敵値を計算(33式)
         double sakuteki = ((shipSakuteki + (this.nodeFactor * itemSakuteki)) - Math.ceil(0.4 * GlobalContext.hqLevel()))
-                + (2 * (MAXCHARA - ships.size()));
+                + (2 * (6 - ships.size()));
 
         if (GlobalContext.isMission(this.dock.getId())) {
             // 遠征中

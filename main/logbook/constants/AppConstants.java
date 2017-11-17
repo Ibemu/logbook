@@ -59,6 +59,9 @@ public class AppConstants {
     /** タイムゾーン(任務が更新される05:00JSTに0:00になるタイムゾーン) */
     public static final TimeZone TIME_ZONE_MISSION = TimeZone.getTimeZone("GMT+04:00");
 
+    /** 1艦隊に編成できる艦娘の数 */
+    public static final int MAX_CHARA = 7;
+
     /** 疲労赤色 */
     public static final int COND_RED = 19;
 
