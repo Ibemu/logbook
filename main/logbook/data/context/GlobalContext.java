@@ -936,7 +936,7 @@ public final class GlobalContext {
                 QuestConfig.store();
 
                 List<ShipDto> sps = new ArrayList<ShipDto>();
-                for (int i = 0; i < 6; i++) {
+                for (int i = 0; i < AppConstants.MAX_CHARA; i++) {
                     if ((last.getMaxFriend1Hp()[i] > 0)
                             && ((last.getEndFriend1Hp()[i] * 4) <= last.getMaxFriend1Hp()[i])) {
                         sps.add(last.getFriends().get(0).getShips().get(i));
