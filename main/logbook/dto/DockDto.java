@@ -6,12 +6,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import logbook.constants.AppConstants;
+
 /**
  * 艦隊のドックを表します
  *
  */
 public final class DockDto extends AbstractDto {
-    private static final int DOCK_MAX_SIZE = 6;
     private static final String EMPTY_FLEET_ID = "";
 
     /** ドックID */
@@ -21,7 +22,7 @@ public final class DockDto extends AbstractDto {
     private String name;
 
     /** 艦娘達 */
-    private final List<ShipDto> ships = new ArrayList<ShipDto>(DOCK_MAX_SIZE);
+    private final List<ShipDto> ships = new ArrayList<ShipDto>(AppConstants.MAX_CHARA);
 
     /** 更新時刻 */
     private Date update;
@@ -52,7 +53,7 @@ public final class DockDto extends AbstractDto {
      * @param ship 艦娘
      */
     public void addShip(ShipDto ship) {
-        if (this.ships.size() < DOCK_MAX_SIZE) {
+        if (this.ships.size() < AppConstants.MAX_CHARA) {
             ship.setFleetid(this.id);
             this.ships.add(ship);
 
