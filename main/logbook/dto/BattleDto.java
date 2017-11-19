@@ -80,6 +80,9 @@ public final class BattleDto extends AbstractDto {
     /** 夜戦 */
     private final boolean night;
 
+    /** 夜戦→昼戦 */
+    private final boolean nightToDay;
+
     /** 連合艦隊 */
     private final int friendCombined;
 
@@ -126,9 +129,10 @@ public final class BattleDto extends AbstractDto {
     /**
      * コンストラクター
      */
-    public BattleDto(JsonObject object, boolean night, int combined) {
+    public BattleDto(JsonObject object, boolean night, boolean nightToDay, int combined) {
 
         this.night = night;
+        this.nightToDay = nightToDay;
 
         String dockId;
 
@@ -286,7 +290,7 @@ public final class BattleDto extends AbstractDto {
 
         if (this.enemyCombined) {
             this.searchDamageEc(object, night && (this.friendCombined != 0) && (this.friendActiveDeck == 2),
-                    night && (this.enemyActiveDeck == 2));
+                    !nightToDay && night && (this.enemyActiveDeck == 2));
         } else {
             this.searchDamage(object, night && (this.friendCombined != 0));
         }
@@ -638,7 +642,7 @@ public final class BattleDto extends AbstractDto {
                 for (int i = 0; i < fdam.size(); i++) {
                     if (fcomb) {
                         this.damage(DockType.FRIEND2, i, fdam.getJsonNumber(i).intValue());
-                    } else if (i >= 6) {
+                    } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
                         this.damage(DockType.FRIEND2, i - 6, fdam.getJsonNumber(i).intValue());
                     } else {
                         this.damage(DockType.FRIEND1, i, fdam.getJsonNumber(i).intValue());
@@ -649,7 +653,7 @@ public final class BattleDto extends AbstractDto {
                 for (int i = 0; i < edam.size(); i++) {
                     if (ecomb) {
                         this.damage(DockType.ENEMY2, i, edam.getJsonNumber(i).intValue());
-                    } else if (i >= 6) {
+                    } else if ((this.enemy1.size() < 7) && (i >= 6)) {
                         this.damage(DockType.ENEMY2, i - 6, edam.getJsonNumber(i).intValue());
                     } else {
                         this.damage(DockType.ENEMY1, i, edam.getJsonNumber(i).intValue());
@@ -667,7 +671,7 @@ public final class BattleDto extends AbstractDto {
                         if (eflg) {
                             if (fcomb) {
                                 this.damage(DockType.FRIEND2, i, ((JsonNumber) v).intValue());
-                            } else if (i >= 6) {
+                            } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
                                 this.damage(DockType.FRIEND2, i - 6, ((JsonNumber) v).intValue());
                             } else {
                                 this.damage(DockType.FRIEND1, i, ((JsonNumber) v).intValue());
@@ -675,7 +679,7 @@ public final class BattleDto extends AbstractDto {
                         } else {
                             if (ecomb) {
                                 this.damage(DockType.ENEMY2, i, ((JsonNumber) v).intValue());
-                            } else if (i >= 6) {
+                            } else if ((this.enemy1.size() < 7) && (i >= 6)) {
                                 this.damage(DockType.ENEMY2, i - 6, ((JsonNumber) v).intValue());
                             } else {
                                 this.damage(DockType.ENEMY1, i, ((JsonNumber) v).intValue());
@@ -707,23 +711,24 @@ public final class BattleDto extends AbstractDto {
                         } else {*/
                         for (int j = 0; j < dm.size(); j++) {
                             int idx = df.getJsonNumber(j).intValue();
-                            /*if (idx < 1) {
-                                continue;
-                            } else*/ if (idx < 6) {
-                                if (eflg) {
+                            if (eflg) {
+                                if (fcomb) {
+                                    this.damage(DockType.FRIEND2, idx, dm.getJsonNumber(j).intValue());
+                                } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
+                                    this.damage(DockType.FRIEND2, idx - 6, dm.getJsonNumber(j).intValue());
+                                } else {
                                     this.damage(DockType.FRIEND1, idx, dm.getJsonNumber(j).intValue());
+                                }
+                            } else {
+                                if (ecomb) {
+                                    this.damage(DockType.ENEMY2, idx, dm.getJsonNumber(j).intValue());
+                                } else if ((this.enemy1.size() < 7) && (i >= 6)) {
+                                    this.damage(DockType.ENEMY2, idx - 6, dm.getJsonNumber(j).intValue());
                                 } else {
                                     this.damage(DockType.ENEMY1, idx, dm.getJsonNumber(j).intValue());
                                 }
-                            } else {
-                                if (eflg) {
-                                    this.damage(DockType.FRIEND2, idx - 6, dm.getJsonNumber(j).intValue());
-                                } else {
-                                    this.damage(DockType.ENEMY2, idx - 6, dm.getJsonNumber(j).intValue());
-                                }
                             }
                         }
-                        //}
                         break;
                     default:
                         break;
@@ -940,6 +945,13 @@ public final class BattleDto extends AbstractDto {
      */
     public boolean isNight() {
         return this.night;
+    }
+
+    /**
+     * @return nightToDay
+     */
+    public boolean isNightToDay() {
+        return this.nightToDay;
     }
 
     /**

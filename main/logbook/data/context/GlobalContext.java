@@ -451,67 +451,71 @@ public final class GlobalContext {
                 break;
             // 海戦
             case BATTLE:
-                doBattle(data);
+                doBattle(data, false, false);
                 break;
             // 海戦
             case BATTLE_MIDNIGHT:
-                doBattleNight(data);
+                doBattle(data, true, false);
                 break;
             // 海戦
             case BATTLE_SP_MIDNIGHT:
-                doBattleNight(data);
+                doBattle(data, true, false);
                 break;
             // 海戦
             case BATTLE_NIGHT_TO_DAY:
-                doBattle(data);
+                doBattle(data, false, true);
                 break;
             // 海戦
             case BATTLE_AIRBATTLE:
-                doBattle(data);
+                doBattle(data, false, false);
                 break;
             // 海戦
             case BATTLE_LD_AIRBATTLE:
-                doBattle(data);
+                doBattle(data, false, false);
                 break;
             // 海戦
             case COMBINED_BATTLE_AIRBATTLE:
-                doBattle(data);
+                doBattle(data, false, false);
                 break;
             // 海戦
             case COMBINED_BATTLE_LD_AIRBATTLE:
-                doBattle(data);
+                doBattle(data, false, false);
                 break;
             // 海戦
             case COMBINED_BATTLE:
-                doBattle(data);
+                doBattle(data, false, false);
                 break;
             // 海戦
             case COMBINED_BATTLE_WATER:
-                doBattle(data);
+                doBattle(data, false, false);
                 break;
             // 海戦
             case COMBINED_BATTLE_EC:
-                doBattle(data);
+                doBattle(data, false, false);
                 break;
             // 海戦
             case COMBINED_BATTLE_EACH:
-                doBattle(data);
+                doBattle(data, false, false);
                 break;
             // 海戦
             case COMBINED_BATTLE_EACH_WATER:
-                doBattle(data);
+                doBattle(data, false, false);
                 break;
             // 海戦
             case COMBINED_BATTLE_EC_MIDNIGHT:
-                doBattleNight(data);
+                doBattle(data, true, false);
+                break;
+            // 海戦
+            case COMBINED_BATTLE_EC_NIGHT_TO_DAY:
+                doBattle(data, true, true);
                 break;
             // 海戦
             case COMBINED_BATTLE_MIDNIGHT:
-                doBattleNight(data);
+                doBattle(data, true, false);
                 break;
             // 海戦
             case COMBINED_BATTLE_SP_MIDNIGHT:
-                doBattleNight(data);
+                doBattle(data, true, false);
                 break;
             // 海戦結果
             case BATTLE_RESULT:
@@ -794,33 +798,14 @@ public final class GlobalContext {
      * 海戦情報を更新します
      * @param data
      */
-    private static void doBattle(Data data) {
+    private static void doBattle(Data data, boolean night, boolean nightToDay) {
         try {
             JsonObject apidata = data.getJsonObject().getJsonObject("api_data");
-            battleList.add(new BattleDto(apidata, false, combined));
+            battleList.add(new BattleDto(apidata, night, nightToDay, combined));
             if (sortiePhase != SortiePhase.BATTLE)
                 battleCount++;
             sortiePhase = SortiePhase.BATTLE;
             addConsole("海戦情報を更新しました");
-        } catch (Exception e) {
-            LoggerHolder.LOG.warn("海戦情報を更新しますに失敗しました", e);
-            LoggerHolder.LOG.warn(data);
-        }
-    }
-
-    /**
-     * 海戦情報を更新します
-     * @param data
-     */
-    private static void doBattleNight(Data data) {
-        try {
-            JsonObject apidata = data.getJsonObject().getJsonObject("api_data");
-            battleList.add(new BattleDto(apidata, true, combined));
-            if (sortiePhase != SortiePhase.BATTLE)
-                battleCount++;
-            sortiePhase = SortiePhase.BATTLE;
-            addConsole("海戦情報を更新しました");
-
         } catch (Exception e) {
             LoggerHolder.LOG.warn("海戦情報を更新しますに失敗しました", e);
             LoggerHolder.LOG.warn(data);

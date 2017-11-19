@@ -459,7 +459,17 @@ public final class SortieDialog extends Dialog {
             battleLast = result.getBattles()[result.getBattles().length - 1];
         }
         this.lblIntercept.setText(battleFirst.getIntercept());
-        this.lblDayNight.setText(battleLast.isNight() ? "夜戦" : "昼戦");
+        if (battleLast.isNightToDay()) {
+            if (battleLast.isNight())
+                this.lblDayNight.setText("夜→昼戦");
+            else
+                this.lblDayNight.setText("翌昼戦");
+        } else {
+            if (battleLast.isNight())
+                this.lblDayNight.setText("夜戦");
+            else
+                this.lblDayNight.setText("昼戦");
+        }
         this.lblDispSeiku.setText(battleFirst.getDispSeiku());
         this.lblFriendSearch.setText(battleFirst.getFriendSearch());
         this.lblEnemySearch.setText(battleFirst.getEnemySearch());

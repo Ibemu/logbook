@@ -68,6 +68,8 @@ public enum DataType {
     COMBINED_BATTLE_EC("/kcsapi/api_req_combined_battle/ec_battle"),
     /** 戦闘(両連合艦隊・夜戦) */
     COMBINED_BATTLE_EC_MIDNIGHT("/kcsapi/api_req_combined_battle/ec_midnight_battle"),
+    /** 戦闘(敵連合艦隊・夜戦→昼戦) */
+    COMBINED_BATTLE_EC_NIGHT_TO_DAY("/kcsapi/api_req_combined_battle/ec_night_to_day"),
     /** 戦闘(連合艦隊・航空戦) */
     COMBINED_BATTLE_LD_AIRBATTLE("/kcsapi/api_req_combined_battle/ld_airbattle"),
     /** 戦闘(連合艦隊・夜戦) */
