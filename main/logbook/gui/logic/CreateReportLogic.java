@@ -15,6 +15,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import logbook.config.QuestConfig;
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
@@ -38,10 +42,6 @@ import logbook.gui.bean.MissionResultBean;
 import logbook.gui.bean.QuestBean;
 import logbook.util.BeanProperty;
 import logbook.util.FileUtils;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * 各種報告書を作成します
@@ -105,10 +105,10 @@ public final class CreateReportLogic {
             if (battle == null) {
                 continue;
             }
-            String[] friend = new String[6];
-            String[] friendHp = new String[6];
-            String[] enemy = new String[6];
-            String[] enemyHp = new String[6];
+            String[] friend = new String[AppConstants.MAX_CHARA];
+            String[] friendHp = new String[AppConstants.MAX_CHARA];
+            String[] enemy = new String[AppConstants.MAX_CHARA];
+            String[] enemyHp = new String[AppConstants.MAX_CHARA];
 
             Arrays.fill(friend, "");
             Arrays.fill(friendHp, "");
@@ -198,11 +198,10 @@ public final class CreateReportLogic {
      */
     public static Stream<ItemBean> getItemTablecontent() {
         // 集計関数
-        BiConsumer<HashMap<ItemDto, Integer>, ItemDto> accumulator = (m, b) ->
-                m.put(b, m.getOrDefault(b, 0) + 1);
+        BiConsumer<HashMap<ItemDto, Integer>, ItemDto> accumulator = (m, b) -> m.put(b, m.getOrDefault(b, 0) + 1);
         // マージ関数
-        BiConsumer<HashMap<ItemDto, Integer>, HashMap<ItemDto, Integer>> combiner = (t, u) ->
-                u.forEach((b, i) -> t.put(b, t.getOrDefault(b, 0) + i));
+        BiConsumer<HashMap<ItemDto, Integer>, HashMap<ItemDto, Integer>> combiner = (t, u) -> u
+                .forEach((b, i) -> t.put(b, t.getOrDefault(b, 0) + i));
         // ItemDto -> ItemBean 変換
         Function<Entry<ItemDto, Integer>, ItemBean> mapper = (e) -> {
             ItemDto d = e.getKey();
