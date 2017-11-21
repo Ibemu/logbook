@@ -562,7 +562,7 @@ public final class BattleDto extends AbstractDto {
                 JsonArray damage = (JsonArray) e.getValue();
                 for (int i = 0; i < damage.size(); i++) {
                     JsonValue v = damage.get(i);
-                    boolean eflg = eflag.getJsonNumber(i).intValue() != 0;
+                    boolean eflg = eflag != null && (eflag.getJsonNumber(i).intValue() != 0);
                     switch (v.getValueType()) {
                     case NUMBER:
                         if (eflg) {
