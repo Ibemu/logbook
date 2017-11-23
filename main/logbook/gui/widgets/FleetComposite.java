@@ -369,6 +369,8 @@ public class FleetComposite extends Composite {
         int totalDrum = 0;
         // ドラム缶所持艦娘計
         int totalDrumShip = 0;
+        // TP計
+        int totalTP = 0;
 
         for (int i = 0; i < ships.size(); i++) {
             ShipDto ship = ships.get(i);
@@ -398,6 +400,8 @@ public class FleetComposite extends Composite {
             float fuelraito = fuelmax != 0 ? (float) fuel / (float) fuelmax : 1f;
             // 艦隊合計Lv
             totallv += ship.getLv();
+            // 艦隊合計TP
+            totalTP += ship.getTP();
             // 索敵値計(素)
             long saku = ship.getSakuteki();
 
@@ -807,6 +811,9 @@ public class FleetComposite extends Composite {
         // ドラム缶
         this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_DRUM, totalDrumShip, totalDrum),
                 null);
+        // TP
+        this.addStyledText(this.message,
+                MessageFormat.format(AppConstants.MESSAGE_TP, totalTP, Math.floor(totalTP * 0.7)), null);
 
         // 第1艦隊旗艦が明石の場合経過時間を表示(仮)
         if (dock.getId().equals("1") && (dock.getShips().get(0).getName().indexOf("明石") != -1)) {

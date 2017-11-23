@@ -987,4 +987,75 @@ public final class ShipDto extends AbstractDto {
                     .collect(Collectors.toSet());
         return this.aaci;
     }
+
+    /**
+     * S勝利時のTP
+     *
+     * @return S勝利時のTP
+     */
+    public int getTP() {
+        if ((this.getType() == null) || this.isBadlyDamage())
+            return 0;
+        int tp = 0;
+        // 艦種
+        switch (this.getType()) {
+        case "駆逐艦":
+            tp += 5;
+            break;
+        case "練習巡洋艦":
+            tp += 6;
+            break;
+        case "軽巡洋艦":
+            tp += 2;
+            break;
+        case "航空巡洋艦":
+            tp += 4;
+            break;
+        case "航空戦艦":
+            tp += 7;
+            break;
+        case "補給艦":
+            tp += 15;
+            break;
+        case "水上機母艦":
+            tp += 9;
+            break;
+        case "揚陸艦":
+            tp += 12;
+            break;
+        case "潜水空母":
+            tp += 1;
+            break;
+        case "潜水母艦":
+            tp += 7;
+            break;
+        }
+        if ("鬼怒改二".equals(this.getName()))
+            tp += 8;
+        // 装備
+        for (ItemDto item : this.getItem()) {
+            if (item != null) {
+                switch (item.getName()) {
+                case "ドラム缶(輸送用)":
+                    tp += 5;
+                    break;
+                case "大発動艇":
+                case "大発動艇(八九式中戦車&陸戦隊)":
+                case "特大発動艇":
+                case "特大発動艇+戦車第11連隊":
+                    tp += 8;
+                    break;
+                case "特二式内火艇":
+                    tp += 2;
+                    break;
+                case "戦闘糧食":
+                case "戦闘糧食(特別なおにぎり)":
+                case "秋刀魚の缶詰":
+                    tp += 1;
+                    break;
+                }
+            }
+        }
+        return tp;
+    }
 }

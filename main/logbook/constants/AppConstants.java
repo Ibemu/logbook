@@ -254,6 +254,9 @@ public class AppConstants {
     /** メッセージ ドラム缶:{0}隻{1}個 */
     public static final String MESSAGE_DRUM = "ドラム缶:{0}隻{1}個。";
 
+    /** メッセージ TP:S{0}, A{1}。 */
+    public static final String MESSAGE_TP = "TP:S{0}, A{1}。";
+
     /** メッセージ 泊地修理の準備中({0}分経過)*/
     public static final String BERTH_REPAIR_1 = "泊地修理の準備中({0}分経過)";
 
