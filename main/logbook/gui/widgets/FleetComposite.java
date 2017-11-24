@@ -812,8 +812,7 @@ public class FleetComposite extends Composite {
         this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_DRUM, totalDrumShip, totalDrum),
                 null);
         // TP
-        this.addStyledText(this.message,
-                MessageFormat.format(AppConstants.MESSAGE_TP, totalTP, Math.floor(totalTP * 0.7)), null);
+        this.addStyledText(this.message, MessageFormat.format(AppConstants.MESSAGE_TP, totalTP, totalTP * 0.7), null);
 
         // 第1艦隊旗艦が明石の場合経過時間を表示(仮)
         if (dock.getId().equals("1") && (dock.getShips().get(0).getName().indexOf("明石") != -1)) {
