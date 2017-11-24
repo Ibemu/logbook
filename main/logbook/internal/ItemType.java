@@ -62,6 +62,7 @@ public class ItemType {
             .put(44, "陸軍戦闘機")
             .put(45, "夜間戦闘機")
             .put(46, "夜間攻撃機")
+            .put(47, "陸上攻撃機(対潜哨戒機)")
             .build();
 
     /**
