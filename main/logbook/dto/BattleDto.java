@@ -263,14 +263,16 @@ public final class BattleDto extends AbstractDto {
                 this.endFriend2Hp[i] = this.nowFriend2Hp[i] = fnowhpsC.getJsonNumber(i).intValue();
             }
 
-            JsonArray enowhpsC = object.getJsonArray("api_e_nowhps_combined");
-            for (int i = 0; i < enowhpsC.size(); i++) {
-                this.endEnemy2Hp[i] = this.nowEnemy2Hp[i] = enowhpsC.getJsonNumber(i).intValue();
-            }
-
             JsonArray fmaxhpsC = object.getJsonArray("api_f_maxhps_combined");
             for (int i = 0; i < fmaxhpsC.size(); i++) {
                 this.maxFriend2Hp[i] = fmaxhpsC.getJsonNumber(i).intValue();
+            }
+        }
+
+        if (object.containsKey("api_e_nowhps_combined")) {
+            JsonArray enowhpsC = object.getJsonArray("api_e_nowhps_combined");
+            for (int i = 0; i < enowhpsC.size(); i++) {
+                this.endEnemy2Hp[i] = this.nowEnemy2Hp[i] = enowhpsC.getJsonNumber(i).intValue();
             }
 
             JsonArray emaxhpsC = object.getJsonArray("api_e_maxhps_combined");
@@ -546,7 +548,9 @@ public final class BattleDto extends AbstractDto {
                 JsonArray fdam = (JsonArray) e.getValue();
                 for (int i = 0; i < fdam.size(); i++) {
                     if (comb) {
-                        this.damage(DockType.FRIEND2, i, fdam.getJsonNumber(i).intValue());
+                        this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, fdam.getJsonNumber(i).intValue());
+                    } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
+                        this.damage(DockType.FRIEND2, i - 6, fdam.getJsonNumber(i).intValue());
                     } else {
                         this.damage(DockType.FRIEND1, i, fdam.getJsonNumber(i).intValue());
                     }
@@ -562,12 +566,14 @@ public final class BattleDto extends AbstractDto {
                 JsonArray damage = (JsonArray) e.getValue();
                 for (int i = 0; i < damage.size(); i++) {
                     JsonValue v = damage.get(i);
-                    boolean eflg = eflag != null && (eflag.getJsonNumber(i).intValue() != 0);
+                    boolean eflg = (eflag != null) && (eflag.getJsonNumber(i).intValue() != 0);
                     switch (v.getValueType()) {
                     case NUMBER:
                         if (eflg) {
                             if (comb) {
-                                this.damage(DockType.FRIEND2, i, ((JsonNumber) v).intValue());
+                                this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, ((JsonNumber) v).intValue());
+                            } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
+                                this.damage(DockType.FRIEND2, i - 6, ((JsonNumber) v).intValue());
                             } else {
                                 this.damage(DockType.FRIEND1, i, ((JsonNumber) v).intValue());
                             }
@@ -594,7 +600,10 @@ public final class BattleDto extends AbstractDto {
                             }*/
                             if (eflg) {
                                 if (comb) {
-                                    this.damage(DockType.FRIEND2, idx, dm.getJsonNumber(j).intValue());
+                                    this.damage(DockType.FRIEND2, idx < 6 ? idx : idx - 6,
+                                            dm.getJsonNumber(j).intValue());
+                                } else if ((this.friends.get(0).size() < 7) && (idx >= 6)) {
+                                    this.damage(DockType.FRIEND2, idx - 6, dm.getJsonNumber(j).intValue());
                                 } else {
                                     this.damage(DockType.FRIEND1, idx, dm.getJsonNumber(j).intValue());
                                 }
@@ -641,7 +650,7 @@ public final class BattleDto extends AbstractDto {
                 JsonArray fdam = (JsonArray) e.getValue();
                 for (int i = 0; i < fdam.size(); i++) {
                     if (fcomb) {
-                        this.damage(DockType.FRIEND2, i, fdam.getJsonNumber(i).intValue());
+                        this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, fdam.getJsonNumber(i).intValue());
                     } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
                         this.damage(DockType.FRIEND2, i - 6, fdam.getJsonNumber(i).intValue());
                     } else {
@@ -652,7 +661,7 @@ public final class BattleDto extends AbstractDto {
                 JsonArray edam = (JsonArray) e.getValue();
                 for (int i = 0; i < edam.size(); i++) {
                     if (ecomb) {
-                        this.damage(DockType.ENEMY2, i, edam.getJsonNumber(i).intValue());
+                        this.damage(DockType.ENEMY2, i < 6 ? i : i - 6, edam.getJsonNumber(i).intValue());
                     } else if ((this.enemy1.size() < 7) && (i >= 6)) {
                         this.damage(DockType.ENEMY2, i - 6, edam.getJsonNumber(i).intValue());
                     } else {
@@ -663,14 +672,14 @@ public final class BattleDto extends AbstractDto {
                 JsonArray eflag = object.containsKey("api_at_eflag") ? object.getJsonArray("api_at_eflag") : null;
                 JsonArray dflist = object.getJsonArray("api_df_list");
                 JsonArray damage = (JsonArray) e.getValue();
-                for (int i = 1; i < damage.size(); i++) {
+                for (int i = 0; i < damage.size(); i++) {
                     JsonValue v = damage.get(i);
-                    boolean eflg = eflag.getJsonNumber(i).intValue() != 0;
+                    boolean eflg = (eflag != null) && (eflag.getJsonNumber(i).intValue() != 0);
                     switch (v.getValueType()) {
                     case NUMBER:
                         if (eflg) {
                             if (fcomb) {
-                                this.damage(DockType.FRIEND2, i, ((JsonNumber) v).intValue());
+                                this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, ((JsonNumber) v).intValue());
                             } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
                                 this.damage(DockType.FRIEND2, i - 6, ((JsonNumber) v).intValue());
                             } else {
@@ -678,7 +687,7 @@ public final class BattleDto extends AbstractDto {
                             }
                         } else {
                             if (ecomb) {
-                                this.damage(DockType.ENEMY2, i, ((JsonNumber) v).intValue());
+                                this.damage(DockType.ENEMY2, i < 6 ? i : i - 6, ((JsonNumber) v).intValue());
                             } else if ((this.enemy1.size() < 7) && (i >= 6)) {
                                 this.damage(DockType.ENEMY2, i - 6, ((JsonNumber) v).intValue());
                             } else {
@@ -689,40 +698,22 @@ public final class BattleDto extends AbstractDto {
                     case ARRAY:
                         JsonArray dm = (JsonArray) v;
                         JsonArray df = dflist.getJsonArray(i);
-                        /*if (eflag == null) {
-                            for (int j = 0; j < dm.size(); j++) {
-                                int idx = df.getJsonNumber(j).intValue();
-                                if (idx < 1) {
-                                    continue;
-                                } else if (idx < 6) {
-                                    if (fcomb) {
-                                        this.damage(DockType.FRIEND2, idx, dm.getJsonNumber(j).intValue());
-                                    } else {
-                                        this.damage(DockType.FRIEND1, idx, dm.getJsonNumber(j).intValue());
-                                    }
-                                } else {
-                                    if (ecomb) {
-                                        this.damage(DockType.ENEMY2, idx - 6, dm.getJsonNumber(j).intValue());
-                                    } else {
-                                        this.damage(DockType.ENEMY1, idx - 6, dm.getJsonNumber(j).intValue());
-                                    }
-                                }
-                            }
-                        } else {*/
                         for (int j = 0; j < dm.size(); j++) {
                             int idx = df.getJsonNumber(j).intValue();
                             if (eflg) {
                                 if (fcomb) {
-                                    this.damage(DockType.FRIEND2, idx, dm.getJsonNumber(j).intValue());
-                                } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
+                                    this.damage(DockType.FRIEND2, idx < 6 ? idx : idx - 6,
+                                            dm.getJsonNumber(j).intValue());
+                                } else if ((this.friends.get(0).size() < 7) && (idx >= 6)) {
                                     this.damage(DockType.FRIEND2, idx - 6, dm.getJsonNumber(j).intValue());
                                 } else {
                                     this.damage(DockType.FRIEND1, idx, dm.getJsonNumber(j).intValue());
                                 }
                             } else {
                                 if (ecomb) {
-                                    this.damage(DockType.ENEMY2, idx, dm.getJsonNumber(j).intValue());
-                                } else if ((this.enemy1.size() < 7) && (i >= 6)) {
+                                    this.damage(DockType.ENEMY2, idx < 6 ? idx : idx - 6,
+                                            dm.getJsonNumber(j).intValue());
+                                } else if ((this.enemy1.size() < 7) && (idx >= 6)) {
                                     this.damage(DockType.ENEMY2, idx - 6, dm.getJsonNumber(j).intValue());
                                 } else {
                                     this.damage(DockType.ENEMY1, idx, dm.getJsonNumber(j).intValue());
