@@ -8,6 +8,7 @@ import javax.json.JsonArray;
 import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+import javax.json.JsonValue.ValueType;
 
 import logbook.constants.AppConstants;
 import logbook.data.context.GlobalContext;
@@ -155,7 +156,7 @@ public final class BattleDto extends AbstractDto {
         if (object.containsKey("api_escape_idx")) {
             JsonArray escIdx = object.getJsonArray("api_escape_idx");
             for (int i = 0; i < escIdx.size(); i++) {
-                int idx = escIdx.getJsonNumber(i).intValue();
+                int idx = escIdx.getJsonNumber(i).intValue() - 1;
                 this.friend1Escape[idx] = true;
             }
         }
@@ -163,7 +164,7 @@ public final class BattleDto extends AbstractDto {
         if (object.containsKey("api_escape_idx_combined")) {
             JsonArray escIdx = object.getJsonArray("api_escape_idx_combined");
             for (int i = 0; i < escIdx.size(); i++) {
-                int idx = escIdx.getJsonNumber(i).intValue();
+                int idx = escIdx.getJsonNumber(i).intValue() - 1;
                 this.friend2Escape[idx] = true;
             }
         }
@@ -560,7 +561,7 @@ public final class BattleDto extends AbstractDto {
                 for (int i = 0; i < edam.size(); i++) {
                     this.damage(DockType.ENEMY1, i, edam.getJsonNumber(i).intValue());
                 }
-            } else if ("api_damage".equals(e.getKey())) {
+            } else if ("api_damage".equals(e.getKey()) && !ValueType.NULL.equals(e.getValue().getValueType())) {
                 JsonArray eflag = object.getJsonArray("api_at_eflag");
                 JsonArray dflist = object.getJsonArray("api_df_list");
                 JsonArray damage = (JsonArray) e.getValue();
@@ -646,6 +647,8 @@ public final class BattleDto extends AbstractDto {
 
     private void searchDamageEc(JsonObject object, boolean fcomb, boolean ecomb) {
         for (JsonObject.Entry<String, JsonValue> e : object.entrySet()) {
+            if (ValueType.NULL.equals(e.getValue().getValueType()))
+                continue;
             if ("api_fdam".equals(e.getKey())) {
                 JsonArray fdam = (JsonArray) e.getValue();
                 for (int i = 0; i < fdam.size(); i++) {
