@@ -545,6 +545,8 @@ public final class BattleDto extends AbstractDto {
 
     private void searchDamage(JsonObject object, boolean comb) {
         for (JsonObject.Entry<String, JsonValue> e : object.entrySet()) {
+            if ("api_friendly_battle".equals(e.getKey()))
+                continue;
             if ("api_fdam".equals(e.getKey())) {
                 JsonArray fdam = (JsonArray) e.getValue();
                 for (int i = 0; i < fdam.size(); i++) {
@@ -588,6 +590,8 @@ public final class BattleDto extends AbstractDto {
                         JsonArray df = dflist.getJsonArray(i);
                         for (int j = 0; j < dm.size(); j++) {
                             int idx = df.getJsonNumber(j).intValue();
+                            if (idx < 0)
+                                continue;
                             /*if (idx < 1) {
                                 continue;
                             } else if (idx < 6) {
@@ -649,6 +653,8 @@ public final class BattleDto extends AbstractDto {
         for (JsonObject.Entry<String, JsonValue> e : object.entrySet()) {
             if (ValueType.NULL.equals(e.getValue().getValueType()))
                 continue;
+            if ("api_friendly_battle".equals(e.getKey()))
+                continue;
             if ("api_fdam".equals(e.getKey())) {
                 JsonArray fdam = (JsonArray) e.getValue();
                 for (int i = 0; i < fdam.size(); i++) {
@@ -703,6 +709,8 @@ public final class BattleDto extends AbstractDto {
                         JsonArray df = dflist.getJsonArray(i);
                         for (int j = 0; j < dm.size(); j++) {
                             int idx = df.getJsonNumber(j).intValue();
+                            if (idx < 0)
+                                continue;
                             if (eflg) {
                                 if (fcomb) {
                                     this.damage(DockType.FRIEND2, idx < 6 ? idx : idx - 6,
