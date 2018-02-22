@@ -80,7 +80,7 @@ public enum AntiAirCutInKind {
 
     ALL_CGR(12, "水上艦／高性能機銃・機銃・対空電探", "銃銃電", 3, 1.25,
             s -> s.getItem().stream().anyMatch(i -> (i != null) && i.isCDMG()) // 高性能機銃
-                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getType3() == 15)) // 機銃
+                    && (s.getItem().stream().filter(i -> (i != null) && (i.getType3() == 15)).count() >= 2) // 機銃x2
                     && s.getItem().stream().anyMatch(i -> (i != null) && i.isAntiAirRadar()) // 対空電探
     ),
 
@@ -137,6 +137,35 @@ public enum AntiAirCutInKind {
     FUMIZUKI_C(22, "文月改二／高性能機銃", "文2", 2, 1.2,
             s -> (s.getShipInfo().getShipId() == 548) // 文月改二
                     && s.getItem().stream().anyMatch(i -> (i != null) && i.isCDMG()) // 高性能機銃
+    ),
+
+    UIT25_G(23, "UIT-25・伊504／機銃", "U1", 1, 1.05,
+            s -> ((s.getShipInfo().getShipId() == 539) || (s.getShipInfo().getShipId() == 530)) // UIT-25 || 伊504
+                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getType3() == 15) && !i.isCDMG()) // 高性能機銃以外の機銃
+    ),
+
+    TATSUTA_HG(24, "龍田改二／高角砲・機銃", "龍3", 3, 1.25,
+            s -> (s.getShipInfo().getShipId() == 478) // 龍田改二
+                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getType3() == 16)) // 高角砲
+                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getType3() == 15) && !i.isCDMG()) // 高性能機銃以外の機銃
+    ),
+
+    ISE_GRS(25, "伊勢型改／12cm30連装噴進砲改二・対空電探・三式弾", "伊7", 7, 1.55,
+            s -> ((s.getShipInfo().getShipId() == 82) || (s.getShipInfo().getShipId() == 88)) // 伊勢改 || 日向改
+                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getId() == 274)) // 12cm30連装噴進砲改二
+                    && s.getItem().stream().anyMatch(i -> (i != null) && i.isAntiAirRadar()) // 対空電探
+                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getType3() == 12)) // 三式弾
+    ),
+
+    NONE_26(26, "なし", "なし", 0, 0, s -> false),
+
+    NONE_27(27, "なし", "なし", 0, 0, s -> false),
+
+    ISE_GR(28, "伊勢型改・武蔵改／12cm30連装噴進砲改二・対空電探", "伊4", 7, 1.4,
+            s -> ((s.getShipInfo().getShipId() == 82) || (s.getShipInfo().getShipId() == 88) // 伊勢改 || 日向改
+                    || (s.getShipInfo().getShipId() == 148) || (s.getShipInfo().getShipId() == 546)) // 武蔵改 || 武蔵改二
+                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getId() == 274)) // 12cm30連装噴進砲改二
+                    && s.getItem().stream().anyMatch(i -> (i != null) && i.isAntiAirRadar()) // 対空電探
     ),
 
     ;

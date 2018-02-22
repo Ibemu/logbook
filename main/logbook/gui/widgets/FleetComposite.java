@@ -509,7 +509,10 @@ public class FleetComposite extends Composite {
                 this.aaciLabels[i].setForeground(null);
             } else {
                 this.aaciLabels[i].setText("対空CI:" +
-                        aacis.stream().max(Comparator.comparing(AntiAirCutInKind::getBasicBonus)).get().getShortName());
+                        aacis.stream()
+                                .max(Comparator.comparing(AntiAirCutInKind::getBasicBonus)
+                                        .thenComparing(AntiAirCutInKind::getAdditionalBonusRatio))
+                                .get().getShortName());
                 this.aaciLabels[i].setEnabled(true);
                 this.aaciLabels[i].setForeground(SWTResourceManager.getColor(AppConstants.COND_GREEN_COLOR));
             }
