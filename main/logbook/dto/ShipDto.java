@@ -887,62 +887,67 @@ public final class ShipDto extends AbstractDto {
     public boolean canTsbk() {
         if (this.getType() != null) {
             List<ItemDto> items = this.getItem();
-            boolean plane = false;
             boolean sonar = false;
             long tais = this.getTaisen();
-            switch (this.getType()) {
-            case "軽空母":
-                if ("大鷹".equals(this.getName())) {
-                    for (ItemDto item : items) {
-                        if ((item != null)
-                                && ("九七式艦攻(九三一空)".equals(item.getName()) || "天山(九三一空)".equals(item.getName()))
-                                && (tais >= 65)) {
+            switch (this.getName()) {
+            case "五十鈴改二":
+            case "龍田改二":
+            case "Jervis改":
+                return true;
+            case "Gambier Bay":
+            case "Gambier Bay改":
+                if (tais >= 50)
+                    for (ItemDto i : items) {
+                        if (i == null)
+                            continue;
+                        switch (i.getType2()) {
+                        case 40: //大型ソナー
                             return true;
                         }
                     }
-                } else if (("大鷹改".equals(this.getName()) || "大鷹改二".equals(this.getName())) && (tais >= 65)
-                        && items.stream().anyMatch(i -> (i != null) && (i.getTais() > 0))) {
-                    return true;
-                }
-                // FALL THROUGH
-            case "航空巡洋艦":
-            case "航空戦艦":
-            case "水上機母艦":
-            case "揚陸艦":
-                if (tais < 100)
-                    return false;
-                for (ItemDto item : items) {
-                    if (item != null) {
-                        switch (item.getType2()) {
-                        case 7: //艦爆
-                        case 8: //艦攻
-                        case 11: //水爆
+                if (!"Gambier Bay改".equals(this.getName()))
+                    break;
+            case "大鷹":
+            case "瑞鳳改二乙":
+                if (tais >= 65)
+                    for (ItemDto i : items) {
+                        if (i == null)
+                            continue;
+                        switch (i.getType2()) {
+                        case 7: //艦上爆撃機
+                        case 8: //艦上攻撃機
+                            if (i.getTais() >= 7)
+                                return true;
+                            break;
                         case 25: //オートジャイロ
                         case 26: //対潜哨戒機
-                        case 47: //陸上攻撃機
-                        case 57: //噴式戦闘爆撃機
-                        case 58: //噴式攻撃機
-                        case 41: //大型飛行艇
-                            if (item.getTais() > 0) {
-                                plane = true;
-                            }
-                            break;
-                        case 14: //ソナー
-                        case 40: //大型ソナー
-                            sonar = true;
+                            return true;
                         }
                     }
+                break;
+            case "大鷹改":
+            case "大鷹改二":
+                for (ItemDto i : items) {
+                    if (i == null)
+                        continue;
+                    switch (i.getType2()) {
+                    case 7: //艦上爆撃機
+                    case 8: //艦上攻撃機
+                        if (i.getTais() >= 1)
+                            return true;
+                        break;
+                    case 25: //オートジャイロ
+                    case 26: //対潜哨戒機
+                        return true;
+                    }
                 }
-                return sonar && plane;
-
+                break;
+            }
+            switch (this.getType()) {
             case "軽巡洋艦":
-                if ("五十鈴改二".equals(this.getName()))
-                    return true;
-                // FALL THROUGH
             case "駆逐艦":
             case "重雷装巡洋艦":
             case "練習巡洋艦":
-            case "補給艦":
                 if (tais < 100)
                     return false;
                 for (ItemDto item : items) {
