@@ -26,7 +26,7 @@ public class AppConstants {
     public static final String NAME_PLUS = "航海日誌+";
 
     /** バージョン */
-    public static final Version VERSION_PLUS = new Version(1, 6, 4);
+    public static final Version VERSION_PLUS = new Version(1, 6, 5);
 
     /** バージョン */
     public static final String VERSION_FULL = VERSION + "+" + VERSION_PLUS.toStringFull();
