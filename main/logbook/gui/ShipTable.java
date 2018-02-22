@@ -288,6 +288,7 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
                 b.setSlot2(d.getSlot().get(1));
                 b.setSlot3(d.getSlot().get(2));
                 b.setSlot4(d.getSlot().get(3));
+                b.setSlot5(d.getSlot().get(4));
                 b.setSlot6(d.getSlot().get(5));
                 b.setNowHp(d.getNowhp());
                 b.setMaxHp(d.getMaxhp());
@@ -353,6 +354,7 @@ public final class ShipTable extends AbstractTableDialogEx<ShipBean> {
                 b.setSlot2(d.getSlot().get(1));
                 b.setSlot3(d.getSlot().get(2));
                 b.setSlot4(d.getSlot().get(3));
+                b.setSlot5(d.getSlot().get(4));
                 b.setSlot6(d.getSlot().get(5));
                 b.setNowHp(d.getNowhp());
                 b.setMaxHp(d.getMaxhp());

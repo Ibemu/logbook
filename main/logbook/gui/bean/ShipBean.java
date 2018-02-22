@@ -69,6 +69,10 @@ public class ShipBean {
     @Name("装備4")
     private String slot4;
 
+    /** 装備5 */
+    @Name("装備5")
+    private String slot5;
+
     /** 補強増設 */
     @Name("補強増設")
     private String slot6;
@@ -386,6 +390,22 @@ public class ShipBean {
      */
     public void setSlot4(String slot4) {
         this.slot4 = slot4;
+    }
+
+    /**
+     * 装備5を取得します。
+     * @return 装備5
+     */
+    public String getSlot5() {
+        return this.slot5;
+    }
+
+    /**
+     * 装備5を設定します。
+     * @param slot5 装備5
+     */
+    public void setSlot5(String slot5) {
+        this.slot5 = slot5;
     }
 
     /**
