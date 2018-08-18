@@ -153,13 +153,9 @@ public enum DataType {
     /** 任務消化 */
     QUEST_CLEAR("/kcsapi/api_req_quest/clearitemget"),
 
-    // ---------- api_req_ranking ----------
-    /** ランキング */
-    RANKING("/kcsapi/api_req_ranking/getlist"),
-
     // ---------- api_start2 ----------
     /** 設定 */
-    START2("/kcsapi/api_start2"),
+    START2("/kcsapi/api_start2/getData"),
 
     // ---------- UNDEFINED ----------
     /** フィルタ前のデータ */
