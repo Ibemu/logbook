@@ -630,7 +630,7 @@ public final class GlobalContext {
 
             if (dockdto != null) {
 
-                if ((shipid == -2L) && (shipidx == -1)) {
+                if (shipid == -2L) {
                     // 旗艦以外解除
                     dockdto.removeOthers();
                 } else if (shipid == -1L) {
