@@ -157,15 +157,51 @@ public enum AntiAirCutInKind {
                     && s.getItem().stream().anyMatch(i -> (i != null) && (i.getType3() == 12)) // 三式弾
     ),
 
-    NONE_26(26, "なし", "なし", 0, 0, s -> false),
+    MUSASHI_HR(26, "武蔵改二／10cm連装高角砲改＋増設機銃・対空電探", "武6", 6, 1.4,
+            s -> (s.getShipInfo().getShipId() == 546) // 武蔵改二
+                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getId() == 275)) // 10cm連装高角砲改＋増設機銃
+                    && s.getItem().stream().anyMatch(i -> (i != null) && i.isAntiAirRadar()) // 対空電探
+    ),
 
     NONE_27(27, "なし", "なし", 0, 0, s -> false),
 
-    ISE_GR(28, "伊勢型改・武蔵改／12cm30連装噴進砲改二・対空電探", "伊4", 7, 1.4,
+    ISE_GR(28, "伊勢型改・武蔵改／12cm30連装噴進砲改二・対空電探", "伊4", 4, 1.4,
             s -> ((s.getShipInfo().getShipId() == 82) || (s.getShipInfo().getShipId() == 88) // 伊勢改 || 日向改
                     || (s.getShipInfo().getShipId() == 148) || (s.getShipInfo().getShipId() == 546)) // 武蔵改 || 武蔵改二
                     && s.getItem().stream().anyMatch(i -> (i != null) && (i.getId() == 274)) // 12cm30連装噴進砲改二
                     && s.getItem().stream().anyMatch(i -> (i != null) && i.isAntiAirRadar()) // 対空電探
+    ),
+
+    ISOKAZE_HR(29, "磯風乙改・浜風乙改／高角砲・対空電探", "磯5", 5, 1.55,
+            s -> ((s.getShipInfo().getShipId() == 557) || (s.getShipInfo().getShipId() == 558)) // 磯風乙改 || 浜風乙改
+                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getType3() == 16)) // 高角砲
+                    && s.getItem().stream().anyMatch(i -> (i != null) && i.isAntiAirRadar()) // 対空電探
+    ),
+
+    TENRYU_HHH(30, "天龍改二／高角砲・高角砲・高角砲", "天3", 3, 1.3,
+            s -> (s.getShipInfo().getShipId() == 477) // 天龍改二
+                    && (s.getItem().stream().filter(i -> (i != null) && (i.getType3() == 16)).count() >= 3) // 高角砲x3
+    ),
+
+    TENRYU_HH(31, "天龍改二／高角砲・高角砲", "天2", 2, 1.2,
+            s -> (s.getShipInfo().getShipId() == 477) // 天龍改二
+                    && (s.getItem().stream().filter(i -> (i != null) && (i.getType3() == 16)).count() >= 2) // 高角砲x2
+    ),
+
+    HMS_CG_CM(32, "HMS・金剛型改二／QF 2ポンド8連装ポンポン砲・（16inch Mk.I三連装砲改+FCR type284｜20連装7inch UP Rocket Launchers）", "H3", 3, 1.2,
+            s -> ((s.getShipInfo().getClassType() == 67) || (s.getShipInfo().getClassType() == 78) // Queen Elizabeth級 || Ark Royal級
+                    || (s.getShipInfo().getClassType() == 82) || (s.getShipInfo().getClassType() == 88) // J級 || Nelson級
+                    || (s.getShipInfo().getShipId() == 149) || (s.getShipInfo().getShipId() == 150) // 金剛改二 || 比叡改二
+                    || (s.getShipInfo().getShipId() == 151) || (s.getShipInfo().getShipId() == 152)) // 榛名改二 || 霧島改二
+                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getId() == 191)) // QF 2ポンド8連装ポンポン砲
+                    && (s.getItem().stream().anyMatch(i -> (i != null) && (i.getId() == 300)) // 16inch Mk.I三連装砲改+FCR type284
+                        || s.getItem().stream().anyMatch(i -> (i != null) && (i.getId() == 301))) // 20連装7inch UP Rocket Launchers
+    ),
+
+    GOTLAND_HG(33, "Gotland改／高角砲・機銃", "G3", 3, 1.35,
+            s -> (s.getShipInfo().getShipId() == 579) // Gotland改
+                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getType3() == 16)) // 高角砲
+                    && s.getItem().stream().anyMatch(i -> (i != null) && (i.getType3() == 15)) // 機銃
     ),
 
     ;
