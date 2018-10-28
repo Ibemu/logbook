@@ -293,9 +293,9 @@ public final class BattleDto extends AbstractDto {
 
         if (this.enemyCombined) {
             this.searchDamageEc(object, night && (this.friendCombined != 0) && (this.friendActiveDeck == 2),
-                    !nightToDay && night && (this.enemyActiveDeck == 2));
+                    !nightToDay && night && (this.enemyActiveDeck == 2), false);
         } else {
-            this.searchDamage(object, night && (this.friendCombined != 0));
+            this.searchDamage(object, night && (this.friendCombined != 0), false);
         }
 
         if (object.containsKey("api_formation")) {
@@ -543,19 +543,19 @@ public final class BattleDto extends AbstractDto {
         }
     }
 
-    private void searchDamage(JsonObject object, boolean comb) {
+    private void searchDamage(JsonObject object, boolean comb, boolean friendly) {
         for (JsonObject.Entry<String, JsonValue> e : object.entrySet()) {
-            if ("api_friendly_battle".equals(e.getKey()))
-                continue;
             if ("api_fdam".equals(e.getKey())) {
                 JsonArray fdam = (JsonArray) e.getValue();
                 for (int i = 0; i < fdam.size(); i++) {
-                    if (comb) {
-                        this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, fdam.getJsonNumber(i).intValue());
-                    } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
-                        this.damage(DockType.FRIEND2, i - 6, fdam.getJsonNumber(i).intValue());
-                    } else {
-                        this.damage(DockType.FRIEND1, i, fdam.getJsonNumber(i).intValue());
+                    if(!friendly) {
+                        if (comb) {
+                            this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, fdam.getJsonNumber(i).intValue());
+                        } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
+                            this.damage(DockType.FRIEND2, i - 6, fdam.getJsonNumber(i).intValue());
+                        } else {
+                            this.damage(DockType.FRIEND1, i, fdam.getJsonNumber(i).intValue());
+                        }
                     }
                 }
             } else if ("api_edam".equals(e.getKey())) {
@@ -573,12 +573,14 @@ public final class BattleDto extends AbstractDto {
                     switch (v.getValueType()) {
                     case NUMBER:
                         if (eflg) {
-                            if (comb) {
-                                this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, ((JsonNumber) v).intValue());
-                            } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
-                                this.damage(DockType.FRIEND2, i - 6, ((JsonNumber) v).intValue());
-                            } else {
-                                this.damage(DockType.FRIEND1, i, ((JsonNumber) v).intValue());
+                            if(!friendly) {
+                                if (comb) {
+                                    this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, ((JsonNumber) v).intValue());
+                                } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
+                                    this.damage(DockType.FRIEND2, i - 6, ((JsonNumber) v).intValue());
+                                } else {
+                                    this.damage(DockType.FRIEND1, i, ((JsonNumber) v).intValue());
+                                }
                             }
                         } else {
                             this.damage(DockType.ENEMY1, i, ((JsonNumber) v).intValue());
@@ -604,13 +606,15 @@ public final class BattleDto extends AbstractDto {
                                 this.damage(DockType.ENEMY1, idx - 6, dm.getJsonNumber(j).intValue());
                             }*/
                             if (eflg) {
-                                if (comb) {
-                                    this.damage(DockType.FRIEND2, idx < 6 ? idx : idx - 6,
-                                            dm.getJsonNumber(j).intValue());
-                                } else if ((this.friends.get(0).size() < 7) && (idx >= 6)) {
-                                    this.damage(DockType.FRIEND2, idx - 6, dm.getJsonNumber(j).intValue());
-                                } else {
-                                    this.damage(DockType.FRIEND1, idx, dm.getJsonNumber(j).intValue());
+                                if(!friendly) {
+                                    if (comb) {
+                                        this.damage(DockType.FRIEND2, idx < 6 ? idx : idx - 6,
+                                                dm.getJsonNumber(j).intValue());
+                                    } else if ((this.friends.get(0).size() < 7) && (idx >= 6)) {
+                                        this.damage(DockType.FRIEND2, idx - 6, dm.getJsonNumber(j).intValue());
+                                    } else {
+                                        this.damage(DockType.FRIEND1, idx, dm.getJsonNumber(j).intValue());
+                                    }
                                 }
                             } else {
                                 this.damage(DockType.ENEMY1, idx, dm.getJsonNumber(j).intValue());
@@ -631,39 +635,39 @@ public final class BattleDto extends AbstractDto {
                                 ((this.friendCombined == 2) && conb2.contains(e.getKey())) ||
                                 ((this.friendCombined == 3) && conb3.contains(e.getKey())));
                 if (e.getValue() instanceof JsonObject) {
-                    this.searchDamage((JsonObject) e.getValue(), c);
+                    this.searchDamage((JsonObject) e.getValue(), c, friendly || "api_friendly_battle".equals(e.getKey()));
                 } else if (e.getValue() instanceof JsonArray) {
-                    this.searchDamageArray((JsonArray) e.getValue(), c);
+                    this.searchDamageArray((JsonArray) e.getValue(), c, friendly || "api_friendly_battle".equals(e.getKey()));
                 }
             }
         }
     }
 
-    private void searchDamageArray(JsonArray array, boolean comb) {
+    private void searchDamageArray(JsonArray array, boolean comb, boolean friendly) {
         for (JsonValue v : array) {
             if (v instanceof JsonObject) {
-                this.searchDamage((JsonObject) v, comb);
+                this.searchDamage((JsonObject) v, comb, friendly);
             } else if (v instanceof JsonArray) {
-                this.searchDamageArray((JsonArray) v, comb);
+                this.searchDamageArray((JsonArray) v, comb, friendly);
             }
         }
     }
 
-    private void searchDamageEc(JsonObject object, boolean fcomb, boolean ecomb) {
+    private void searchDamageEc(JsonObject object, boolean fcomb, boolean ecomb, boolean friendly) {
         for (JsonObject.Entry<String, JsonValue> e : object.entrySet()) {
             if (ValueType.NULL.equals(e.getValue().getValueType()))
-                continue;
-            if ("api_friendly_battle".equals(e.getKey()))
                 continue;
             if ("api_fdam".equals(e.getKey())) {
                 JsonArray fdam = (JsonArray) e.getValue();
                 for (int i = 0; i < fdam.size(); i++) {
-                    if (fcomb) {
-                        this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, fdam.getJsonNumber(i).intValue());
-                    } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
-                        this.damage(DockType.FRIEND2, i - 6, fdam.getJsonNumber(i).intValue());
-                    } else {
-                        this.damage(DockType.FRIEND1, i, fdam.getJsonNumber(i).intValue());
+                    if(!friendly) {
+                        if (fcomb) {
+                            this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, fdam.getJsonNumber(i).intValue());
+                        } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
+                            this.damage(DockType.FRIEND2, i - 6, fdam.getJsonNumber(i).intValue());
+                        } else {
+                            this.damage(DockType.FRIEND1, i, fdam.getJsonNumber(i).intValue());
+                        }
                     }
                 }
             } else if ("api_edam".equals(e.getKey())) {
@@ -687,12 +691,14 @@ public final class BattleDto extends AbstractDto {
                     switch (v.getValueType()) {
                     case NUMBER:
                         if (eflg) {
-                            if (fcomb) {
-                                this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, ((JsonNumber) v).intValue());
-                            } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
-                                this.damage(DockType.FRIEND2, i - 6, ((JsonNumber) v).intValue());
-                            } else {
-                                this.damage(DockType.FRIEND1, i, ((JsonNumber) v).intValue());
+                            if(!friendly) {
+                                if (fcomb) {
+                                    this.damage(DockType.FRIEND2, i < 6 ? i : i - 6, ((JsonNumber) v).intValue());
+                                } else if ((this.friends.get(0).size() < 7) && (i >= 6)) {
+                                    this.damage(DockType.FRIEND2, i - 6, ((JsonNumber) v).intValue());
+                                } else {
+                                    this.damage(DockType.FRIEND1, i, ((JsonNumber) v).intValue());
+                                }
                             }
                         } else {
                             if (ecomb) {
@@ -712,13 +718,15 @@ public final class BattleDto extends AbstractDto {
                             if (idx < 0)
                                 continue;
                             if (eflg) {
-                                if (fcomb) {
-                                    this.damage(DockType.FRIEND2, idx < 6 ? idx : idx - 6,
-                                            dm.getJsonNumber(j).intValue());
-                                } else if ((this.friends.get(0).size() < 7) && (idx >= 6)) {
-                                    this.damage(DockType.FRIEND2, idx - 6, dm.getJsonNumber(j).intValue());
-                                } else {
-                                    this.damage(DockType.FRIEND1, idx, dm.getJsonNumber(j).intValue());
+                                if(!friendly) {
+                                    if (fcomb) {
+                                        this.damage(DockType.FRIEND2, idx < 6 ? idx : idx - 6,
+                                                dm.getJsonNumber(j).intValue());
+                                    } else if ((this.friends.get(0).size() < 7) && (idx >= 6)) {
+                                        this.damage(DockType.FRIEND2, idx - 6, dm.getJsonNumber(j).intValue());
+                                    } else {
+                                        this.damage(DockType.FRIEND1, idx, dm.getJsonNumber(j).intValue());
+                                    }
                                 }
                             } else {
                                 if (ecomb) {
@@ -739,20 +747,20 @@ public final class BattleDto extends AbstractDto {
             } else {
                 boolean c = ((e.getKey() != null) && e.getKey().contains("_combined"));
                 if (e.getValue() instanceof JsonObject) {
-                    this.searchDamageEc((JsonObject) e.getValue(), c || fcomb, c || ecomb);
+                    this.searchDamageEc((JsonObject) e.getValue(), c || fcomb, c || ecomb, friendly || "api_friendly_battle".equals(e.getKey()));
                 } else if (e.getValue() instanceof JsonArray) {
-                    this.searchDamageArrayEc((JsonArray) e.getValue(), c || fcomb, c || ecomb);
+                    this.searchDamageArrayEc((JsonArray) e.getValue(), c || fcomb, c || ecomb, friendly || "api_friendly_battle".equals(e.getKey()));
                 }
             }
         }
     }
 
-    private void searchDamageArrayEc(JsonArray array, boolean fcomb, boolean ecomb) {
+    private void searchDamageArrayEc(JsonArray array, boolean fcomb, boolean ecomb, boolean friendly) {
         for (JsonValue v : array) {
             if (v instanceof JsonObject) {
-                this.searchDamageEc((JsonObject) v, fcomb, ecomb);
+                this.searchDamageEc((JsonObject) v, fcomb, ecomb, friendly);
             } else if (v instanceof JsonArray) {
-                this.searchDamageArrayEc((JsonArray) v, fcomb, ecomb);
+                this.searchDamageArrayEc((JsonArray) v, fcomb, ecomb, friendly);
             }
         }
     }
